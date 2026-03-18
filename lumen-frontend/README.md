@@ -1,27 +1,37 @@
-# LumenFrontend
+# Lumen Hermandades - Frontend (rápido)
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.2.16.
+Este README es la versión corta para arrancar sin líos.
 
-## Development server
+## Stack
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+- Angular
+- Bootstrap
+- Angular Material
 
-## Code scaffolding
+## Comandos
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Desde la carpeta `lumen-frontend`:
 
-## Build
+```bash
+npm install
+npm start
+```
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+Frontend en:
 
-## Running unit tests
+- `http://localhost:4200`
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## Dónde mirar el código
 
-## Running end-to-end tests
+- `src/app/core/models` → interfaces
+- `src/app/core/services` → llamadas HTTP
+- `src/app/features` → pantallas
+- `src/environments` → `apiUrl` por entorno
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+## Nota de equipo
 
-## Further help
+Si algo no carga, revisad primero:
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+1. Que backend esté levantado en `8080`.
+2. Que `apiUrl` en `environment.ts` apunte bien.
+3. Que la base de datos local esté operativa.

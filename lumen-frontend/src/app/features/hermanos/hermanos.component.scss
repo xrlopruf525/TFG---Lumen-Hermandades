@@ -1,0 +1,31 @@
+.lumen-title {
+  margin: 0;
+  color: #3a0f1a;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.card {
+  border: 1px solid #d7d1d3;
+}
+
+thead th {
+  background-color: #101826;
+  color: #f5f3f4;
+}
+
+.btn-success {
+  background-color: #5a1323;
+  border-color: #5a1323;
+}
+
+.btn-success:hover,
+.btn-success:focus {
+  background-color: #46101b;
+  border-color: #46101b;
+}
+
+table td,
+table th {
+  vertical-align: middle;
+}

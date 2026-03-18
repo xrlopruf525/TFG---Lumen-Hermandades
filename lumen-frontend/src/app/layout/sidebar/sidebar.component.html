@@ -1,0 +1,19 @@
+<aside class="sidebar d-flex flex-column p-3">
+  <h5 class="text-white mb-4">Lumen Hermandades</h5>
+
+  <a routerLink="/inicio" routerLinkActive="active-link" class="btn btn-light btn-lg w-100 text-start mb-3">
+    Inicio
+  </a>
+
+  <a
+    *ngIf="esAdmin"
+    routerLink="/hermanos"
+    routerLinkActive="active-link"
+    class="btn btn-light btn-lg w-100 text-start mb-3">
+    Hermanos
+  </a>
+
+  <a routerLink="/calendario" routerLinkActive="active-link" class="btn btn-light btn-lg w-100 text-start">
+    Calendario
+  </a>
+</aside>

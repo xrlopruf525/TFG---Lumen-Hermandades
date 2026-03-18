@@ -9,6 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/hermanos")
+@CrossOrigin(origins = "http://localhost:4200")
 public class HermanoController {
     @Autowired
     private HermanoService hermanoService;
