@@ -1,0 +1,7 @@
+# Node dependencies
+node_modules/
+# Angular build output
+dist/
+# Logs y entorno
+npm-debug.log
+.env
