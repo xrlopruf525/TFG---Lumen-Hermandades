@@ -2,9 +2,15 @@ import { Component, OnInit } from '@angular/core';
 
 import { Hermano } from '../../core/models/hermano.model';
 import { HermanoService } from '../../core/services/hermano.service';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatIconModule } from '@angular/material/icon';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-hermanos',
+  standalone: true,
+  imports: [CommonModule, FormsModule, MatPaginatorModule, MatIconModule],
   templateUrl: './hermanos.component.html',
   styleUrls: ['./hermanos.component.scss']
 })
@@ -86,4 +92,9 @@ export class HermanosComponent implements OnInit {
       numeroHermano: null
     };
   }
+
+  handlePage(event: PageEvent) {
+  this.pageIndex = event.pageIndex;
+  this.pageSize = event.pageSize;
+}
 }
