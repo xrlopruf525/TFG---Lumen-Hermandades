@@ -1,7 +1,7 @@
 .app-shell {
-	min-height: 100vh;
+  min-height: calc(100vh - 56px);
 }
 
 .content-area {
-	background-color: #f8f9fa;
+  background: #fafbff;
 }
