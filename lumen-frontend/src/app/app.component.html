@@ -1,10 +1,18 @@
-<div class="container-fluid p-0">
-  <div class="row g-0 app-shell">
-    <div class="col-12 col-md-3 col-lg-2">
-      <app-sidebar></app-sidebar>
-    </div>
-    <div class="col-12 col-md-9 col-lg-10 content-area">
-      <router-outlet></router-outlet>
+<ng-container *ngIf="!isAuthRoute; else authView">
+  <app-navbar></app-navbar>
+
+  <div class="container-fluid p-0">
+    <div class="row g-0 app-shell">
+      <div class="col-12 col-md-3 col-lg-2">
+        <app-sidebar></app-sidebar>
+      </div>
+      <div class="col-12 col-md-9 col-lg-10 content-area">
+        <router-outlet></router-outlet>
+      </div>
     </div>
   </div>
-</div>
+</ng-container>
+
+<ng-template #authView>
+  <router-outlet></router-outlet>
+</ng-template>

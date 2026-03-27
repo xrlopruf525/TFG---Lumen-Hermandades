@@ -1,29 +1,34 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { CalendarioComponent } from './features/calendario/calendario.component';
-import { InicioComponent } from './features/inicio/inicio.component';
+
+import { AuthGuard } from './core/guards/auth.guard';
+import { DashboardComponent } from './features/dashboard/dashboard.component';
+import { HermanosComponent } from './features/hermanos/hermanos.component';
+import { LoginComponent } from './features/login/login.component';
 
 const routes: Routes = [
   {
-    path: 'inicio',
-    component: InicioComponent
+    path: 'login',
+    component: LoginComponent
+  },
+  {
+    path: 'dashboard',
+    component: DashboardComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'hermanos',
-    loadChildren: () => import('./features/hermanos/hermanos.module').then((m) => m.HermanosModule)
-  },
-  {
-    path: 'calendario',
-    component: CalendarioComponent
+    component: HermanosComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: '',
-    redirectTo: 'inicio',
+    redirectTo: 'dashboard',
     pathMatch: 'full'
   },
   {
     path: '**',
-    redirectTo: 'inicio'
+    redirectTo: 'dashboard'
   }
 ];
 
@@ -31,4 +36,4 @@ const routes: Routes = [
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}
