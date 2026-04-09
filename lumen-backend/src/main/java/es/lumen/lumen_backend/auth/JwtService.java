@@ -1,4 +1,4 @@
-package es.lumen.lumen_backend.security;
+package es.lumen.lumen_backend.auth;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
