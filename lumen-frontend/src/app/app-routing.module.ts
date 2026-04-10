@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { AuthGuard } from './core/guards/auth.guard';
 import { HermanoFormComponent } from './components/hermano-form/hermano-form.component';
+import { MiPerfilComponent } from './components/mi-perfil/mi-perfil.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { HermanosComponent } from './features/hermanos/hermanos.component';
 import { LoginComponent } from './features/login/login.component';
@@ -30,6 +31,11 @@ const routes: Routes = [
   {
     path: 'hermanos',
     component: HermanosComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'mi-perfil',
+    component: MiPerfilComponent,
     canActivate: [AuthGuard]
   },
   {
