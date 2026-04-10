@@ -5,8 +5,8 @@
   border-radius: 20px;
   border: 1px solid rgba(229, 231, 235, 0.16);
   background:
-    linear-gradient(135deg, rgba(124, 58, 237, 0.62) 0%, rgba(51, 65, 85, 0.76) 48%, rgba(251, 191, 36, 0.38) 100%);
-  box-shadow: 0 14px 28px rgba(12, 20, 38, 0.34);
+    linear-gradient(135deg, rgba(124, 58, 237, 0.56) 0%, rgba(71, 85, 105, 0.68) 48%, rgba(251, 191, 36, 0.34) 100%);
+  box-shadow: 0 10px 24px rgba(30, 41, 59, 0.24);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   color: #e5e7eb;
@@ -37,7 +37,7 @@
 .brand-block p {
   margin: 0;
   font-size: 0.75rem;
-  color: #e2e8f0;
+  color: #f1f5f9;
 }
 
 .nav-logout {
