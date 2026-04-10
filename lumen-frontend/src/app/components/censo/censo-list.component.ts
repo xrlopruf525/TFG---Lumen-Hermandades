@@ -1,17 +1,18 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
 import { Hermano } from '../../models/hermano.model';
 import { HermanoService } from '../../services/hermano.service';
 
 type SortDirection = 'asc' | 'desc';
-type SortableColumn = 'nombre' | 'apellidos' | 'dni' | 'telefono_movil' | 'email' | 'estado';
+type SortableColumn = 'nombre' | 'apellidos' | 'email' | 'numeroHermano' | 'fechaAlta';
 
 @Component({
   selector: 'app-censo-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './censo-list.component.html',
   styleUrls: ['./censo-list.component.scss']
 })
@@ -86,7 +87,7 @@ export class CensoListComponent implements OnInit {
         return true;
       }
 
-      const nombreCompleto = `${hermano.nombre ?? ''} ${hermano.primer_apellido ?? ''} ${hermano.segundo_apellido ?? ''}`.toLowerCase();
+      const nombreCompleto = `${hermano.nombre ?? ''} ${hermano.apellidos ?? ''}`.toLowerCase();
       return nombreCompleto.includes(normalizedTerm);
     });
 
@@ -106,19 +107,11 @@ export class CensoListComponent implements OnInit {
     });
   }
 
-  private normalizeSortableValue(value: string | number | undefined): string {
+  private normalizeSortableValue(value: string | number | Date | undefined): string {
     return String(value ?? '').toLowerCase();
   }
 
-  private getColumnValue(hermano: Hermano, column: SortableColumn): string | number | undefined {
-    if (column === 'apellidos') {
-      return `${hermano.primer_apellido ?? ''} ${hermano.segundo_apellido ?? ''}`.trim();
-    }
-
-    if (column === 'telefono_movil') {
-      return hermano.telefono_movil;
-    }
-
+  private getColumnValue(hermano: Hermano, column: SortableColumn): string | number | Date | undefined {
     return hermano[column];
   }
 }

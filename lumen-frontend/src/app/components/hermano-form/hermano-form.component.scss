@@ -1,0 +1,109 @@
+:host {
+  display: block;
+}
+
+.hermano-form {
+  background: #ffffff;
+  border: 1px solid #d8dee6;
+  border-radius: 10px;
+  padding: 1rem;
+  margin: 1rem;
+}
+
+.hermano-form__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.hermano-form__header h2 {
+  margin: 0;
+  color: #1a2b47;
+  font-size: 1.25rem;
+}
+
+.hermano-form__header p {
+  margin: 0.25rem 0 0;
+  color: #5f6b7a;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.9rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.field label {
+  margin-bottom: 0.35rem;
+  color: #27384f;
+  font-weight: 600;
+}
+
+.field input,
+.field select {
+  border: 1px solid #c7ced8;
+  border-radius: 8px;
+  padding: 0.55rem 0.75rem;
+  color: #223248;
+}
+
+.actions {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.btn-primary,
+.btn-secondary {
+  border-radius: 8px;
+  padding: 0.5rem 0.85rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: #1d3b64;
+  color: #ffffff;
+  border-color: #1d3b64;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background: #142a48;
+  border-color: #142a48;
+}
+
+.btn-secondary {
+  background: #f4f7fb;
+  border-color: #c7ced8;
+  color: #223248;
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus {
+  background: #e9eff7;
+}
+
+.error {
+  color: #b42318;
+  margin-top: 0.25rem;
+}
+
+.message {
+  margin-top: 1rem;
+}
+
+.message--success {
+  color: #0b7d3f;
+}
+
+.message--error {
+  color: #b42318;
+}

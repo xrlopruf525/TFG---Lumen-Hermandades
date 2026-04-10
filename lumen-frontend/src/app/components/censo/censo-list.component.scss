@@ -15,6 +15,13 @@
   color: #1a2b47;
 }
 
+.censo-list__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
 .censo-list__header p {
   margin: 0.25rem 0 1rem;
   color: #5f6b7a;
@@ -74,6 +81,8 @@ th button {
 }
 
 .action-btn {
+  display: inline-block;
+  text-decoration: none;
   border: 1px solid #cfd6df;
   background: #f8fafc;
   border-radius: 6px;
@@ -81,6 +90,24 @@ th button {
   margin-right: 0.4rem;
   color: #6b7686;
   font-size: 0.82rem;
+}
+
+.btn-new {
+  background: #1d3b64;
+  color: #ffffff;
+  text-decoration: none;
+  border: 1px solid #1d3b64;
+  border-radius: 8px;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.btn-new:hover,
+.btn-new:focus {
+  background: #142a48;
+  border-color: #142a48;
+  color: #ffffff;
 }
 
 .empty-state,
