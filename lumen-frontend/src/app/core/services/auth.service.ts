@@ -22,6 +22,15 @@ export class AuthService {
   constructor(private readonly http: HttpClient) {}
 
   login(usuario: string, password: string): Observable<string> {
+    if (environment.enableDevAuthBypass) {
+      const devToken = `dev-token-${usuario || 'user'}`;
+      localStorage.setItem(this.tokenKey, devToken);
+      return new Observable<string>((subscriber) => {
+        subscriber.next(devToken);
+        subscriber.complete();
+      });
+    }
+
     const payload: LoginRequest = { usuario, password };
 
     return this.http.post<LoginResponse>(`${environment.apiUrl}/login`, payload).pipe(
