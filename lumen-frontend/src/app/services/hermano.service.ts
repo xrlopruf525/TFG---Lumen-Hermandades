@@ -28,6 +28,10 @@ export class HermanoService {
     return this.http.get<Hermano>(`${this.baseUrl}/${id}`);
   }
 
+  getMiPerfil(): Observable<Hermano> {
+    return this.http.get<Hermano>(`${this.baseUrl}/me`);
+  }
+
   createHermano(hermano: HermanoUpsertPayload): Observable<Hermano> {
     return this.http.post<Hermano>(`${this.baseUrl}/guardar`, hermano);
   }
