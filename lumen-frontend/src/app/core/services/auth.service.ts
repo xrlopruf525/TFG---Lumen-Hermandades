@@ -18,6 +18,7 @@ interface LoginResponse {
 })
 export class AuthService {
   private readonly tokenKey = 'auth_token';
+  private readonly authUserIdKey = 'auth_user_id';
 
   constructor(private readonly http: HttpClient) {}
 
@@ -25,6 +26,11 @@ export class AuthService {
     if (environment.enableDevAuthBypass) {
       const devToken = `dev-token-${usuario || 'user'}`;
       localStorage.setItem(this.tokenKey, devToken);
+      const parsedId = Number(usuario);
+      if (!Number.isNaN(parsedId) && parsedId > 0) {
+        localStorage.setItem(this.authUserIdKey, String(parsedId));
+      }
+
       return new Observable<string>((subscriber) => {
         subscriber.next(devToken);
         subscriber.complete();
@@ -46,6 +52,7 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.authUserIdKey);
   }
 
   getToken(): string | null {
@@ -54,5 +61,33 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     return !!this.getToken();
+  }
+
+  getAuthenticatedHermanoId(): number | null {
+    const stored = localStorage.getItem(this.authUserIdKey);
+    if (stored) {
+      const parsedStored = Number(stored);
+      if (!Number.isNaN(parsedStored) && parsedStored > 0) {
+        return parsedStored;
+      }
+    }
+
+    if (environment.enableDevAuthBypass) {
+      const token = this.getToken();
+      const match = token?.match(/dev-token-(\d+)/);
+      if (match?.[1]) {
+        const parsedFromToken = Number(match[1]);
+        if (!Number.isNaN(parsedFromToken) && parsedFromToken > 0) {
+          return parsedFromToken;
+        }
+      }
+
+      const fallback = Number(environment.simulatedHermanoId);
+      if (!Number.isNaN(fallback) && fallback > 0) {
+        return fallback;
+      }
+    }
+
+    return null;
   }
 }
