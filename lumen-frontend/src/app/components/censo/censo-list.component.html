@@ -1,7 +1,10 @@
 <section class="censo-list">
   <header class="censo-list__header">
-    <h2>Censo de Hermanos</h2>
-    <p>Vista de Junta de Gobierno</p>
+    <div>
+      <h2>Censo de Hermanos</h2>
+      <p>Vista de Junta de Gobierno</p>
+    </div>
+    <a class="btn-new" [routerLink]="['/hermanos/nuevo']">Nuevo hermano</a>
   </header>
 
   <div class="censo-list__controls">
@@ -31,23 +34,18 @@
             </button>
           </th>
           <th>
-            <button type="button" (click)="sortBy('dni')">
-              DNI {{ getSortIcon('dni') }}
-            </button>
-          </th>
-          <th>
-            <button type="button" (click)="sortBy('telefono_movil')">
-              Telefono {{ getSortIcon('telefono_movil') }}
-            </button>
-          </th>
-          <th>
             <button type="button" (click)="sortBy('email')">
               Email {{ getSortIcon('email') }}
             </button>
           </th>
           <th>
-            <button type="button" (click)="sortBy('estado')">
-              Estado {{ getSortIcon('estado') }}
+            <button type="button" (click)="sortBy('numeroHermano')">
+              Numero {{ getSortIcon('numeroHermano') }}
+            </button>
+          </th>
+          <th>
+            <button type="button" (click)="sortBy('fechaAlta')">
+              Fecha alta {{ getSortIcon('fechaAlta') }}
             </button>
           </th>
           <th class="actions-col">Acciones</th>
@@ -56,18 +54,17 @@
       <tbody>
         <tr *ngFor="let hermano of visibleHermanos; trackBy: trackByHermanoId">
           <td>{{ hermano.nombre || '-' }}</td>
-          <td>{{ (hermano.primer_apellido || '') + ((hermano.segundo_apellido ? ' ' + hermano.segundo_apellido : '')) || '-' }}</td>
-          <td>{{ hermano.dni || '-' }}</td>
-          <td>{{ hermano.telefono_movil || '-' }}</td>
+          <td>{{ hermano.apellidos || '-' }}</td>
           <td>{{ hermano.email || '-' }}</td>
-          <td>{{ hermano.estado || '-' }}</td>
+          <td>{{ hermano.numeroHermano || '-' }}</td>
+          <td>{{ hermano.fechaAlta || '-' }}</td>
           <td class="actions-col">
-            <button type="button" class="action-btn" disabled>Editar</button>
+            <a class="action-btn" [routerLink]="['/hermanos/editar', hermano.id]">Editar</a>
             <button type="button" class="action-btn" disabled>Eliminar</button>
           </td>
         </tr>
         <tr *ngIf="visibleHermanos.length === 0">
-          <td colspan="7" class="empty-state">No hay registros para mostrar.</td>
+          <td colspan="6" class="empty-state">No hay registros para mostrar.</td>
         </tr>
       </tbody>
     </table>
