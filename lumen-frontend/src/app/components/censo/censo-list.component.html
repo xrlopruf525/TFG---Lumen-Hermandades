@@ -1,0 +1,81 @@
+<section class="censo-list">
+  <header class="censo-list__header">
+    <h2>Censo de Hermanos</h2>
+    <p>Vista de Junta de Gobierno</p>
+  </header>
+
+  <div class="censo-list__controls">
+    <label for="searchInput">Buscar por nombre/apellidos</label>
+    <input
+      id="searchInput"
+      type="text"
+      [(ngModel)]="searchTerm"
+      (ngModelChange)="onSearchChange()"
+      placeholder="Ej: Juan Garcia"
+      autocomplete="off"
+    >
+  </div>
+
+  <div class="table-wrapper" *ngIf="!loading; else loadingState">
+    <table>
+      <thead>
+        <tr>
+          <th>
+            <button type="button" (click)="sortBy('nombre')">
+              Nombre {{ getSortIcon('nombre') }}
+            </button>
+          </th>
+          <th>
+            <button type="button" (click)="sortBy('apellidos')">
+              Apellidos {{ getSortIcon('apellidos') }}
+            </button>
+          </th>
+          <th>
+            <button type="button" (click)="sortBy('dni')">
+              DNI {{ getSortIcon('dni') }}
+            </button>
+          </th>
+          <th>
+            <button type="button" (click)="sortBy('telefono_movil')">
+              Telefono {{ getSortIcon('telefono_movil') }}
+            </button>
+          </th>
+          <th>
+            <button type="button" (click)="sortBy('email')">
+              Email {{ getSortIcon('email') }}
+            </button>
+          </th>
+          <th>
+            <button type="button" (click)="sortBy('estado')">
+              Estado {{ getSortIcon('estado') }}
+            </button>
+          </th>
+          <th class="actions-col">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let hermano of visibleHermanos; trackBy: trackByHermanoId">
+          <td>{{ hermano.nombre || '-' }}</td>
+          <td>{{ (hermano.primer_apellido || '') + ((hermano.segundo_apellido ? ' ' + hermano.segundo_apellido : '')) || '-' }}</td>
+          <td>{{ hermano.dni || '-' }}</td>
+          <td>{{ hermano.telefono_movil || '-' }}</td>
+          <td>{{ hermano.email || '-' }}</td>
+          <td>{{ hermano.estado || '-' }}</td>
+          <td class="actions-col">
+            <button type="button" class="action-btn" disabled>Editar</button>
+            <button type="button" class="action-btn" disabled>Eliminar</button>
+          </td>
+        </tr>
+        <tr *ngIf="visibleHermanos.length === 0">
+          <td colspan="7" class="empty-state">No hay registros para mostrar.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <ng-template #loadingState>
+    <div class="message">Cargando censo...</div>
+  </ng-template>
+
+  <p class="message message--error" *ngIf="errorMessage">{{ errorMessage }}</p>
+</section>
