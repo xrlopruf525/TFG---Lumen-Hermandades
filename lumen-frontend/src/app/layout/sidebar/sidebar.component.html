@@ -49,12 +49,12 @@
       </span>
       <span class="nav-label">Calendario</span>
     </a>
-  </nav>
-  <a routerLink="/mi-perfil" routerLinkActive="active-link" class="btn btn-light btn-lg w-100 text-start mb-3">
-    Mi Perfil
-  </a>
 
-  <a routerLink="/calendario" routerLinkActive="active-link" class="btn btn-light btn-lg w-100 text-start">
-    Calendario
-  </a>
+    <a routerLink="/mi-perfil" routerLinkActive="active-link" class="nav-link-item" (click)="onNavigate()">
+      <span class="nav-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 12a4.5 4.5 0 1 0-4.5-4.5A4.5 4.5 0 0 0 12 12m0 2c-4.33 0-8 2.03-8 5v1h16v-1c0-2.97-3.67-5-8-5z"/></svg>
+      </span>
+      <span class="nav-label">Mi Perfil</span>
+    </a>
+  </nav>
 </aside>
