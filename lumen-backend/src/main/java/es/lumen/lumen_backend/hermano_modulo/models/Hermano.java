@@ -13,10 +13,16 @@ public class Hermano {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "nombre")
     private String nombre;
+
+    @Column(name = "apellidos")
     private String apellidos;
+    
     private String email;
+
     private String numeroHermano;
+    
     private String telefono;
     private String direccion;
     private String dni;
