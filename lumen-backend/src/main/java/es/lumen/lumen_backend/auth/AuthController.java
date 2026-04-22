@@ -1,6 +1,5 @@
 package es.lumen.lumen_backend.auth;
 
-import es.lumen.lumen_backend.auth.JwtService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -33,4 +32,6 @@ public class AuthController {
 
         return ResponseEntity.ok(new LoginResponse(token));
     }
+
+    
 }
