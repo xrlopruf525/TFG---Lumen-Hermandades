@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router, UrlTree } from '@angular/router';
 
-import { environment } from '../../../environments/environment';
 import { AuthService } from '../services/auth.service';
 
 @Injectable({
@@ -13,8 +12,9 @@ export class AuthGuard implements CanActivate {
     private readonly router: Router
   ) {}
 
+  // Permite acceso solo cuando existe JWT; si no, redirige al login.
   canActivate(): boolean | UrlTree {
-    if (environment.enableDevAuthBypass || this.authService.isAuthenticated()) {
+    if (this.authService.isAuthenticated()) {
       return true;
     }
 

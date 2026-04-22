@@ -9,10 +9,10 @@
 <aside class="sidebar">
   <div class="sidebar__header">
     <div class="sidebar__brand">
-      <div class="brand-badge">LH</div>
+      <div class="brand-badge">L</div>
       <div class="brand-text">
         <h5>Lumen Hermandades</h5>
-        <p>Portal del Hermano</p>
+        <p>Panel privado</p>
       </div>
     </div>
 
@@ -24,37 +24,25 @@
   </div>
 
   <nav class="sidebar__nav" aria-label="Navegacion principal">
-    <a routerLink="/inicio" routerLinkActive="active-link" class="nav-link-item" (click)="onNavigate()">
+    <a routerLink="/dashboard" routerLinkActive="active-link" class="nav-link-item" (click)="onNavigate()">
       <span class="nav-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>
       </span>
-      <span class="nav-label">Inicio</span>
+      <span class="nav-label">Dashboard</span>
     </a>
 
-    <a
-      *ngIf="esAdmin"
-      routerLink="/hermanos"
-      routerLinkActive="active-link"
-      class="nav-link-item"
-      (click)="onNavigate()">
+    <a routerLink="/hermandades" routerLinkActive="active-link" class="nav-link-item" (click)="onNavigate()">
       <span class="nav-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4m0 2c-4.42 0-8 1.79-8 4v2h16v-2c0-2.21-3.58-4-8-4z"/></svg>
       </span>
-      <span class="nav-label">Hermanos</span>
+      <span class="nav-label">Hermandades</span>
     </a>
 
-    <a routerLink="/calendario" routerLinkActive="active-link" class="nav-link-item" (click)="onNavigate()">
+    <a routerLink="/eventos" routerLinkActive="active-link" class="nav-link-item" (click)="onNavigate()">
       <span class="nav-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24"><path d="M7 2h2v2h6V2h2v2h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3zm13 8H4v10h16z"/></svg>
       </span>
-      <span class="nav-label">Calendario</span>
+      <span class="nav-label">Eventos</span>
     </a>
   </nav>
-  <a routerLink="/mi-perfil" routerLinkActive="active-link" class="btn btn-light btn-lg w-100 text-start mb-3">
-    Mi Perfil
-  </a>
-
-  <a routerLink="/calendario" routerLinkActive="active-link" class="btn btn-light btn-lg w-100 text-start">
-    Calendario
-  </a>
 </aside>

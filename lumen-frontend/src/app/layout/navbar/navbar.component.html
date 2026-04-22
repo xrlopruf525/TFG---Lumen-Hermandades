@@ -3,11 +3,14 @@
     <div class="brand-dot"></div>
     <div>
       <h5>Lumen Hermandades</h5>
-      <p>Dashboard privado</p>
+      <p>Area privada</p>
     </div>
   </div>
 
-  <button class="btn btn-outline-light btn-sm nav-logout" type="button" (click)="logout()">
-    Cerrar sesion
-  </button>
+  <div class="navbar-actions">
+    <span class="user-chip">{{ userLabel }}</span>
+    <button class="nav-logout" type="button" (click)="logout()">
+      Logout
+    </button>
+  </div>
 </header>
