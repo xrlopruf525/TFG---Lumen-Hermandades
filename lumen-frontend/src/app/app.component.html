@@ -1,17 +1,1 @@
-<ng-container *ngIf="!isAuthRoute; else authView">
-  <app-navbar></app-navbar>
-
-  <div class="app-shell">
-    <app-sidebar></app-sidebar>
-
-    <main class="content-area">
-      <div class="content-panel">
-        <router-outlet></router-outlet>
-      </div>
-    </main>
-  </div>
-</ng-container>
-
-<ng-template #authView>
-  <router-outlet></router-outlet>
-</ng-template>
+<router-outlet></router-outlet>

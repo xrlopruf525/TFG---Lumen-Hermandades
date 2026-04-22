@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { finalize } from 'rxjs';
 
-import { AuthService } from '../../core/services/auth.service';
+import { AuthService, LoginCredentials } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -9,33 +11,64 @@ import { AuthService } from '../../core/services/auth.service';
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
-  usuario = '';
-  password = '';
+  showPassword = false;
   loading = false;
-  error = '';
+  serverError = '';
+
+  // Formulario simplificado: solo email/usuario y contrasena.
+  readonly loginForm = this.fb.nonNullable.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required]]
+  });
 
   constructor(
+    private readonly fb: FormBuilder,
     private readonly authService: AuthService,
     private readonly router: Router
   ) {}
 
-  onSubmit(): void {
-    this.error = '';
+  get emailControl() {
+    return this.loginForm.controls.email;
+  }
 
-    if (!this.usuario || !this.password) {
-      this.error = 'Completa usuario y contrasena.';
+  get passwordControl() {
+    return this.loginForm.controls.password;
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  onSubmit(): void {
+    this.serverError = '';
+
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
       return;
     }
 
+    // Se envian solo las credenciales necesarias al servicio de autenticacion.
+    const formValue = this.loginForm.getRawValue();
+    const credentials: LoginCredentials = {
+      email: formValue.email.trim(),
+      password: formValue.password
+    };
+
     this.loading = true;
-    this.authService.login(this.usuario, this.password).subscribe({
+    this.authService.login(credentials).pipe(finalize(() => {
+      this.loading = false;
+    })).subscribe({
       next: () => {
-        this.loading = false;
         this.router.navigate(['/dashboard']);
       },
-      error: () => {
-        this.loading = false;
-        this.error = 'Credenciales invalidas o backend no disponible.';
+      error: (error) => {
+        const status = error?.status;
+        if (status === 401) {
+          this.serverError = 'Credenciales invalidas. Intentalo de nuevo.';
+          return;
+        }
+
+        this.serverError = 'No fue posible iniciar sesion. Verifica la conexion con la API.';
       }
     });
   }

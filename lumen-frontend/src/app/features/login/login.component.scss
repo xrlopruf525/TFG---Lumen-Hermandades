@@ -3,10 +3,330 @@
   display: grid;
   place-items: center;
   padding: 1rem;
-  background: #f5f7fb;
+  font-family: 'Inter', 'Poppins', 'Segoe UI', sans-serif;
+  background:
+    radial-gradient(50rem 35rem at -10% -20%, rgba(110, 66, 220, 0.18), transparent 65%),
+    radial-gradient(44rem 32rem at 110% 130%, rgba(157, 119, 255, 0.16), transparent 68%),
+    linear-gradient(170deg, #f8f7ff 0%, #f2f0ff 100%);
 }
 
 .login-card {
+  width: min(1240px, 100%);
+  min-height: calc(100vh - 2rem);
+  display: grid;
+  grid-template-columns: minmax(400px, 44%) 1fr;
+  border-radius: 28px;
+  overflow: hidden;
+  border: 1px solid rgba(130, 92, 238, 0.16);
+  box-shadow: 0 28px 70px rgba(67, 37, 145, 0.14);
+}
+
+.login-form-panel {
+  padding: clamp(1.35rem, 2.2vw, 2.35rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(253, 251, 255, 0.94));
+  z-index: 1;
+}
+
+.form-shell {
+  width: min(500px, 100%);
+  border-radius: 24px;
+  padding: clamp(1.2rem, 2.2vw, 1.9rem);
+  border: 1px solid rgba(165, 138, 243, 0.22);
+  background: rgba(255, 255, 255, 0.74);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 16px 42px rgba(82, 55, 154, 0.12);
+  animation: card-enter 0.55s ease;
+}
+
+.login-logo-wrap {
+  margin-bottom: 1.1rem;
+}
+
+.login-logo {
+  width: auto;
+  height: clamp(52px, 6.4vh, 66px);
+  max-width: 220px;
+  object-fit: contain;
+}
+
+.login-kicker {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #6f46d9;
+}
+
+.login-header h1 {
+  margin: 0.5rem 0 0;
+  color: #1f0f42;
+  font-size: clamp(1.78rem, 2.15vw, 2.34rem);
+  line-height: 1.14;
+  letter-spacing: -0.02em;
+}
+
+.login-subtitle {
+  margin: 0.8rem 0 0;
+  color: #665a89;
+  font-size: 0.96rem;
+}
+
+.login-form {
+  margin-top: 1.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.05rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-field label {
+  color: #382660;
+  font-weight: 600;
+  font-size: 0.87rem;
+}
+
+.input-shell {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  left: 0.95rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 19px;
+  height: 19px;
+  color: #8a73c2;
+  pointer-events: none;
+}
+
+.input-icon svg {
   width: 100%;
-  max-width: 420px;
+  height: 100%;
+  fill: currentColor;
+}
+
+.form-input {
+  width: 100%;
+  height: 52px;
+  border: 1px solid #d8c7ff;
+  border-radius: 14px;
+  padding: 0 0.9rem 0 2.8rem;
+  background: #ffffff;
+  color: #261a42;
+  box-shadow: 0 4px 12px rgba(93, 58, 180, 0.06);
+  transition: border-color 0.24s ease, box-shadow 0.24s ease, transform 0.24s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #7a4ded;
+  box-shadow: 0 0 0 4px rgba(122, 77, 237, 0.14), 0 8px 22px rgba(106, 67, 209, 0.14);
+  transform: translateY(-1px);
+}
+
+.input-shell--password .form-input {
+  padding-right: 6rem;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 1px solid rgba(128, 93, 223, 0.2);
+  border-radius: 10px;
+  height: 36px;
+  padding: 0 0.75rem;
+  background: #f3ecff;
+  color: #5f33c9;
+  font-weight: 600;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.password-toggle:hover {
+  background: #e8dcff;
+  transform: translateY(-50%) scale(1.02);
+}
+
+.field-error {
+  color: #b42318;
+  font-size: 0.78rem;
+}
+
+.form-meta {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.forgot-link {
+  color: #6541ce;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.86rem;
+  transition: color 0.2s ease;
+}
+
+.forgot-link:hover {
+  color: #4c25b6;
+}
+
+.form-alert {
+  border-radius: 13px;
+  border: 1px solid #fecaca;
+  background: #fff5f5;
+  color: #9f1239;
+  padding: 0.7rem 0.8rem;
+  font-size: 0.86rem;
+}
+
+.submit-btn {
+  height: 52px;
+  border: 0;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #8d61ff 0%, #6941e2 100%);
+  color: #ffffff;
+  font-weight: 700;
+  letter-spacing: 0.015em;
+  box-shadow: 0 16px 34px rgba(106, 67, 209, 0.3);
+  transition: transform 0.24s ease, box-shadow 0.24s ease, filter 0.24s ease;
+}
+
+.submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.04);
+  box-shadow: 0 20px 36px rgba(106, 67, 209, 0.34);
+}
+
+.submit-btn:disabled {
+  opacity: 0.76;
+  cursor: not-allowed;
+}
+
+.login-visual-panel {
+  position: relative;
+  min-height: 100%;
+  background-image:
+    linear-gradient(130deg, rgba(31, 14, 78, 0.52), rgba(113, 69, 226, 0.26)),
+    url('/assets/images/login/FondoLogin.jpg');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+}
+
+.login-visual-panel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(28rem 18rem at 70% 18%, rgba(210, 196, 255, 0.2), transparent 72%),
+    linear-gradient(0deg, rgba(20, 8, 52, 0.58), rgba(20, 8, 52, 0));
+}
+
+.visual-caption {
+  position: relative;
+  z-index: 1;
+  padding: 2rem;
+  color: #ffffff;
+  max-width: 500px;
+  animation: caption-enter 0.7s ease 0.1s both;
+}
+
+.visual-caption h2 {
+  margin: 0;
+  font-size: clamp(1.45rem, 2vw, 2rem);
+  line-height: 1.15;
+}
+
+.visual-caption p {
+  margin: 0.75rem 0 0;
+  color: rgba(255, 255, 255, 0.86);
+  line-height: 1.5;
+}
+
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes caption-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 992px) {
+  .login-page {
+    padding: 0;
+  }
+
+  .login-card {
+    width: 100%;
+    min-height: 100vh;
+    border-radius: 0;
+    border: none;
+    grid-template-columns: 1fr;
+    box-shadow: none;
+  }
+
+  /* En movil ocultamos el panel de imagen para priorizar el formulario. */
+  .login-visual-panel {
+    display: none;
+  }
+
+  .login-form-panel {
+    min-height: 100vh;
+    padding: 1.25rem;
+  }
+
+  .form-shell {
+    border-radius: 0;
+    width: 100%;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    padding: 0;
+  }
+
+  .login-logo {
+    height: 48px;
+    max-width: 190px;
+  }
+}
+
+@media (max-width: 520px) {
+  .login-header h1 {
+    font-size: 1.64rem;
+  }
+
+  .login-subtitle {
+    font-size: 0.9rem;
+  }
 }
