@@ -1,7 +1,3 @@
-.app-shell {
-  min-height: calc(100vh - 56px);
-}
-
-.content-area {
-  background: #fafbff;
+:host {
+  display: block;
 }

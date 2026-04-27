@@ -24,6 +24,13 @@
   color: #381824;
 }
 
+.censo-list__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
 .censo-list__header p {
   margin: 0.25rem 0 0;
   color: #5f6b7a;
@@ -102,6 +109,8 @@ th button {
 }
 
 .action-btn {
+  display: inline-block;
+  text-decoration: none;
   border: 1px solid #cfd6df;
   background: #f8fafc;
   border-radius: 6px;

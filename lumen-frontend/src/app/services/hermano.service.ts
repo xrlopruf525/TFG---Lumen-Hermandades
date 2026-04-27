@@ -10,6 +10,13 @@ import {
   UpsertHermanoPayload
 } from '../models/hermano.model';
 
+export interface HermanoUpsertPayload {
+  nombre: string;
+  apellidos: string;
+  email: string;
+  numeroHermano: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -52,6 +59,10 @@ export class HermanoService {
         return this.normalizeHermano((found as Partial<Hermano>) ?? { id });
       })
     );
+  }
+
+  getMiPerfil(): Observable<Hermano> {
+    return this.http.get<Hermano>(`${this.baseUrl}/me`);
   }
 
   createHermano(payload: UpsertHermanoPayload): Observable<Hermano> {

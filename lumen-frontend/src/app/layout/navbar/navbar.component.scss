@@ -1,5 +1,92 @@
 .app-navbar {
-  height: 56px;
-  background: #4a235a;
-  color: #fff;
+  height: 72px;
+  padding: 0.7rem 1rem;
+  border-radius: 16px;
+  border: 1px solid #ede7ff;
+  background: #ffffff;
+  box-shadow: 0 8px 22px rgba(72, 39, 163, 0.08);
+  color: #2c195a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand-block {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brand-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: linear-gradient(120deg, #8a5cff, #6a3ee6);
+  box-shadow: 0 0 0 5px rgba(139, 92, 246, 0.16);
+}
+
+.brand-block h5 {
+  margin: 0;
+  font-size: 0.98rem;
+}
+
+.brand-block p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #7d739d;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.user-chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 280px;
+  height: 34px;
+  padding: 0 0.8rem;
+  border-radius: 999px;
+  border: 1px solid #e4d8ff;
+  background: #f6f1ff;
+  color: #5431c2;
+  font-weight: 600;
+  font-size: 0.84rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-logout {
+  height: 34px;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #8a5cff, #6338dd);
+  color: #ffffff;
+  padding: 0 0.85rem;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nav-logout:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(99, 56, 221, 0.28);
+}
+
+@media (max-width: 991px) {
+  .app-navbar {
+    padding: 0.55rem 0.8rem 0.55rem 3.5rem;
+    height: 64px;
+    border-radius: 16px;
+  }
+
+  .brand-block p {
+    display: none;
+  }
+
+  .user-chip {
+    max-width: 120px;
+  }
 }

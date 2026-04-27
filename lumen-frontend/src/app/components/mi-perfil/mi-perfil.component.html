@@ -1,0 +1,43 @@
+<section class="mi-perfil-page">
+  <div class="perfil-card" *ngIf="!loading && hermano; else profileState">
+    <header class="perfil-card__header">
+      <h2>Mi Perfil</h2>
+      <p>Portal privado del hermano</p>
+    </header>
+
+    <div class="perfil-grid">
+      <div class="perfil-item">
+        <span class="perfil-label">Nombre completo</span>
+        <span class="perfil-value">{{ nombreCompleto }}</span>
+      </div>
+
+      <div class="perfil-item">
+        <span class="perfil-label">Email</span>
+        <span class="perfil-value">{{ hermano.email }}</span>
+      </div>
+
+      <div class="perfil-item">
+        <span class="perfil-label">Numero de hermano</span>
+        <span class="perfil-value">{{ hermano.numeroHermano }}</span>
+      </div>
+
+      <div class="perfil-item">
+        <span class="perfil-label">Fecha de alta</span>
+        <span class="perfil-value">{{ hermano.fechaAlta | date:'dd/MM/yyyy' }}</span>
+      </div>
+    </div>
+
+    <footer class="perfil-card__footer">
+      <button type="button" class="btn-secondary" disabled>Edicion de perfil (proximamente)</button>
+      <a class="btn-secondary" [routerLink]="['/dashboard']">Volver al panel</a>
+    </footer>
+  </div>
+
+  <ng-template #profileState>
+    <div class="perfil-state" *ngIf="loading">Cargando tu perfil...</div>
+    <div class="perfil-state perfil-state--error" *ngIf="!loading && errorMessage">
+      <p>{{ errorMessage }}</p>
+      <button type="button" class="btn-secondary" (click)="retry()">Reintentar</button>
+    </div>
+  </ng-template>
+</section>

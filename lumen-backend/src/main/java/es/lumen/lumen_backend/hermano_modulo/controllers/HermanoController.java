@@ -1,32 +1,56 @@
 package es.lumen.lumen_backend.hermano_modulo.controllers;
 
 import es.lumen.lumen_backend.hermano_modulo.dto.HermanoDto;
+import es.lumen.lumen_backend.hermano_modulo.dto.PortalHermanoDto;
 import es.lumen.lumen_backend.hermano_modulo.models.Hermano;
 import es.lumen.lumen_backend.hermano_modulo.services.HermanoService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/hermanos")
 @CrossOrigin(origins = "http://localhost:4200")
 public class HermanoController {
-    @Autowired
-    private HermanoService hermanoService;
 
-    @GetMapping("/buscar")
-    public List<Hermano> buscarTodos() {
-        return hermanoService.buscarTodos();
+    private final HermanoService hermanoService;
+
+    public HermanoController(HermanoService hermanoService) {
+        this.hermanoService = hermanoService;
     }
 
-    @PostMapping("/guardar")
-    public Hermano guardar(@RequestBody HermanoDto dto) {
-        Hermano hermano = new Hermano(dto);
-        return hermanoService.guardar(hermano);
+    @GetMapping
+    public List<Hermano> listarActivos() {
+        return hermanoService.buscarTodosActivos();
     }
 
-    @DeleteMapping("/{id}")
-    public void eliminar(@PathVariable Long id) {
-        hermanoService.eliminar(id);
+    @GetMapping("/inactivos")
+    public List<Hermano> listarInactivos() {
+        return hermanoService.buscarInactivos();
+    }
+
+    @GetMapping("/{id}")
+    public Hermano obtenerPorId(@PathVariable Long id) {
+        return hermanoService.buscarPorId(id);
+    }
+
+    @PostMapping
+    public Hermano altaHermano(@RequestBody HermanoDto dto) {
+        return hermanoService.guardar(dto);
+    }
+
+    @PutMapping("/{id}")
+    public Hermano modificarHermano(@PathVariable Long id, @RequestBody HermanoDto dto) {
+        return hermanoService.actualizar(id, dto);
+    }
+
+    @PatchMapping("/{id}/baja-logica")
+    public void bajaLogica(@PathVariable Long id) {
+        hermanoService.bajaLogica(id);
+    }
+
+    @GetMapping("/portal/{id}")
+    public PortalHermanoDto obtenerPortalHermano(@PathVariable Long id) {
+        return hermanoService.obtenerDatosPortal(id);
     }
 }

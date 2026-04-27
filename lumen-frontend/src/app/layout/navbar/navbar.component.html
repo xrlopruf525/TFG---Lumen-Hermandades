@@ -1,6 +1,16 @@
-<header class="app-navbar d-flex align-items-center justify-content-between px-3">
-  <h5 class="m-0">Lumen Hermandades</h5>
-  <button class="btn btn-outline-light btn-sm" type="button" (click)="logout()">
-    Cerrar sesion
-  </button>
+<header class="app-navbar">
+  <div class="brand-block">
+    <div class="brand-dot"></div>
+    <div>
+      <h5>Lumen Hermandades</h5>
+      <p>Area privada</p>
+    </div>
+  </div>
+
+  <div class="navbar-actions">
+    <span class="user-chip">{{ userLabel }}</span>
+    <button class="nav-logout" type="button" (click)="logout()">
+      Logout
+    </button>
+  </div>
 </header>
