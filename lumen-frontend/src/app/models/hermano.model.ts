@@ -1,9 +1,11 @@
 export interface Hermano {
   id: number;
   nombre: string;
+  apellidos?: string;
   primer_apellido: string;
   segundo_apellido: string;
   dni?: string;
+  telefono?: string;
   telefono_movil?: string;
   email?: string;
   estado?: string;
@@ -24,3 +26,26 @@ export interface Hermano {
   observaciones?: string;
   tutor_legal?: string;
 }
+
+export type HermanoEstado = 'ACTIVO' | 'BAJA' | 'FALLECIDO' | 'PENDIENTE' | string;
+
+export interface HermanosQueryParams {
+  page: number;
+  pageSize: number;
+  search?: string;
+  estado?: string;
+  sortBy?: keyof Hermano | 'apellidos';
+  sortDirection?: 'asc' | 'desc';
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  pagination: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export type UpsertHermanoPayload = Omit<Hermano, 'id'>;

@@ -1,19 +1,48 @@
 <section class="censo-list">
   <header class="censo-list__header">
-    <h2>Censo de Hermanos</h2>
-    <p>Vista de Junta de Gobierno</p>
+    <div>
+      <h2>Censo de Hermanos</h2>
+      <p>Vista de Junta de Gobierno con paginacion y filtros backend</p>
+    </div>
+    <button type="button" class="primary-btn" (click)="openCreateForm()">
+      + Nuevo hermano
+    </button>
   </header>
 
+  <app-censo-form
+    *ngIf="formVisible"
+    [initialData]="editingHermano"
+    [submitting]="saving"
+    (save)="saveHermano($event)"
+    (cancel)="closeForm()"
+  ></app-censo-form>
+
   <div class="censo-list__controls">
-    <label for="searchInput">Buscar por nombre/apellidos</label>
-    <input
-      id="searchInput"
-      type="text"
-      [(ngModel)]="searchTerm"
-      (ngModelChange)="onSearchChange()"
-      placeholder="Ej: Juan Garcia"
-      autocomplete="off"
-    >
+    <label>
+      Buscar por nombre, apellidos o DNI
+      <input
+        id="searchInput"
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange()"
+        placeholder="Ej: Juan Garcia o 12345678Z"
+        autocomplete="off"
+      >
+    </label>
+
+    <label>
+      Estado
+      <select [(ngModel)]="estadoFiltro" (change)="onEstadoChange()">
+        <option *ngFor="let option of estadoOptions" [ngValue]="option.value">{{ option.label }}</option>
+      </select>
+    </label>
+
+    <label>
+      Registros por pagina
+      <select [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+        <option *ngFor="let size of pageSizeOptions" [ngValue]="size">{{ size }}</option>
+      </select>
+    </label>
   </div>
 
   <div class="table-wrapper" *ngIf="!loading; else loadingState">
@@ -26,8 +55,8 @@
             </button>
           </th>
           <th>
-            <button type="button" (click)="sortBy('apellidos')">
-              Apellidos {{ getSortIcon('apellidos') }}
+            <button type="button" (click)="sortBy('primer_apellido')">
+              Apellidos {{ getSortIcon('primer_apellido') }}
             </button>
           </th>
           <th>
@@ -46,6 +75,11 @@
             </button>
           </th>
           <th>
+            <button type="button" (click)="sortBy('numeroHermano')">
+              Numero {{ getSortIcon('numeroHermano') }}
+            </button>
+          </th>
+          <th>
             <button type="button" (click)="sortBy('estado')">
               Estado {{ getSortIcon('estado') }}
             </button>
@@ -54,24 +88,63 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let hermano of visibleHermanos; trackBy: trackByHermanoId">
+        <tr *ngFor="let hermano of hermanos; trackBy: trackByHermanoId">
           <td>{{ hermano.nombre || '-' }}</td>
-          <td>{{ (hermano.primer_apellido || '') + ((hermano.segundo_apellido ? ' ' + hermano.segundo_apellido : '')) || '-' }}</td>
+          <td>{{ formatApellidos(hermano) }}</td>
           <td>{{ hermano.dni || '-' }}</td>
           <td>{{ hermano.telefono_movil || '-' }}</td>
           <td>{{ hermano.email || '-' }}</td>
-          <td>{{ hermano.estado || '-' }}</td>
+          <td>{{ hermano.numeroHermano || '-' }}</td>
+          <td>
+            <span class="status-pill" [ngClass]="getStatusClass(hermano.estado)">
+              {{ hermano.estado || 'SIN ESTADO' }}
+            </span>
+          </td>
           <td class="actions-col">
-            <button type="button" class="action-btn" disabled>Editar</button>
-            <button type="button" class="action-btn" disabled>Eliminar</button>
+            <button
+              type="button"
+              class="action-btn"
+              disabled
+              title="Edicion pendiente de endpoint PUT en backend"
+            >
+              Editar
+            </button>
+            <button
+              type="button"
+              class="action-btn action-btn--danger"
+              [disabled]="deletingId === hermano.id"
+              (click)="deleteHermano(hermano)"
+            >
+              {{ deletingId === hermano.id ? 'Eliminando...' : 'Eliminar' }}
+            </button>
           </td>
         </tr>
-        <tr *ngIf="visibleHermanos.length === 0">
-          <td colspan="7" class="empty-state">No hay registros para mostrar.</td>
+        <tr *ngIf="hermanos.length === 0">
+          <td colspan="8" class="empty-state">No hay registros para mostrar.</td>
         </tr>
       </tbody>
     </table>
   </div>
+
+  <footer class="pagination" *ngIf="!loading && total > 0">
+    <span>
+      Mostrando {{ (page - 1) * pageSize + 1 }} - {{ ((page - 1) * pageSize) + hermanos.length }} de {{ total }}
+    </span>
+
+    <div class="pagination__controls">
+      <button type="button" class="action-btn" (click)="previousPage()" [disabled]="page <= 1">Anterior</button>
+      <button
+        type="button"
+        class="action-btn"
+        *ngFor="let pageItem of pageNumbers"
+        [class.action-btn--active]="pageItem === page"
+        (click)="goToPage(pageItem)"
+      >
+        {{ pageItem }}
+      </button>
+      <button type="button" class="action-btn" (click)="nextPage()" [disabled]="page >= totalPages">Siguiente</button>
+    </div>
+  </footer>
 
   <ng-template #loadingState>
     <div class="message">Cargando censo...</div>

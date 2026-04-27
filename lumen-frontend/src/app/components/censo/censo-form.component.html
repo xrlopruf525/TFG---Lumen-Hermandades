@@ -1,0 +1,192 @@
+<section class="censo-form">
+  <header class="censo-form__header">
+    <h3>{{ isEditMode ? 'Editar hermano' : 'Nuevo hermano' }}</h3>
+    <p>Completa los datos personales, contacto, direccion y pago.</p>
+  </header>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <fieldset>
+      <legend>Datos personales</legend>
+      <div class="grid grid--three">
+        <label>
+          Nombre *
+          <input type="text" formControlName="nombre" autocomplete="given-name">
+          <small>{{ fieldError('nombre') }}</small>
+        </label>
+
+        <label>
+          Primer apellido *
+          <input type="text" formControlName="primer_apellido" autocomplete="family-name">
+          <small>{{ fieldError('primer_apellido') }}</small>
+        </label>
+
+        <label>
+          Segundo apellido
+          <input type="text" formControlName="segundo_apellido" autocomplete="additional-name">
+          <small>{{ fieldError('segundo_apellido') }}</small>
+        </label>
+
+        <label>
+          DNI *
+          <input type="text" formControlName="dni" placeholder="12345678Z" autocomplete="off">
+          <small>{{ fieldError('dni') }}</small>
+        </label>
+
+        <label>
+          Fecha nacimiento
+          <input type="date" formControlName="fecha_nacimiento">
+          <small>{{ fieldError('fecha_nacimiento') }}</small>
+        </label>
+
+        <label>
+          Estado *
+          <select formControlName="estado">
+            <option value="ACTIVO">Activo</option>
+            <option value="PENDIENTE">Pendiente</option>
+            <option value="BAJA">Baja</option>
+            <option value="FALLECIDO">Fallecido</option>
+          </select>
+          <small>{{ fieldError('estado') }}</small>
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Contacto</legend>
+      <div class="grid grid--three">
+        <label>
+          Telefono
+          <input type="text" formControlName="telefono" placeholder="+34600111222">
+          <small>{{ fieldError('telefono') }}</small>
+        </label>
+
+        <label>
+          Movil
+          <input type="text" formControlName="telefono_movil" placeholder="+34600111222">
+          <small>{{ fieldError('telefono_movil') }}</small>
+        </label>
+
+        <label>
+          Fijo
+          <input type="text" formControlName="telefono_fijo" placeholder="954001122">
+          <small>{{ fieldError('telefono_fijo') }}</small>
+        </label>
+
+        <label class="grid-span-2">
+          Email
+          <input type="email" formControlName="email" autocomplete="email">
+          <small>{{ fieldError('email') }}</small>
+        </label>
+
+        <label>
+          Tutor legal
+          <input type="text" formControlName="tutor_legal">
+          <small>{{ fieldError('tutor_legal') }}</small>
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Direccion</legend>
+      <div class="grid grid--three">
+        <label class="grid-span-2">
+          Direccion
+          <input type="text" formControlName="direccion" autocomplete="street-address">
+          <small>{{ fieldError('direccion') }}</small>
+        </label>
+
+        <label>
+          Piso / puerta
+          <input type="text" formControlName="piso_puerta">
+          <small>{{ fieldError('piso_puerta') }}</small>
+        </label>
+
+        <label>
+          Codigo postal
+          <input type="text" formControlName="codigo_postal" placeholder="41001">
+          <small>{{ fieldError('codigo_postal') }}</small>
+        </label>
+
+        <label>
+          Localidad
+          <input type="text" formControlName="localidad">
+          <small>{{ fieldError('localidad') }}</small>
+        </label>
+
+        <label>
+          Provincia
+          <input type="text" formControlName="provincia">
+          <small>{{ fieldError('provincia') }}</small>
+        </label>
+
+        <label>
+          Pais
+          <input type="text" formControlName="pais">
+          <small>{{ fieldError('pais') }}</small>
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Pago</legend>
+      <div class="grid grid--three">
+        <label>
+          Forma de pago
+          <select formControlName="forma_pago">
+            <option value="DOMICILIACION">Domiciliacion</option>
+            <option value="TRANSFERENCIA">Transferencia</option>
+            <option value="EFECTIVO">Efectivo</option>
+          </select>
+          <small>{{ fieldError('forma_pago') }}</small>
+        </label>
+
+        <label class="grid-span-2">
+          IBAN
+          <input type="text" formControlName="iban" placeholder="ES7620770024003102575766">
+          <small>{{ fieldError('iban') }}</small>
+        </label>
+
+        <label class="grid-span-2">
+          Titular de cuenta
+          <input type="text" formControlName="titular_cuenta">
+          <small>{{ fieldError('titular_cuenta') }}</small>
+        </label>
+
+        <label class="checkbox">
+          <input type="checkbox" formControlName="en_cuotas">
+          Pago en cuotas
+        </label>
+
+        <label>
+          Numero de hermano
+          <input type="number" formControlName="numeroHermano" min="1">
+          <small>{{ fieldError('numeroHermano') }}</small>
+        </label>
+
+        <label>
+          Fecha de alta
+          <input type="date" formControlName="fechaAlta">
+          <small>{{ fieldError('fechaAlta') }}</small>
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Observaciones</legend>
+      <label>
+        Observaciones
+        <textarea formControlName="observaciones" rows="4"></textarea>
+        <small>{{ fieldError('observaciones') }}</small>
+      </label>
+    </fieldset>
+
+    <footer class="censo-form__actions">
+      <button type="button" class="btn btn--ghost" (click)="onCancel()" [disabled]="submitting">
+        Cancelar
+      </button>
+      <button type="submit" class="btn btn--primary" [disabled]="submitting">
+        {{ submitting ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Crear hermano') }}
+      </button>
+    </footer>
+  </form>
+</section>
