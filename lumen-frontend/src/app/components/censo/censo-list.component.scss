@@ -3,16 +3,25 @@
 }
 
 .censo-list {
-  background: #ffffff;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfbfd 100%);
   border: 1px solid #d8dee6;
-  border-radius: 10px;
+  border-radius: 14px;
   padding: 1rem;
+  box-shadow: 0 10px 30px rgba(15, 27, 43, 0.06);
+}
+
+.censo-list__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
 }
 
 .censo-list__header h2 {
   margin: 0;
   font-size: 1.25rem;
-  color: #1a2b47;
+  color: #381824;
 }
 
 .censo-list__header {
@@ -23,25 +32,44 @@
 }
 
 .censo-list__header p {
-  margin: 0.25rem 0 1rem;
+  margin: 0.25rem 0 0;
   color: #5f6b7a;
   font-size: 0.9rem;
 }
 
 .censo-list__controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
   margin-bottom: 1rem;
 }
 
-.censo-list__controls label {
-  display: block;
-  margin-bottom: 0.4rem;
-  font-weight: 600;
-  color: #27384f;
+.primary-btn {
+  border: 1px solid #5a1323;
+  background: #5a1323;
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 0.5rem 0.8rem;
+  font-weight: 700;
 }
 
-.censo-list__controls input {
+.primary-btn:hover {
+  background: #441018;
+  border-color: #441018;
+}
+
+.censo-list__controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-weight: 600;
+  color: #27384f;
+  font-size: 0.9rem;
+}
+
+.censo-list__controls input,
+.censo-list__controls select {
   width: 100%;
-  max-width: 360px;
   border: 1px solid #c7ced8;
   border-radius: 8px;
   padding: 0.55rem 0.75rem;
@@ -54,7 +82,7 @@
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 760px;
+  min-width: 980px;
 }
 
 th,
@@ -77,7 +105,7 @@ th button {
 }
 
 .actions-col {
-  min-width: 130px;
+  min-width: 170px;
 }
 
 .action-btn {
@@ -92,22 +120,65 @@ th button {
   font-size: 0.82rem;
 }
 
-.btn-new {
-  background: #1d3b64;
-  color: #ffffff;
-  text-decoration: none;
-  border: 1px solid #1d3b64;
-  border-radius: 8px;
-  padding: 0.45rem 0.75rem;
-  font-size: 0.9rem;
-  white-space: nowrap;
+.action-btn--danger {
+  border-color: #f1c7c2;
+  color: #b42318;
+  background: #fff5f4;
 }
 
-.btn-new:hover,
-.btn-new:focus {
-  background: #142a48;
-  border-color: #142a48;
-  color: #ffffff;
+.action-btn--active {
+  border-color: #5a1323;
+  color: #5a1323;
+  font-weight: 700;
+}
+
+.status-pill {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.status-pill--active {
+  background: #e8f6ef;
+  color: #067647;
+}
+
+.status-pill--pending {
+  background: #fff4db;
+  color: #b54708;
+}
+
+.status-pill--inactive {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.status-pill--deceased {
+  background: #f2f4f7;
+  color: #344054;
+}
+
+.status-pill--neutral {
+  background: #eef2f6;
+  color: #425466;
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.9rem;
+  color: #4b5b70;
+  font-size: 0.88rem;
+}
+
+.pagination__controls {
+  display: flex;
+  align-items: center;
 }
 
 .empty-state,
@@ -120,4 +191,20 @@ th button {
 .message--error {
   color: #b42318;
   margin: 0.7rem 0 0;
+}
+
+@media (max-width: 920px) {
+  .censo-list__controls {
+    grid-template-columns: 1fr;
+  }
+
+  .censo-list__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pagination {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
