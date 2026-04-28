@@ -126,20 +126,22 @@ export class HermanoFormComponent implements OnInit {
   private patchFormWithHermano(hermano: Hermano): void {
     this.form.patchValue({
       nombre: hermano.nombre ?? '',
-      apellidos: hermano.apellidos ?? '',
+      apellidos: `${hermano.primer_apellido ?? ''} ${hermano.segundo_apellido ?? ''}`.trim(),
       email: hermano.email ?? '',
-      numeroHermano: hermano.numeroHermano ?? ''
+      numeroHermano: hermano.numeroHermano != null ? String(hermano.numeroHermano) : ''
     });
   }
 
   private buildPayload(): HermanoUpsertPayload {
     const raw = this.form.getRawValue();
+    const [primer, ...resto] = raw.apellidos.trim().split(' ');
 
     return {
       nombre: raw.nombre.trim(),
-      apellidos: raw.apellidos.trim(),
+      primer_apellido: primer || '',
+      segundo_apellido: resto.join(' ') || '',
       email: raw.email.trim(),
-      numeroHermano: raw.numeroHermano.trim()
+      numeroHermano: Number(raw.numeroHermano)
     };
   }
 }

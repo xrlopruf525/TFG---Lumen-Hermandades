@@ -12,9 +12,10 @@ import {
 
 export interface HermanoUpsertPayload {
   nombre: string;
-  apellidos: string;
+  primer_apellido: string;
+  segundo_apellido: string;
   email: string;
-  numeroHermano: string;
+  numeroHermano: number;
 }
 
 @Injectable({
