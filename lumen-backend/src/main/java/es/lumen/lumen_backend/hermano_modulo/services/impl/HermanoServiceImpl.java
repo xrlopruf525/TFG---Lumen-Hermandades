@@ -71,6 +71,20 @@ public class HermanoServiceImpl implements HermanoService {
         logger.info("Obteniendo datos del portal para el hermano con id {}", id);
         Hermano hermano = buscarPorId(id);
 
+        return construirPortalHermanoDto(hermano);
+    }
+
+    @Override
+    public PortalHermanoDto obtenerDatosPortalPorEmail(String email) {
+        logger.info("Obteniendo datos del portal para el usuario/email {}", email);
+
+        Hermano hermano = hermanoRepository.findByEmailAndActivoTrue(email)
+                .orElseThrow(() -> new RuntimeException("No existe un hermano activo asociado al email: " + email));
+
+        return construirPortalHermanoDto(hermano);
+    }
+
+    private PortalHermanoDto construirPortalHermanoDto(Hermano hermano) {
         return new PortalHermanoDto(
                 hermano.getId(),
                 hermano.getNombre() + " " + hermano.getApellidos(),

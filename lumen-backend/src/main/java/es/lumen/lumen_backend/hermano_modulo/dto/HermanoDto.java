@@ -2,6 +2,7 @@ package es.lumen.lumen_backend.hermano_modulo.dto;
 
 public class HermanoDto {
 
+    private Long id;
     private String nombre;
     private String apellidos;
     private String email;
@@ -13,8 +14,9 @@ public class HermanoDto {
     public HermanoDto() {
     }
 
-    public HermanoDto(String nombre, String apellidos, String email, String numeroHermano,
+    public HermanoDto(Long id, String nombre, String apellidos, String email, String numeroHermano,
                       String telefono, String direccion, String dni) {
+        this.id = id;
         this.nombre = nombre;
         this.apellidos = apellidos;
         this.email = email;
@@ -22,6 +24,14 @@ public class HermanoDto {
         this.telefono = telefono;
         this.direccion = direccion;
         this.dni = dni;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getNombre() {

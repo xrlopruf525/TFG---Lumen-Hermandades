@@ -21,4 +21,6 @@ public interface HermanoService {
     void bajaLogica(Long id);
 
     PortalHermanoDto obtenerDatosPortal(Long id);
+
+    PortalHermanoDto obtenerDatosPortalPorEmail(String email);
 }

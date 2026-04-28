@@ -6,10 +6,11 @@ import es.lumen.lumen_backend.hermano_modulo.models.Hermano;
 import es.lumen.lumen_backend.hermano_modulo.services.HermanoService;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/hermanos")
+@RequestMapping("/hermanos")
 @CrossOrigin(origins = "http://localhost:4200")
 public class HermanoController {
 
@@ -21,6 +22,11 @@ public class HermanoController {
 
     @GetMapping
     public List<Hermano> listarActivos() {
+        return hermanoService.buscarTodosActivos();
+    }
+
+    @GetMapping("/buscar")
+    public List<Hermano> buscarHermanos() {
         return hermanoService.buscarTodosActivos();
     }
 
@@ -39,9 +45,23 @@ public class HermanoController {
         return hermanoService.guardar(dto);
     }
 
+    @PostMapping("/guardar")
+    public Hermano guardarHermano(@RequestBody HermanoDto dto) {
+        if (dto.getId() != null) {
+            return hermanoService.actualizar(dto.getId(), dto);
+        }
+
+        return hermanoService.guardar(dto);
+    }
+
     @PutMapping("/{id}")
     public Hermano modificarHermano(@PathVariable Long id, @RequestBody HermanoDto dto) {
         return hermanoService.actualizar(id, dto);
+    }
+
+    @DeleteMapping("/{id}")
+    public void eliminarHermano(@PathVariable Long id) {
+        hermanoService.bajaLogica(id);
     }
 
     @PatchMapping("/{id}/baja-logica")
@@ -49,8 +69,8 @@ public class HermanoController {
         hermanoService.bajaLogica(id);
     }
 
-    @GetMapping("/portal/{id}")
-    public PortalHermanoDto obtenerPortalHermano(@PathVariable Long id) {
-        return hermanoService.obtenerDatosPortal(id);
+    @GetMapping("/me")
+    public PortalHermanoDto obtenerMiPerfil(Principal principal) {
+        return hermanoService.obtenerDatosPortalPorEmail(principal.getName());
     }
 }
