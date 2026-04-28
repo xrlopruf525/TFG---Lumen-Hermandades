@@ -1,0 +1,1 @@
+export { Hermano } from '../core/models/hermano.model';

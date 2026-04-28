@@ -1,0 +1,78 @@
+<section class="censo-list">
+  <header class="censo-list__header">
+    <div>
+      <h2>Censo de Hermanos</h2>
+      <p>Vista de Junta de Gobierno</p>
+    </div>
+    <a class="btn-new" [routerLink]="['/hermanos/nuevo']">Nuevo hermano</a>
+  </header>
+
+  <div class="censo-list__controls">
+    <label for="searchInput">Buscar por nombre/apellidos</label>
+    <input
+      id="searchInput"
+      type="text"
+      [(ngModel)]="searchTerm"
+      (ngModelChange)="onSearchChange()"
+      placeholder="Ej: Juan Garcia"
+      autocomplete="off"
+    >
+  </div>
+
+  <div class="table-wrapper" *ngIf="!loading; else loadingState">
+    <table>
+      <thead>
+        <tr>
+          <th>
+            <button type="button" (click)="sortBy('nombre')">
+              Nombre {{ getSortIcon('nombre') }}
+            </button>
+          </th>
+          <th>
+            <button type="button" (click)="sortBy('apellidos')">
+              Apellidos {{ getSortIcon('apellidos') }}
+            </button>
+          </th>
+          <th>
+            <button type="button" (click)="sortBy('email')">
+              Email {{ getSortIcon('email') }}
+            </button>
+          </th>
+          <th>
+            <button type="button" (click)="sortBy('numeroHermano')">
+              Numero {{ getSortIcon('numeroHermano') }}
+            </button>
+          </th>
+          <th>
+            <button type="button" (click)="sortBy('fechaAlta')">
+              Fecha alta {{ getSortIcon('fechaAlta') }}
+            </button>
+          </th>
+          <th class="actions-col">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let hermano of visibleHermanos; trackBy: trackByHermanoId">
+          <td>{{ hermano.nombre || '-' }}</td>
+          <td>{{ hermano.apellidos || '-' }}</td>
+          <td>{{ hermano.email || '-' }}</td>
+          <td>{{ hermano.numeroHermano || '-' }}</td>
+          <td>{{ hermano.fechaAlta || '-' }}</td>
+          <td class="actions-col">
+            <a class="action-btn" [routerLink]="['/hermanos/editar', hermano.id]">Editar</a>
+            <button type="button" class="action-btn" disabled>Eliminar</button>
+          </td>
+        </tr>
+        <tr *ngIf="visibleHermanos.length === 0">
+          <td colspan="6" class="empty-state">No hay registros para mostrar.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <ng-template #loadingState>
+    <div class="message">Cargando censo...</div>
+  </ng-template>
+
+  <p class="message message--error" *ngIf="errorMessage">{{ errorMessage }}</p>
+</section>

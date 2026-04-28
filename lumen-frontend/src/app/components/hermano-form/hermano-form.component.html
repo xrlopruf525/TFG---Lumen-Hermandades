@@ -1,0 +1,50 @@
+<section class="hermano-form">
+  <header class="hermano-form__header">
+    <div>
+      <h2>{{ isEditMode ? 'Editar hermano' : 'Nuevo hermano' }}</h2>
+      <p>{{ isEditMode ? 'Actualiza los datos del hermano seleccionado.' : 'Completa los datos para dar de alta un nuevo hermano.' }}</p>
+    </div>
+    <button type="button" class="btn-secondary" (click)="onCancel()">Volver al listado</button>
+  </header>
+
+  <div *ngIf="loading" class="message">Cargando datos del hermano...</div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="!loading" novalidate>
+    <div class="form-grid">
+      <div class="field">
+        <label for="nombre">Nombre</label>
+        <input id="nombre" type="text" formControlName="nombre">
+        <small class="error" *ngIf="hasError('nombre', 'required')">El nombre es obligatorio.</small>
+      </div>
+
+      <div class="field">
+        <label for="apellidos">Apellidos</label>
+        <input id="apellidos" type="text" formControlName="apellidos">
+        <small class="error" *ngIf="hasError('apellidos', 'required')">Los apellidos son obligatorios.</small>
+      </div>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" type="email" formControlName="email" placeholder="correo@dominio.com">
+        <small class="error" *ngIf="hasError('email', 'required')">El email es obligatorio.</small>
+        <small class="error" *ngIf="hasError('email', 'email')">El email no tiene formato valido.</small>
+      </div>
+
+      <div class="field">
+        <label for="numeroHermano">Numero de hermano</label>
+        <input id="numeroHermano" type="text" formControlName="numeroHermano" placeholder="Ej: 1024">
+        <small class="error" *ngIf="hasError('numeroHermano', 'required')">El numero de hermano es obligatorio.</small>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="btn-primary" [disabled]="submitting">
+        {{ submitting ? 'Guardando...' : 'Guardar' }}
+      </button>
+      <button type="button" class="btn-secondary" (click)="onCancel()">Cancelar</button>
+    </div>
+  </form>
+
+  <p class="message message--success" *ngIf="successMessage">{{ successMessage }}</p>
+  <p class="message message--error" *ngIf="errorMessage">{{ errorMessage }}</p>
+</section>
