@@ -1,10 +1,10 @@
-package es.lumen.lumen_backend.auth.service.impl;
+package es.lumen.lumen_backend.auth.services.impl;
 
 import es.lumen.lumen_backend.auth.dto.AuthUserResponse;
 import es.lumen.lumen_backend.auth.dto.LoginRequest;
 import es.lumen.lumen_backend.auth.dto.LoginResponse;
-import es.lumen.lumen_backend.auth.service.AuthService;
-import es.lumen.lumen_backend.auth.service.JwtService;
+import es.lumen.lumen_backend.auth.services.AuthService;
+import es.lumen.lumen_backend.auth.services.JwtService;
 import es.lumen.lumen_backend.common.exception.ResourceNotFoundException;
 import es.lumen.lumen_backend.modules.usuario.entity.Usuario;
 import es.lumen.lumen_backend.modules.usuario.repository.UsuarioRepository;

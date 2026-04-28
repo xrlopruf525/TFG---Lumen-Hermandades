@@ -1,6 +1,6 @@
 package es.lumen.lumen_backend.auth.security;
 
-import es.lumen.lumen_backend.auth.service.JwtService;
+import es.lumen.lumen_backend.auth.services.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

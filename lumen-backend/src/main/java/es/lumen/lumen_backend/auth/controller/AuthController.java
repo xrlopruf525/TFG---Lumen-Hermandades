@@ -4,7 +4,7 @@ import es.lumen.lumen_backend.auth.dto.AuthUserResponse;
 import es.lumen.lumen_backend.auth.dto.LoginRequest;
 import es.lumen.lumen_backend.auth.dto.LoginResponse;
 import es.lumen.lumen_backend.auth.dto.LogoutResponse;
-import es.lumen.lumen_backend.auth.service.AuthService;
+import es.lumen.lumen_backend.auth.services.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;

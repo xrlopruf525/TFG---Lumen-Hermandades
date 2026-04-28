@@ -1,4 +1,4 @@
-package es.lumen.lumen_backend.auth.service;
+package es.lumen.lumen_backend.auth.services;
 
 import es.lumen.lumen_backend.auth.dto.AuthUserResponse;
 import es.lumen.lumen_backend.auth.dto.LoginRequest;
