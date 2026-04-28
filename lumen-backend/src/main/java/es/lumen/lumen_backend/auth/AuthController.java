@@ -2,6 +2,7 @@ package es.lumen.lumen_backend.auth;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,19 +20,27 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUsername(),
+                            request.getPassword()
+                    )
+            );
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
-                        request.getPassword()
-                )
-        );
+            String token = jwtService.generateToken(request.getUsername());
 
-        String token = jwtService.generateToken(request.getUsername());
+            LoginResponse response = new LoginResponse(
+                    token,
+                    "Bearer",
+                    jwtService.getExpirationTime()
+            );
 
-        return ResponseEntity.ok(new LoginResponse(token));
+            return ResponseEntity.ok(response);
+
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(401).body("Usuario o contraseña incorrectos.");
+        }
     }
-
-    
 }
