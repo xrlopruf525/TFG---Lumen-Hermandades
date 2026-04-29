@@ -17,7 +17,7 @@ export class LoginComponent {
 
   // Formulario simplificado: solo email/usuario y contrasena.
   readonly loginForm = this.fb.nonNullable.group({
-    email: ['', [Validators.required, Validators.email]],
+    username: ['', [Validators.required]],
     password: ['', [Validators.required]]
   });
 
@@ -27,8 +27,8 @@ export class LoginComponent {
     private readonly router: Router
   ) {}
 
-  get emailControl() {
-    return this.loginForm.controls.email;
+  get usernameControl() {
+    return this.loginForm.controls.username;
   }
 
   get passwordControl() {
@@ -50,7 +50,7 @@ export class LoginComponent {
     // Se envian solo las credenciales necesarias al servicio de autenticacion.
     const formValue = this.loginForm.getRawValue();
     const credentials: LoginCredentials = {
-      email: formValue.email.trim(),
+      username: formValue.username.trim(),
       password: formValue.password
     };
 

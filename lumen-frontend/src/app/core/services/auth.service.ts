@@ -7,7 +7,7 @@ import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 export interface LoginCredentials {
-  email: string;
+  username: string;
   password: string;
   hermandad?: string;
 }
@@ -25,9 +25,9 @@ export class AuthService {
   // Realiza el login contra la API y almacena el JWT para el resto de peticiones.
   login(credentials: LoginCredentials): Observable<string> {
     if (environment.enableDevAuthBypass) {
-      const devToken = `dev-token-${credentials.email || 'user'}`;
+      const devToken = `dev-token-${credentials.username || 'user'}`;
       localStorage.setItem(this.tokenKey, devToken);
-      const parsedId = Number(credentials.email);
+      const parsedId = Number(credentials.username);
       if (!Number.isNaN(parsedId) && parsedId > 0) {
         localStorage.setItem(this.authUserIdKey, String(parsedId));
       }
@@ -40,7 +40,7 @@ export class AuthService {
 
     // Punto unico para adaptar rapidamente el contrato de login si el backend lo requiere.
     const payload = {
-      email: credentials.email,
+      username: credentials.username,
       password: credentials.password,
       hermandad: credentials.hermandad
     };

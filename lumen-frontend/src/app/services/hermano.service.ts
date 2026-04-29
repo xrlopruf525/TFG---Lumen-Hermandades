@@ -10,23 +10,21 @@ import {
   UpsertHermanoPayload
 } from '../models/hermano.model';
 
-export interface HermanoUpsertPayload {
-  nombre: string;
-  apellidos: string;
-  email: string;
-  numeroHermano: string;
-}
+export type HermanoUpsertPayload = UpsertHermanoPayload;
 
 @Injectable({
   providedIn: 'root'
 })
+
+
 export class HermanoService {
   private readonly baseUrl = `${environment.apiUrl}/hermanos`;
+  private readonly defaultHermandadId = 1;
 
   constructor(private readonly http: HttpClient) {}
 
   getHermanos(params: HermanosQueryParams): Observable<PaginatedResponse<Hermano>> {
-    return this.http.get<unknown[]>(`${this.baseUrl}/buscar`).pipe(
+    return this.http.get<unknown[]>(`${this.baseUrl}`).pipe(
       map((response) => {
         const normalized = (response ?? []).map((item) => this.normalizeHermano(item as Partial<Hermano>));
         const filtered = this.filterByQuery(normalized, params);
@@ -53,11 +51,8 @@ export class HermanoService {
   }
 
   getHermanoById(id: number): Observable<Hermano> {
-    return this.http.get<unknown[]>(`${this.baseUrl}/buscar`).pipe(
-      map((response) => {
-        const found = (response ?? []).find((item) => Number((item as { id?: number }).id) === id);
-        return this.normalizeHermano((found as Partial<Hermano>) ?? { id });
-      })
+    return this.http.get<unknown>(`${this.baseUrl}/${id}`).pipe(
+      map((response) => this.normalizeHermano(response as Partial<Hermano>))
     );
   }
 
@@ -66,68 +61,61 @@ export class HermanoService {
   }
 
   createHermano(payload: UpsertHermanoPayload): Observable<Hermano> {
-    const body = {
-      nombre: payload.nombre,
-      apellidos: this.toApellidos(payload),
-      email: payload.email ?? '',
-      numeroHermano: payload.numeroHermano ? String(payload.numeroHermano) : ''
-    };
+    const body = this.toBackendPayload(payload);
 
-    return this.http.post<unknown>(`${this.baseUrl}/guardar`, body).pipe(
+    return this.http.post<unknown>(`${this.baseUrl}`, body).pipe(
       map((response) => this.normalizeHermano(response as Partial<Hermano>))
     );
   }
 
   updateHermano(id: number, payload: UpsertHermanoPayload): Observable<Hermano> {
-    const body = {
-      id,
-      nombre: payload.nombre,
-      apellidos: this.toApellidos(payload),
-      email: payload.email ?? '',
-      numeroHermano: payload.numeroHermano ? String(payload.numeroHermano) : ''
-    };
+    const body = this.toBackendPayload(payload);
 
-    return this.http.post<unknown>(`${this.baseUrl}/guardar`, body).pipe(
+    return this.http.put<unknown>(`${this.baseUrl}/${id}`, body).pipe(
       map((response) => this.normalizeHermano(response as Partial<Hermano>))
     );
   }
 
   deleteHermano(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+    return this.http.patch<void>(`${this.baseUrl}/${id}/baja-logica`, {});
   }
 
   private normalizeHermano(row: Partial<Hermano>): Hermano {
-    const apellidosRaw = String(row.apellidos ?? '').trim();
+    const rowData = row as Partial<Hermano> & Record<string, unknown>;
+    const apellidosRaw = String(
+      rowData.apellidos ?? `${String(rowData['primerApellido'] ?? '')} ${String(rowData['segundoApellido'] ?? '')}`
+    ).trim();
     const [primerApellido = '', ...resto] = apellidosRaw.split(/\s+/).filter(Boolean);
     const segundoApellido = resto.join(' ');
 
     return {
-      id: Number(row.id ?? 0),
-      nombre: String(row.nombre ?? ''),
+      id: Number(rowData.id ?? 0),
+      nombre: String(rowData.nombre ?? ''),
       apellidos: apellidosRaw,
-      primer_apellido: String(row.primer_apellido ?? primerApellido),
-      segundo_apellido: String(row.segundo_apellido ?? segundoApellido),
-      dni: row.dni,
-      telefono: row.telefono,
-      telefono_movil: row.telefono_movil,
-      email: row.email,
-      estado: row.estado,
-      numeroHermano: this.normalizeNumeroHermano(row.numeroHermano),
-      fechaAlta: row.fechaAlta,
-      fecha_nacimiento: row.fecha_nacimiento,
-      direccion: row.direccion,
-      piso_puerta: row.piso_puerta,
-      codigo_postal: row.codigo_postal,
-      localidad: row.localidad,
-      provincia: row.provincia,
-      pais: row.pais,
-      telefono_fijo: row.telefono_fijo,
-      forma_pago: row.forma_pago,
-      iban: row.iban,
-      titular_cuenta: row.titular_cuenta,
-      en_cuotas: row.en_cuotas,
-      observaciones: row.observaciones,
-      tutor_legal: row.tutor_legal
+      primer_apellido: String(rowData.primer_apellido ?? rowData['primerApellido'] ?? primerApellido),
+      segundo_apellido: String(rowData.segundo_apellido ?? rowData['segundoApellido'] ?? segundoApellido),
+      dni: (rowData.dni as string | undefined) ?? (rowData['nif'] as string | undefined),
+      telefono: (rowData.telefono as string | undefined) ?? (rowData['telefonoMovil'] as string | undefined),
+      telefono_movil: (rowData.telefono_movil as string | undefined) ?? (rowData['telefonoMovil'] as string | undefined),
+      email: rowData.email as string | undefined,
+      estado: rowData.estado as string | undefined,
+      numeroHermano: this.normalizeNumeroHermano(rowData.numeroHermano),
+      fechaAlta: (rowData.fechaAlta as string | Date | undefined) ?? (rowData['fecha_alta'] as string | Date | undefined),
+      fecha_nacimiento:
+        (rowData.fecha_nacimiento as string | Date | undefined) ?? (rowData['fechaNacimiento'] as string | Date | undefined),
+      direccion: rowData.direccion as string | undefined,
+      piso_puerta: (rowData.piso_puerta as string | undefined) ?? (rowData['pisoPuerta'] as string | undefined),
+      codigo_postal: (rowData.codigo_postal as string | undefined) ?? (rowData['codigoPostal'] as string | undefined),
+      localidad: (rowData.localidad as string | undefined) ?? (rowData['poblacion'] as string | undefined),
+      provincia: rowData.provincia as string | undefined,
+      pais: rowData.pais as string | undefined,
+      telefono_fijo: (rowData.telefono_fijo as string | undefined) ?? (rowData['telefonoFijo'] as string | undefined),
+      forma_pago: (rowData.forma_pago as string | undefined) ?? (rowData['formaPago'] as string | undefined),
+      iban: rowData.iban as string | undefined,
+      titular_cuenta: (rowData.titular_cuenta as string | undefined) ?? (rowData['titularCuenta'] as string | undefined),
+      en_cuotas: (rowData.en_cuotas as boolean | undefined) ?? (rowData['enCuotas'] as boolean | undefined),
+      observaciones: rowData.observaciones as string | undefined,
+      tutor_legal: (rowData.tutor_legal as string | undefined) ?? (rowData['tutorLegal'] as string | undefined)
     };
   }
 
@@ -145,6 +133,51 @@ export class HermanoService {
       return payload.apellidos;
     }
     return `${payload.primer_apellido ?? ''} ${payload.segundo_apellido ?? ''}`.trim();
+  }
+
+  private toBackendPayload(payload: UpsertHermanoPayload): Record<string, unknown> {
+    const row = payload as UpsertHermanoPayload & Record<string, unknown>;
+    const nombre = String(payload.nombre ?? '').trim();
+    const primerApellido = String(payload.primer_apellido ?? '').trim();
+    const segundoApellido = String(payload.segundo_apellido ?? '').trim();
+
+    return {
+      idHermandad: this.toPositiveInt(row['idHermandad']) ?? this.defaultHermandadId,
+      numeroHermano: this.toPositiveInt(payload.numeroHermano),
+      nif: String(payload.dni ?? row['nif'] ?? '').trim(),
+      nombre,
+      primerApellido,
+      segundoApellido,
+      fechaNacimiento: row.fecha_nacimiento ?? row['fechaNacimiento'] ?? null,
+      direccion: String(payload.direccion ?? '').trim() || null,
+      numero: String(row['numero'] ?? '').trim() || null,
+      pisoPuerta: String(payload.piso_puerta ?? '').trim() || null,
+      codigoPostal: String(payload.codigo_postal ?? '').trim() || null,
+      poblacion: String(payload.localidad ?? row['poblacion'] ?? '').trim() || null,
+      provincia: String(payload.provincia ?? '').trim() || null,
+      pais: String(payload.pais ?? '').trim() || null,
+      telefonoMovil: String(payload.telefono_movil ?? payload.telefono ?? '').trim() || null,
+      telefonoFijo: String(payload.telefono_fijo ?? '').trim() || null,
+      email: String(payload.email ?? '').trim() || null,
+      fechaAlta: row.fechaAlta ?? row['fecha_alta'] ?? null,
+      estado: String(payload.estado ?? 'ACTIVO').trim() || 'ACTIVO',
+      formaPago: String(payload.forma_pago ?? '').trim() || null,
+      iban: String(payload.iban ?? '').trim() || null,
+      titularCuenta: String(payload.titular_cuenta ?? '').trim() || null,
+      enCuotas: payload.en_cuotas ?? false,
+      observaciones: String(payload.observaciones ?? '').trim() || null,
+      tutorLegal: String(payload.tutor_legal ?? '').trim() || null,
+      deleted: false
+    };
+  }
+
+  private toPositiveInt(value: unknown): number | null {
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      return null;
+    }
+
+    return Math.trunc(parsed);
   }
 
   private filterByQuery(rows: Hermano[], params: HermanosQueryParams): Hermano[] {

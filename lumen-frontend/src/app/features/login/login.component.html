@@ -14,27 +14,24 @@
 
         <form class="login-form" [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
           <div class="form-field">
-            <label for="email">Email / usuario</label>
+            <label for="username">Usuario</label>
             <div class="input-shell">
               <span class="input-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2m-.4 2L12 11.25 4.4 6zM4 18V8.5l7.4 5.1a1 1 0 0 0 1.2 0L20 8.5V18z"/></svg>
               </span>
 
               <input
-                id="email"
+                id="username"
                 class="form-input"
-                type="email"
-                placeholder="usuario@hermandad.es"
-                formControlName="email"
+                type="text"
+                placeholder="tu_usuario"
+                formControlName="username"
                 autocomplete="username"
               >
             </div>
 
-            <small class="field-error" *ngIf="emailControl.touched && emailControl.hasError('required')">
-              El email es obligatorio.
-            </small>
-            <small class="field-error" *ngIf="emailControl.touched && emailControl.hasError('email')">
-              Introduce un email valido.
+            <small class="field-error" *ngIf="usernameControl.touched && usernameControl.hasError('required')">
+              El usuario es obligatorio.
             </small>
           </div>
 
