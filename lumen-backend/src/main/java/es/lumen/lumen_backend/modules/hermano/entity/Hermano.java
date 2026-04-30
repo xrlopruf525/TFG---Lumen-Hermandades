@@ -1,6 +1,8 @@
 package es.lumen.lumen_backend.modules.hermano.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import es.lumen.lumen_backend.modules.hermano.dto.HermanoDto;
+import es.lumen.lumen_backend.modules.usuario.entity.Usuario;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -94,6 +96,11 @@ public class Hermano {
 
     @Column(name = "deleted", nullable = false)
     private Boolean deleted = false;
+
+    @JsonIgnore
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "id_usuario", referencedColumnName = "id", unique = true)
+    private Usuario usuario;
 
     public Hermano() {
     }
@@ -197,4 +204,6 @@ public class Hermano {
     public void setTutorLegal(String tutorLegal) { this.tutorLegal = tutorLegal; }
     public Boolean getDeleted() { return deleted; }
     public void setDeleted(Boolean deleted) { this.deleted = deleted; }
+    public Usuario getUsuario() { return usuario; }
+    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
 }

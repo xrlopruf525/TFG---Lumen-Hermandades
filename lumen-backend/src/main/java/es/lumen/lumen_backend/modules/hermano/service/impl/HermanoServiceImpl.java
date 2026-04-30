@@ -6,6 +6,9 @@ import es.lumen.lumen_backend.modules.hermano.dto.PortalHermanoDto;
 import es.lumen.lumen_backend.modules.hermano.entity.Hermano;
 import es.lumen.lumen_backend.modules.hermano.repository.HermanoRepository;
 import es.lumen.lumen_backend.modules.hermano.service.HermanoService;
+import es.lumen.lumen_backend.modules.usuario.entity.Usuario;
+import es.lumen.lumen_backend.modules.usuario.repository.UsuarioRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -15,9 +18,17 @@ import java.util.List;
 public class HermanoServiceImpl implements HermanoService {
 
     private final HermanoRepository hermanoRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public HermanoServiceImpl(HermanoRepository hermanoRepository) {
+    public HermanoServiceImpl(
+            HermanoRepository hermanoRepository,
+            UsuarioRepository usuarioRepository,
+            PasswordEncoder passwordEncoder
+    ) {
         this.hermanoRepository = hermanoRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -38,7 +49,21 @@ public class HermanoServiceImpl implements HermanoService {
 
     @Override
     public Hermano guardar(HermanoDto dto) {
-        return hermanoRepository.save(new Hermano(dto));
+        String username = extractDniDigits(dto.getNif());
+
+        if (usuarioRepository.findByUsername(username).isPresent()) {
+            throw new IllegalStateException("Ya existe un usuario para este DNI");
+        }
+
+        Usuario usuario = new Usuario();
+        usuario.setUsername(username);
+        usuario.setPassword(passwordEncoder.encode(buildInitialPassword(dto.getNombre(), username)));
+        usuario.setRole("HERMANO");
+
+        Hermano hermano = new Hermano(dto);
+        hermano.setUsuario(usuario);
+
+        return hermanoRepository.save(hermano);
     }
 
     @Override
@@ -88,5 +113,34 @@ public class HermanoServiceImpl implements HermanoService {
 
     private String valor(String value) {
         return value == null ? "" : value;
+    }
+
+    private String extractDniDigits(String nif) {
+        if (nif == null) {
+            throw new IllegalArgumentException("El DNI es obligatorio");
+        }
+
+        String normalized = nif.trim().toUpperCase();
+        String digits = normalized.replaceAll("\\D", "");
+
+        if (digits.length() != 8) {
+            throw new IllegalArgumentException("DNI invalido para generar usuario");
+        }
+
+        return digits;
+    }
+
+    private String buildInitialPassword(String nombre, String dniDigits) {
+        if (nombre == null || nombre.trim().isEmpty()) {
+            throw new IllegalArgumentException("El nombre es obligatorio para generar password");
+        }
+
+        String normalizedName = nombre.trim().toLowerCase().replaceAll("[^a-z]", "");
+        String namePart = normalizedName.length() >= 3
+                ? normalizedName.substring(0, 3)
+                : String.format("%-3s", normalizedName).replace(' ', 'x');
+        String dniPart = dniDigits.substring(dniDigits.length() - 3);
+
+        return namePart + dniPart;
     }
 }
