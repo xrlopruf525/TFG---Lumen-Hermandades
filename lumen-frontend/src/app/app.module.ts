@@ -8,7 +8,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { CalendarioComponent } from './features/calendario/calendario.component';
-import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { LoginComponent } from './features/login/login.component';
 import { LayoutComponent } from './layout/layout/layout.component';
 import { NavbarComponent } from './layout/navbar/navbar.component';
@@ -20,7 +19,6 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
     AppComponent,
     LayoutComponent,
     LoginComponent,
-    DashboardComponent,
     CalendarioComponent,
     NavbarComponent,
     SidebarComponent

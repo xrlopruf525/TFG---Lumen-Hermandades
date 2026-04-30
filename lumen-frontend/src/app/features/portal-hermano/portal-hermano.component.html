@@ -1,0 +1,123 @@
+<section class="portal-page">
+  <header class="portal-hero">
+    <div>
+      <span class="portal-hero__eyebrow">Portal del Hermano</span>
+      <h1>{{ profile?.nombreCompleto || 'Cargando portal...' }}</h1>
+      <p>Acceso privado con tus datos, cuotas, avisos y documentos.</p>
+    </div>
+
+    <div class="portal-hero__meta" *ngIf="profile">
+      <div class="meta-pill meta-pill--primary">Hermano #{{ profile.numeroHermano || '-' }}</div>
+      <div class="meta-pill">{{ profile.estado || 'SIN ESTADO' }}</div>
+    </div>
+  </header>
+
+  <div class="portal-state" *ngIf="loading">Cargando tu portal...</div>
+
+  <div class="portal-state portal-state--error" *ngIf="!loading && errorMessage">
+    <p>{{ errorMessage }}</p>
+    <button type="button" class="portal-btn portal-btn--ghost" (click)="retry()">Reintentar</button>
+  </div>
+
+  <ng-container *ngIf="!loading && profile">
+    <section class="portal-grid">
+      <article class="portal-card">
+        <header class="portal-card__header">
+          <h2>Datos personales</h2>
+          <span class="portal-card__tag">Privado</span>
+        </header>
+
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-item__label">Nombre completo</span>
+            <span class="detail-item__value">{{ profile.nombreCompleto }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-item__label">DNI</span>
+            <span class="detail-item__value">{{ profile.nif || '-' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-item__label">Email</span>
+            <span class="detail-item__value">{{ profile.email || '-' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-item__label">Teléfono</span>
+            <span class="detail-item__value">{{ profile.telefonoMovil || '-' }}</span>
+          </div>
+          <div class="detail-item detail-item--full">
+            <span class="detail-item__label">Dirección</span>
+            <span class="detail-item__value">{{ profile.direccionCompleta || '-' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-item__label">Fecha alta</span>
+            <span class="detail-item__value">{{ profile.fechaAlta | date: 'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-item__label">Grupo</span>
+            <span class="detail-item__value">{{ grupo }}</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="portal-card portal-card--accent">
+        <header class="portal-card__header">
+          <h2>Estado de cuotas</h2>
+          <span class="portal-card__tag portal-card__tag--soft">Resumen</span>
+        </header>
+
+        <div class="quota-grid">
+          <div class="quota-item">
+            <span class="quota-item__label">Situación</span>
+            <strong>{{ cuotaStatus }}</strong>
+          </div>
+          <div class="quota-item">
+            <span class="quota-item__label">Próximo vencimiento</span>
+            <strong>{{ proximaCuota }}</strong>
+          </div>
+          <div class="quota-item">
+            <span class="quota-item__label">Forma de pago</span>
+            <strong>Actualizada en censo</strong>
+          </div>
+        </div>
+      </article>
+
+      <article class="portal-card">
+        <header class="portal-card__header">
+          <h2>Avisos y notificaciones</h2>
+          <span class="portal-card__tag">3 nuevos</span>
+        </header>
+
+        <ul class="item-list">
+          <li *ngFor="let notice of notices" class="item-list__item">
+            <span class="item-list__badge" [ngClass]="'item-list__badge--' + notice.type"></span>
+            <div>
+              <p class="item-list__title">{{ notice.title }}</p>
+              <p class="item-list__meta">{{ notice.date }}</p>
+            </div>
+          </li>
+        </ul>
+      </article>
+
+      <article class="portal-card">
+        <header class="portal-card__header">
+          <h2>Documentos disponibles</h2>
+          <span class="portal-card__tag portal-card__tag--soft">Descarga privada</span>
+        </header>
+
+        <ul class="document-list">
+          <li *ngFor="let document of documents" class="document-list__item">
+            <div>
+              <p class="document-list__title">{{ document.name }}</p>
+              <p class="document-list__meta">{{ document.description }}</p>
+            </div>
+            <span class="document-list__status">{{ document.status }}</span>
+          </li>
+        </ul>
+      </article>
+    </section>
+
+    <footer class="portal-actions">
+      <button type="button" class="portal-btn portal-btn--ghost" (click)="logout()">Cerrar sesión</button>
+    </footer>
+  </ng-container>
+</section>
