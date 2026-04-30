@@ -4,6 +4,7 @@ import es.lumen.lumen_backend.modules.hermano.dto.HermanoDto;
 import es.lumen.lumen_backend.modules.hermano.dto.PortalHermanoDto;
 import es.lumen.lumen_backend.modules.hermano.entity.Hermano;
 import es.lumen.lumen_backend.modules.hermano.service.HermanoService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/hermanos")
 @CrossOrigin(origins = {"http://localhost:4200", "http://127.0.0.1:4200"})
+@PreAuthorize("hasRole('ADMIN')")
 public class HermanoController {
 
     private final HermanoService hermanoService;

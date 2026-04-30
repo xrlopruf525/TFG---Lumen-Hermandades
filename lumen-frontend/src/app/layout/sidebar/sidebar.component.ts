@@ -2,6 +2,8 @@ import { Component, HostBinding, HostListener, OnDestroy, OnInit } from '@angula
 import { NavigationEnd, Router } from '@angular/router';
 import { Subscription, filter } from 'rxjs';
 
+import { AuthService } from '../../core/services/auth.service';
+
 @Component({
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html',
@@ -17,11 +19,15 @@ export class SidebarComponent {
   @HostBinding('class.is-mobile-open')
   isMobileOpen = false;
 
-  esAdmin = true;
+  currentUser = null as ReturnType<AuthService['getUser']>;
 
-  constructor(private readonly router: Router) {}
+  constructor(
+    private readonly router: Router,
+    private readonly authService: AuthService
+  ) {}
 
   ngOnInit(): void {
+    this.currentUser = this.authService.getUser();
     this.syncResponsiveState();
     this.navigationSubscription = this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
@@ -71,5 +77,13 @@ export class SidebarComponent {
 
   private isMobileViewport(): boolean {
     return window.innerWidth < this.desktopBreakpoint;
+  }
+
+  get isAdmin(): boolean {
+    return this.currentUser?.role === 'ADMIN';
+  }
+
+  get isHermano(): boolean {
+    return this.currentUser?.role === 'HERMANO';
   }
 }

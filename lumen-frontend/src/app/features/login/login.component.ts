@@ -59,7 +59,8 @@ export class LoginComponent {
       this.loading = false;
     })).subscribe({
       next: () => {
-        this.router.navigate(['/dashboard']);
+        const user = this.authService.getUser();
+        this.router.navigate([user?.role === 'HERMANO' ? '/portal-hermano' : '/dashboard']);
       },
       error: (error) => {
         const status = error?.status;

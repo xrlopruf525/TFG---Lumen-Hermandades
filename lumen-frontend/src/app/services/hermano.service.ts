@@ -12,6 +12,18 @@ import {
 
 export type HermanoUpsertPayload = UpsertHermanoPayload;
 
+export interface PortalHermanoProfile {
+  id: number;
+  nombreCompleto: string;
+  numeroHermano: number | null;
+  email: string | null;
+  telefonoMovil: string | null;
+  direccionCompleta: string | null;
+  nif: string | null;
+  fechaAlta: string | Date | null;
+  estado: string | null;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -19,6 +31,7 @@ export type HermanoUpsertPayload = UpsertHermanoPayload;
 
 export class HermanoService {
   private readonly baseUrl = `${environment.apiUrl}/hermanos`;
+  private readonly portalUrl = `${environment.apiUrl}/hermano/me`;
   private readonly defaultHermandadId = 1;
 
   constructor(private readonly http: HttpClient) {}
@@ -57,7 +70,15 @@ export class HermanoService {
   }
 
   getMiPerfil(): Observable<Hermano> {
-    return this.http.get<Hermano>(`${this.baseUrl}/me`);
+    return this.getPortalHermano().pipe(
+      map((profile) => this.normalizePortalProfileAsHermano(profile))
+    );
+  }
+
+  getPortalHermano(): Observable<PortalHermanoProfile> {
+    return this.http.get<unknown>(this.portalUrl).pipe(
+      map((response) => this.normalizePortalHermano(response as Partial<PortalHermanoProfile>))
+    );
   }
 
   createHermano(payload: UpsertHermanoPayload): Observable<Hermano> {
@@ -117,6 +138,45 @@ export class HermanoService {
       observaciones: rowData.observaciones as string | undefined,
       tutor_legal: (rowData.tutor_legal as string | undefined) ?? (rowData['tutorLegal'] as string | undefined)
     };
+  }
+
+  private normalizePortalHermano(row: Partial<PortalHermanoProfile>): PortalHermanoProfile {
+    return {
+      id: Number(row.id ?? 0),
+      nombreCompleto: String(row.nombreCompleto ?? ''),
+      numeroHermano: this.normalizePortalNumeroHermano(row.numeroHermano),
+      email: row.email ? String(row.email) : null,
+      telefonoMovil: row.telefonoMovil ? String(row.telefonoMovil) : null,
+      direccionCompleta: row.direccionCompleta ? String(row.direccionCompleta) : null,
+      nif: row.nif ? String(row.nif) : null,
+      fechaAlta: row.fechaAlta ?? null,
+      estado: row.estado ? String(row.estado) : null
+    };
+  }
+
+  private normalizePortalProfileAsHermano(profile: PortalHermanoProfile): Hermano {
+    const parts = String(profile.nombreCompleto ?? '').trim().split(/\s+/).filter(Boolean);
+    const [nombre = '', ...apellidos] = parts;
+
+    return {
+      id: profile.id,
+      nombre,
+      primer_apellido: apellidos[0] ?? '',
+      segundo_apellido: apellidos.slice(1).join(' '),
+      apellidos: apellidos.join(' '),
+      email: profile.email ?? '',
+      numeroHermano: profile.numeroHermano ?? undefined,
+      fechaAlta: profile.fechaAlta ?? ''
+    };
+  }
+
+  private normalizePortalNumeroHermano(value: unknown): number | null {
+    if (value === undefined || value === null || value === '') {
+      return null;
+    }
+
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
   }
 
   private normalizeNumeroHermano(value: unknown): number | undefined {

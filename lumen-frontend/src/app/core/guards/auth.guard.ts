@@ -1,23 +1,40 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, Router, UrlTree } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivate, CanActivateChild, Router, UrlTree } from '@angular/router';
 
 import { AuthService } from '../services/auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class AuthGuard implements CanActivate {
+export class AuthGuard implements CanActivate, CanActivateChild {
   constructor(
     private readonly authService: AuthService,
     private readonly router: Router
   ) {}
 
-  // Permite acceso solo cuando existe JWT; si no, redirige al login.
-  canActivate(): boolean | UrlTree {
-    if (this.authService.isAuthenticated()) {
+  canActivate(route: ActivatedRouteSnapshot): boolean | UrlTree {
+    return this.checkAccess(route);
+  }
+
+  canActivateChild(childRoute: ActivatedRouteSnapshot): boolean | UrlTree {
+    return this.checkAccess(childRoute);
+  }
+
+  private checkAccess(route: ActivatedRouteSnapshot): boolean | UrlTree {
+    if (!this.authService.isAuthenticated()) {
+      return this.router.createUrlTree(['/login']);
+    }
+
+    const expectedRole = route.data['role'] as string | undefined;
+    if (!expectedRole) {
       return true;
     }
 
-    return this.router.createUrlTree(['/login']);
+    const user = this.authService.getUser();
+    if (user?.role === expectedRole) {
+      return true;
+    }
+
+    return this.router.createUrlTree([user?.role === 'HERMANO' ? '/portal-hermano' : '/dashboard']);
   }
 }

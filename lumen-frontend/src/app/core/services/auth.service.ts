@@ -6,6 +6,24 @@ import { catchError } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
 
+interface LoginResponsePayload {
+  token?: string;
+  accessToken?: string;
+  jwt?: string;
+  username?: string;
+  role?: string;
+  data?: {
+    token?: string;
+    username?: string;
+    role?: string;
+  };
+}
+
+export interface AuthUser {
+  username: string;
+  role: string;
+}
+
 export interface LoginCredentials {
   username: string;
   password: string;
@@ -17,6 +35,7 @@ export interface LoginCredentials {
 })
 export class AuthService {
   private readonly tokenKey = 'auth_token';
+  private readonly authUserKey = 'auth_user';
   private readonly authUserIdKey = 'auth_user_id';
   private readonly loginEndpoint = `${environment.apiUrl}/auth/login`;
 
@@ -27,6 +46,7 @@ export class AuthService {
     if (environment.enableDevAuthBypass) {
       const devToken = `dev-token-${credentials.username || 'user'}`;
       localStorage.setItem(this.tokenKey, devToken);
+      localStorage.setItem(this.authUserKey, JSON.stringify({ username: credentials.username || 'user', role: 'ADMIN' }));
       const parsedId = Number(credentials.username);
       if (!Number.isNaN(parsedId) && parsedId > 0) {
         localStorage.setItem(this.authUserIdKey, String(parsedId));
@@ -45,7 +65,7 @@ export class AuthService {
       hermandad: credentials.hermandad
     };
 
-    return this.http.post<unknown>(this.loginEndpoint, payload).pipe(
+    return this.http.post<LoginResponsePayload>(this.loginEndpoint, payload).pipe(
       map((response) => {
         const token = this.extractToken(response);
         if (!token) {
@@ -53,6 +73,15 @@ export class AuthService {
         }
 
         localStorage.setItem(this.tokenKey, token);
+        const username = this.extractUsername(response) ?? credentials.username;
+        const role = this.extractRole(response) ?? 'ADMIN';
+        localStorage.setItem(this.authUserKey, JSON.stringify({ username, role }));
+
+        const parsedId = Number(username);
+        if (!Number.isNaN(parsedId) && parsedId > 0) {
+          localStorage.setItem(this.authUserIdKey, String(parsedId));
+        }
+
         return token;
       }),
       catchError((error: HttpErrorResponse | Error) => {
@@ -68,6 +97,7 @@ export class AuthService {
   // Elimina toda la sesion local del frontend.
   logout(): void {
     localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.authUserKey);
     localStorage.removeItem(this.authUserIdKey);
   }
 
@@ -77,6 +107,24 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     return !!this.getToken();
+  }
+
+  getUser(): AuthUser | null {
+    const stored = localStorage.getItem(this.authUserKey);
+    if (!stored) {
+      return null;
+    }
+
+    try {
+      const parsed = JSON.parse(stored) as Partial<AuthUser>;
+      if (typeof parsed.username === 'string' && typeof parsed.role === 'string') {
+        return { username: parsed.username, role: parsed.role };
+      }
+    } catch {
+      return null;
+    }
+
+    return null;
   }
 
   // Permite reutilizar el id del hermano autenticado en vistas como "Mi perfil".
@@ -108,23 +156,38 @@ export class AuthService {
     return null;
   }
 
-  private extractToken(response: unknown): string | null {
-    if (!response || typeof response !== 'object') {
-      return null;
-    }
-
-    const data = response as Record<string, unknown>;
-    const directToken = data['token'] ?? data['accessToken'] ?? data['jwt'];
+  private extractToken(response: LoginResponsePayload): string | null {
+    const directToken = response.token ?? response.accessToken ?? response.jwt;
     if (typeof directToken === 'string' && directToken.trim()) {
       return directToken;
     }
 
-    const nestedData = data['data'];
-    if (nestedData && typeof nestedData === 'object') {
-      const nestedToken = (nestedData as Record<string, unknown>)['token'];
-      if (typeof nestedToken === 'string' && nestedToken.trim()) {
-        return nestedToken;
-      }
+    if (typeof response.data?.token === 'string' && response.data.token.trim()) {
+      return response.data.token;
+    }
+
+    return null;
+  }
+
+  private extractUsername(response: LoginResponsePayload): string | null {
+    if (typeof response.username === 'string' && response.username.trim()) {
+      return response.username.trim();
+    }
+
+    if (typeof response.data?.username === 'string' && response.data.username.trim()) {
+      return response.data.username.trim();
+    }
+
+    return null;
+  }
+
+  private extractRole(response: LoginResponsePayload): string | null {
+    if (typeof response.role === 'string' && response.role.trim()) {
+      return response.role.trim();
+    }
+
+    if (typeof response.data?.role === 'string' && response.data.role.trim()) {
+      return response.data.role.trim();
     }
 
     return null;

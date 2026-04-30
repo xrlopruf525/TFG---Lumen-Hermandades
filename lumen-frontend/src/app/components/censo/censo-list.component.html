@@ -50,29 +50,25 @@
       <thead>
         <tr>
           <th>
-            <button type="button" (click)="sortBy('nombre')">
-              Nombre {{ getSortIcon('nombre') }}
-            </button>
+            <button type="button" (click)="sortBy('nombre')">Nombre {{ getSortIcon('nombre') }}</button>
           </th>
           <th>
-            <button type="button" (click)="sortBy('primer_apellido')">
-              Apellidos {{ getSortIcon('primer_apellido') }}
-            </button>
+            <button type="button" (click)="sortBy('primer_apellido')">Apellidos {{ getSortIcon('primer_apellido') }}</button>
           </th>
           <th>
-            <button type="button" (click)="sortBy('email')">
-              Email {{ getSortIcon('email') }}
-            </button>
+            <button type="button" (click)="sortBy('dni')">DNI {{ getSortIcon('dni') }}</button>
           </th>
           <th>
-            <button type="button" (click)="sortBy('numeroHermano')">
-              Numero {{ getSortIcon('numeroHermano') }}
-            </button>
+            <button type="button" (click)="sortBy('telefono_movil')">Móvil {{ getSortIcon('telefono_movil') }}</button>
           </th>
           <th>
-            <button type="button" (click)="sortBy('estado')">
-              Estado {{ getSortIcon('estado') }}
-            </button>
+            <button type="button" (click)="sortBy('email')">Email {{ getSortIcon('email') }}</button>
+          </th>
+          <th>
+            <button type="button" (click)="sortBy('numeroHermano')">Número {{ getSortIcon('numeroHermano') }}</button>
+          </th>
+          <th>
+            <button type="button" (click)="sortBy('estado')">Estado {{ getSortIcon('estado') }}</button>
           </th>
           <th class="actions-col">Acciones</th>
         </tr>
@@ -91,14 +87,7 @@
             </span>
           </td>
           <td class="actions-col">
-            <button
-              type="button"
-              class="action-btn"
-              disabled
-              title="Edicion pendiente de endpoint PUT en backend"
-            >
-              Editar
-            </button>
+            <button type="button" class="action-btn" (click)="openEditForm(hermano)">Editar</button>
             <button
               type="button"
               class="action-btn action-btn--danger"
