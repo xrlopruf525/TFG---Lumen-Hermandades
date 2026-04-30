@@ -152,14 +152,16 @@ export class CensoListComponent implements OnInit, OnDestroy {
   }
 
   openEditForm(hermano: Hermano): void {
-    this.editingHermano = hermano;
-    this.formVisible = true;
+    // clone the object to avoid accidental mutations in the list
+    this.editingHermano = { ...hermano } as Hermano;
     this.errorMessage = '';
+    this.formVisible = true;
   }
 
   closeForm(): void {
-    this.formVisible = false;
+    // clear editing state and hide form; clearing editingHermano first
     this.editingHermano = null;
+    this.formVisible = false;
   }
 
   saveHermano(payload: UpsertHermanoPayload): void {
@@ -172,10 +174,9 @@ export class CensoListComponent implements OnInit, OnDestroy {
 
     request$.pipe(finalize(() => (this.saving = false)), takeUntil(this.destroy$)).subscribe({
       next: () => {
+        // Close form and refresh list in-place (no routing) to preserve UX and pagination
         this.closeForm();
-        this.router.navigate(['/hermanos']).then(() => {
-          this.loadHermanos();
-        });
+        this.loadHermanos();
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = error.status === 0
