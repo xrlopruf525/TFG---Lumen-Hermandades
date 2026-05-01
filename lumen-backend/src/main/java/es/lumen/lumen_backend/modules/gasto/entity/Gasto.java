@@ -18,9 +18,6 @@ public class Gasto {
     @Column(name = "id_gasto")
     private Integer idGasto;
 
-    @Column(name = "id_hermandad")
-    private Integer idHermandad;
-
     @Column(name = "concepto", length = 255)
     private String concepto;
 
@@ -40,8 +37,7 @@ public class Gasto {
 
     public Integer getIdGasto() { return idGasto; }
     public void setIdGasto(Integer idGasto) { this.idGasto = idGasto; }
-    public Integer getIdHermandad() { return idHermandad; }
-    public void setIdHermandad(Integer idHermandad) { this.idHermandad = idHermandad; }
+
     public String getConcepto() { return concepto; }
     public void setConcepto(String concepto) { this.concepto = concepto; }
     public BigDecimal getImporte() { return importe; }

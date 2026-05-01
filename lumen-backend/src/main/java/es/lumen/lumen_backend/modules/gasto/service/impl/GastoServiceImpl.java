@@ -17,8 +17,14 @@ public class GastoServiceImpl implements GastoService {
     private GastoRepository gastoRepository;
 
     @Override
-    public List<Gasto> obtenerGastosPorHermandad(Integer idHermandad) {
-        return gastoRepository.findByIdHermandadAndDeletedFalse(idHermandad);
+    public Gasto obtenerGastoPorId(Integer id) {
+        Optional<Gasto> gastoOptional = gastoRepository.findById(id);
+        return gastoOptional.orElse(null);
+    }
+
+    @Override
+    public List<Gasto> obtenerTodosLosGastos() {
+        return gastoRepository.findAll();
     }
 
     @Override

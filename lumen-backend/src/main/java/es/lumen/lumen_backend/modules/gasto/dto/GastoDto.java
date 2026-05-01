@@ -6,7 +6,6 @@ import java.time.LocalDate;
 public class GastoDto {
 
     private Integer idGasto;
-    private Integer idHermandad;
     private String concepto;
     private BigDecimal importe;
     private LocalDate fecha;
@@ -17,8 +16,6 @@ public class GastoDto {
 
     public Integer getIdGasto() { return idGasto; }
     public void setIdGasto(Integer idGasto) { this.idGasto = idGasto; }
-    public Integer getIdHermandad() { return idHermandad; }
-    public void setIdHermandad(Integer idHermandad) { this.idHermandad = idHermandad; }
     public String getConcepto() { return concepto; }
     public void setConcepto(String concepto) { this.concepto = concepto; }
     public BigDecimal getImporte() { return importe; }

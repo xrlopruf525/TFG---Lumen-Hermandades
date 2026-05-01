@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -17,9 +16,18 @@ public class GastoController {
     @Autowired
     private GastoService gastoService;
 
-    @GetMapping("/hermandad/{idHermandad}")
-    public ResponseEntity<List<Gasto>> obtenerGastosPorHermandad(@PathVariable Integer idHermandad) {
-        List<Gasto> gastos = gastoService.obtenerGastosPorHermandad(idHermandad);
+    @GetMapping("/{id}")
+    public ResponseEntity<Gasto> obtenerGastoPorId(@PathVariable Integer id) {
+        Gasto gasto = gastoService.obtenerGastoPorId(id);
+        if (gasto != null) {
+            return new ResponseEntity<>(gasto, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Gasto>> obtenerTodosLosGastos() {
+        List<Gasto> gastos = gastoService.obtenerTodosLosGastos();
         return new ResponseEntity<>(gastos, HttpStatus.OK);
     }
 
