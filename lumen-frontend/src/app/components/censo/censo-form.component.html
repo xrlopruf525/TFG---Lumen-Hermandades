@@ -7,6 +7,7 @@
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <fieldset>
       <legend>Datos personales</legend>
+
       <div class="grid grid--three">
         <label>
           Nombre *
@@ -16,26 +17,26 @@
 
         <label>
           Primer apellido *
-          <input type="text" formControlName="primer_apellido" autocomplete="family-name">
-          <small>{{ fieldError('primer_apellido') }}</small>
+          <input type="text" formControlName="primerApellido" autocomplete="family-name">
+          <small>{{ fieldError('primerApellido') }}</small>
         </label>
 
         <label>
           Segundo apellido
-          <input type="text" formControlName="segundo_apellido" autocomplete="additional-name">
-          <small>{{ fieldError('segundo_apellido') }}</small>
+          <input type="text" formControlName="segundoApellido" autocomplete="additional-name">
+          <small>{{ fieldError('segundoApellido') }}</small>
         </label>
 
         <label>
           DNI *
-          <input type="text" formControlName="dni" placeholder="12345678Z" autocomplete="off">
-          <small>{{ fieldError('dni') }}</small>
+          <input type="text" formControlName="nif" placeholder="12345678Z" autocomplete="off">
+          <small>{{ fieldError('nif') }}</small>
         </label>
 
         <label>
           Fecha nacimiento
-          <input type="date" formControlName="fecha_nacimiento">
-          <small>{{ fieldError('fecha_nacimiento') }}</small>
+          <input type="date" formControlName="fechaNacimiento">
+          <small>{{ fieldError('fechaNacimiento') }}</small>
         </label>
 
         <label>
@@ -53,23 +54,18 @@
 
     <fieldset>
       <legend>Contacto</legend>
+
       <div class="grid grid--three">
         <label>
-          Telefono
-          <input type="text" formControlName="telefono" placeholder="+34600111222">
-          <small>{{ fieldError('telefono') }}</small>
-        </label>
-
-        <label>
           Movil
-          <input type="text" formControlName="telefono_movil" placeholder="+34600111222">
-          <small>{{ fieldError('telefono_movil') }}</small>
+          <input type="text" formControlName="telefonoMovil" placeholder="+34600111222">
+          <small>{{ fieldError('telefonoMovil') }}</small>
         </label>
 
         <label>
           Fijo
-          <input type="text" formControlName="telefono_fijo" placeholder="954001122">
-          <small>{{ fieldError('telefono_fijo') }}</small>
+          <input type="text" formControlName="telefonoFijo" placeholder="954001122">
+          <small>{{ fieldError('telefonoFijo') }}</small>
         </label>
 
         <label class="grid-span-2">
@@ -80,14 +76,15 @@
 
         <label>
           Tutor legal
-          <input type="text" formControlName="tutor_legal">
-          <small>{{ fieldError('tutor_legal') }}</small>
+          <input type="text" formControlName="tutorLegal">
+          <small>{{ fieldError('tutorLegal') }}</small>
         </label>
       </div>
     </fieldset>
 
     <fieldset>
       <legend>Direccion</legend>
+
       <div class="grid grid--three">
         <label class="grid-span-2">
           Direccion
@@ -96,21 +93,27 @@
         </label>
 
         <label>
+          Numero
+          <input type="text" formControlName="numero">
+          <small>{{ fieldError('numero') }}</small>
+        </label>
+
+        <label>
           Piso / puerta
-          <input type="text" formControlName="piso_puerta">
-          <small>{{ fieldError('piso_puerta') }}</small>
+          <input type="text" formControlName="pisoPuerta">
+          <small>{{ fieldError('pisoPuerta') }}</small>
         </label>
 
         <label>
           Codigo postal
-          <input type="text" formControlName="codigo_postal" placeholder="41001">
-          <small>{{ fieldError('codigo_postal') }}</small>
+          <input type="text" formControlName="codigoPostal" placeholder="41001">
+          <small>{{ fieldError('codigoPostal') }}</small>
         </label>
 
         <label>
-          Localidad
-          <input type="text" formControlName="localidad">
-          <small>{{ fieldError('localidad') }}</small>
+          Poblacion
+          <input type="text" formControlName="poblacion">
+          <small>{{ fieldError('poblacion') }}</small>
         </label>
 
         <label>
@@ -129,15 +132,16 @@
 
     <fieldset>
       <legend>Pago</legend>
+
       <div class="grid grid--three">
         <label>
           Forma de pago
-          <select formControlName="forma_pago">
+          <select formControlName="formaPago">
             <option value="DOMICILIACION">Domiciliacion</option>
             <option value="TRANSFERENCIA">Transferencia</option>
             <option value="EFECTIVO">Efectivo</option>
           </select>
-          <small>{{ fieldError('forma_pago') }}</small>
+          <small>{{ fieldError('formaPago') }}</small>
         </label>
 
         <label class="grid-span-2">
@@ -148,12 +152,12 @@
 
         <label class="grid-span-2">
           Titular de cuenta
-          <input type="text" formControlName="titular_cuenta">
-          <small>{{ fieldError('titular_cuenta') }}</small>
+          <input type="text" formControlName="titularCuenta">
+          <small>{{ fieldError('titularCuenta') }}</small>
         </label>
 
         <label class="checkbox">
-          <input type="checkbox" formControlName="en_cuotas">
+          <input type="checkbox" formControlName="enCuotas">
           Pago en cuotas
         </label>
 
@@ -173,6 +177,7 @@
 
     <fieldset>
       <legend>Observaciones</legend>
+
       <label>
         Observaciones
         <textarea formControlName="observaciones" rows="4"></textarea>
@@ -184,6 +189,7 @@
       <button type="button" class="btn btn--ghost" (click)="onCancel()" [disabled]="submitting">
         Cancelar
       </button>
+
       <button type="submit" class="btn btn--primary" [disabled]="submitting">
         {{ submitting ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Crear hermano') }}
       </button>

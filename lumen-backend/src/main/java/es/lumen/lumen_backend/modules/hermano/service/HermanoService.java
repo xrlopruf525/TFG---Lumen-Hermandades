@@ -3,6 +3,7 @@ package es.lumen.lumen_backend.modules.hermano.service;
 import es.lumen.lumen_backend.modules.hermano.dto.HermanoDto;
 import es.lumen.lumen_backend.modules.hermano.dto.PortalHermanoDto;
 import es.lumen.lumen_backend.modules.hermano.entity.Hermano;
+import es.lumen.lumen_backend.modules.hermano.dto.ImportarHermanosResponse;
 
 import java.util.List;
 
@@ -15,4 +16,5 @@ public interface HermanoService {
     Hermano actualizar(Integer id, HermanoDto dto);
     void bajaLogica(Integer id);
     PortalHermanoDto obtenerDatosPortal(Integer id);
+    ImportarHermanosResponse importarHermanos(List<HermanoDto> hermanos);
 }

@@ -1,6 +1,7 @@
 package es.lumen.lumen_backend.modules.hermano.service.impl;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import es.lumen.lumen_backend.common.exception.ResourceNotFoundException;
 import es.lumen.lumen_backend.modules.hermano.dto.HermanoDto;
+import es.lumen.lumen_backend.modules.hermano.dto.ImportarHermanosResponse;
 import es.lumen.lumen_backend.modules.hermano.dto.PortalHermanoDto;
 import es.lumen.lumen_backend.modules.hermano.entity.Hermano;
 import es.lumen.lumen_backend.modules.hermano.repository.HermanoRepository;
@@ -143,5 +145,55 @@ public class HermanoServiceImpl implements HermanoService {
         String dniPart = dniDigits.substring(dniDigits.length() - 3);
 
         return namePart + dniPart;
+    }
+
+    @Override
+    public ImportarHermanosResponse importarHermanos(List<HermanoDto> hermanos) {
+        ImportarHermanosResponse response = new ImportarHermanosResponse();
+
+        int totalLeidos = hermanos != null ? hermanos.size() : 0;
+        int importados = 0;
+        int errores = 0;
+        List<String> detalleErrores = new ArrayList<>();
+
+        if (hermanos == null || hermanos.isEmpty()) {
+            response.setTotalLeidos(0);
+            response.setImportados(0);
+            response.setErrores(0);
+            response.setDetalleErrores(detalleErrores);
+            return response;
+        }
+
+        for (int i = 0; i < hermanos.size(); i++) {
+            HermanoDto hermanoDto = hermanos.get(i);
+
+            try {
+                if (hermanoDto.getNombre() == null || hermanoDto.getNombre().isBlank()) {
+                    throw new IllegalArgumentException("El nombre es obligatorio");
+                }
+
+                if (hermanoDto.getPrimerApellido() == null || hermanoDto.getPrimerApellido().isBlank()) {
+                    throw new IllegalArgumentException("El primer apellido es obligatorio");
+                }
+
+                if (hermanoDto.getNif() == null || hermanoDto.getNif().isBlank()) {
+                    throw new IllegalArgumentException("El NIF es obligatorio");
+                }
+
+                guardar(hermanoDto);
+                importados++;
+
+            } catch (Exception e) {
+                errores++;
+                detalleErrores.add("Fila " + (i + 2) + ": " + e.getMessage());
+            }
+        }
+
+        response.setTotalLeidos(totalLeidos);
+        response.setImportados(importados);
+        response.setErrores(errores);
+        response.setDetalleErrores(detalleErrores);
+
+        return response;
     }
 }

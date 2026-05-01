@@ -12,6 +12,13 @@ import {
 
 export type HermanoUpsertPayload = UpsertHermanoPayload;
 
+export interface ImportarHermanosResponse {
+  totalLeidos: number;
+  importados: number;
+  errores: number;
+  detalleErrores: string[];
+}
+
 export interface PortalHermanoProfile {
   id: number;
   nombreCompleto: string;
@@ -89,6 +96,12 @@ export class HermanoService {
     );
   }
 
+  importarHermanos(hermanos: UpsertHermanoPayload[]): Observable<ImportarHermanosResponse> {
+    const body = hermanos.map((hermano) => this.toBackendPayload(hermano));
+
+    return this.http.post<ImportarHermanosResponse>(`${this.baseUrl}/importar`, body);
+  }
+
   updateHermano(id: number, payload: UpsertHermanoPayload): Observable<Hermano> {
     const body = this.toBackendPayload(payload);
 
@@ -103,40 +116,30 @@ export class HermanoService {
 
   private normalizeHermano(row: Partial<Hermano>): Hermano {
     const rowData = row as Partial<Hermano> & Record<string, unknown>;
-    const apellidosRaw = String(
-      rowData.apellidos ?? `${String(rowData['primerApellido'] ?? '')} ${String(rowData['segundoApellido'] ?? '')}`
-    ).trim();
+    const apellidosRaw = String(rowData['apellidos'] ?? `${String(rowData['primerApellido'] ?? '')} ${String(rowData['segundoApellido'] ?? '')}`).trim();
     const [primerApellido = '', ...resto] = apellidosRaw.split(/\s+/).filter(Boolean);
     const segundoApellido = resto.join(' ');
 
     return {
       id: Number(rowData.id ?? 0),
       nombre: String(rowData.nombre ?? ''),
-      apellidos: apellidosRaw,
-      primer_apellido: String(rowData.primer_apellido ?? rowData['primerApellido'] ?? primerApellido),
-      segundo_apellido: String(rowData.segundo_apellido ?? rowData['segundoApellido'] ?? segundoApellido),
-      dni: (rowData.dni as string | undefined) ?? (rowData['nif'] as string | undefined),
-      telefono: (rowData.telefono as string | undefined) ?? (rowData['telefonoMovil'] as string | undefined),
-      telefono_movil: (rowData.telefono_movil as string | undefined) ?? (rowData['telefonoMovil'] as string | undefined),
+      primerApellido: String(rowData['primerApellido'] ?? rowData['primer_apellido'] ?? primerApellido),
+      segundoApellido: String(rowData['segundoApellido'] ?? rowData['segundo_apellido'] ?? segundoApellido),
+      nif: (rowData['nif'] as string | undefined) ?? (rowData['dni'] as string | undefined),
+      telefonoMovil: (rowData['telefonoMovil'] as string | undefined) ?? (rowData['telefono_movil'] as string | undefined) ?? (rowData['telefono'] as string | undefined),
       email: rowData.email as string | undefined,
       estado: rowData.estado as string | undefined,
       numeroHermano: this.normalizeNumeroHermano(rowData.numeroHermano),
       fechaAlta: (rowData.fechaAlta as string | Date | undefined) ?? (rowData['fecha_alta'] as string | Date | undefined),
-      fecha_nacimiento:
-        (rowData.fecha_nacimiento as string | Date | undefined) ?? (rowData['fechaNacimiento'] as string | Date | undefined),
-      direccion: rowData.direccion as string | undefined,
-      piso_puerta: (rowData.piso_puerta as string | undefined) ?? (rowData['pisoPuerta'] as string | undefined),
-      codigo_postal: (rowData.codigo_postal as string | undefined) ?? (rowData['codigoPostal'] as string | undefined),
-      localidad: (rowData.localidad as string | undefined) ?? (rowData['poblacion'] as string | undefined),
-      provincia: rowData.provincia as string | undefined,
-      pais: rowData.pais as string | undefined,
-      telefono_fijo: (rowData.telefono_fijo as string | undefined) ?? (rowData['telefonoFijo'] as string | undefined),
-      forma_pago: (rowData.forma_pago as string | undefined) ?? (rowData['formaPago'] as string | undefined),
-      iban: rowData.iban as string | undefined,
-      titular_cuenta: (rowData.titular_cuenta as string | undefined) ?? (rowData['titularCuenta'] as string | undefined),
-      en_cuotas: (rowData.en_cuotas as boolean | undefined) ?? (rowData['enCuotas'] as boolean | undefined),
-      observaciones: rowData.observaciones as string | undefined,
-      tutor_legal: (rowData.tutor_legal as string | undefined) ?? (rowData['tutorLegal'] as string | undefined)
+      fechaNacimiento: (rowData['fechaNacimiento'] as string | Date | undefined) ?? (rowData['fecha_nacimiento'] as string | Date | undefined),
+      pisoPuerta: (rowData['pisoPuerta'] as string | undefined) ?? (rowData['piso_puerta'] as string | undefined),
+      codigoPostal: (rowData['codigoPostal'] as string | undefined) ?? (rowData['codigo_postal'] as string | undefined),
+      poblacion: (rowData['poblacion'] as string | undefined) ?? (rowData['localidad'] as string | undefined),
+      telefonoFijo: (rowData['telefonoFijo'] as string | undefined) ?? (rowData['telefono_fijo'] as string | undefined),
+      formaPago: (rowData['formaPago'] as  string | undefined) ?? (rowData['forma_pago'] as string | undefined),
+      titularCuenta: (rowData['titularCuenta'] as string | undefined) ?? (rowData['titular_cuenta'] as string | undefined),
+      enCuotas: (rowData['enCuotas'] as boolean | undefined) ?? (rowData['en_cuotas'] as boolean | undefined),
+      tutorLegal: (rowData['tutorLegal'] as string | undefined) ?? (rowData['tutor_legal'] as string | undefined)
     };
   }
 
@@ -161,9 +164,8 @@ export class HermanoService {
     return {
       id: profile.id,
       nombre,
-      primer_apellido: apellidos[0] ?? '',
-      segundo_apellido: apellidos.slice(1).join(' '),
-      apellidos: apellidos.join(' '),
+      primerApellido: apellidos[0] ?? '',
+      segundoApellido: apellidos.slice(1).join(' '),
       email: profile.email ?? '',
       numeroHermano: profile.numeroHermano ?? undefined,
       fechaAlta: profile.fechaAlta ?? ''
@@ -189,44 +191,41 @@ export class HermanoService {
   }
 
   private toApellidos(payload: UpsertHermanoPayload): string {
-    if (payload.apellidos) {
-      return payload.apellidos;
-    }
-    return `${payload.primer_apellido ?? ''} ${payload.segundo_apellido ?? ''}`.trim();
+    return `${payload.primerApellido ?? ''} ${payload.segundoApellido ?? ''}`.trim();
   }
 
   private toBackendPayload(payload: UpsertHermanoPayload): Record<string, unknown> {
     const row = payload as UpsertHermanoPayload & Record<string, unknown>;
     const nombre = String(payload.nombre ?? '').trim();
-    const primerApellido = String(payload.primer_apellido ?? '').trim();
-    const segundoApellido = String(payload.segundo_apellido ?? '').trim();
+    const primerApellido = String(payload.primerApellido?? '').trim();
+    const segundoApellido = String(payload.segundoApellido?? '').trim();
 
     return {
       idHermandad: this.toPositiveInt(row['idHermandad']) ?? this.defaultHermandadId,
       numeroHermano: this.toPositiveInt(payload.numeroHermano),
-      nif: String(payload.dni ?? row['nif'] ?? '').trim(),
+      nif: String(payload.nif?? row['nif'] ?? '').trim(),
       nombre,
       primerApellido,
       segundoApellido,
-      fechaNacimiento: row.fecha_nacimiento ?? row['fechaNacimiento'] ?? null,
+      fechaNacimiento: row['fechaNacimiento'] ?? row['fecha_nacimiento'] ?? null,
       direccion: String(payload.direccion ?? '').trim() || null,
       numero: String(row['numero'] ?? '').trim() || null,
-      pisoPuerta: String(payload.piso_puerta ?? '').trim() || null,
-      codigoPostal: String(payload.codigo_postal ?? '').trim() || null,
-      poblacion: String(payload.localidad ?? row['poblacion'] ?? '').trim() || null,
+      pisoPuerta: String(payload.pisoPuerta ?? '').trim() || null,
+      codigoPostal: String(payload.codigoPostal ?? '').trim() || null,
+      poblacion: String(payload.poblacion ?? row['poblacion'] ?? '').trim() || null,
       provincia: String(payload.provincia ?? '').trim() || null,
       pais: String(payload.pais ?? '').trim() || null,
-      telefonoMovil: String(payload.telefono_movil ?? payload.telefono ?? '').trim() || null,
-      telefonoFijo: String(payload.telefono_fijo ?? '').trim() || null,
+      telefonoMovil: String(payload.telefonoMovil ?? '').trim() || null,
+      telefonoFijo: String(payload.telefonoFijo ?? '').trim() || null,
       email: String(payload.email ?? '').trim() || null,
       fechaAlta: row.fechaAlta ?? row['fecha_alta'] ?? null,
       estado: String(payload.estado ?? 'ACTIVO').trim() || 'ACTIVO',
-      formaPago: String(payload.forma_pago ?? '').trim() || null,
+      formaPago: String(payload.formaPago ?? '').trim() || null,
       iban: String(payload.iban ?? '').trim() || null,
-      titularCuenta: String(payload.titular_cuenta ?? '').trim() || null,
-      enCuotas: payload.en_cuotas ?? false,
+      titularCuenta: String(payload.titularCuenta ?? '').trim() || null,
+      enCuotas: payload.enCuotas ?? false,
       observaciones: String(payload.observaciones ?? '').trim() || null,
-      tutorLegal: String(payload.tutor_legal ?? '').trim() || null,
+      tutorLegal: String(payload.tutorLegal ?? '').trim() || null,
       deleted: false
     };
   }
@@ -255,10 +254,9 @@ export class HermanoService {
 
       const searchable = [
         row.nombre,
-        row.apellidos,
-        row.primer_apellido,
-        row.segundo_apellido,
-        row.dni,
+        row.primerApellido,
+        row.segundoApellido,
+        row.nif,
         row.email,
         String(row.numeroHermano ?? '')
       ]
@@ -270,31 +268,34 @@ export class HermanoService {
   }
 
   private sortRows(rows: Hermano[], params: HermanosQueryParams): Hermano[] {
-    const sortDirection = params.sortDirection === 'desc' ? -1 : 1;
-    const sortBy = params.sortBy ?? 'primer_apellido';
+  const sortDirection = params.sortDirection === 'desc' ? -1 : 1;
+  const sortBy = params.sortBy ?? 'primerApellido';
 
-    const getValue = (row: Hermano): string => {
-      if (sortBy === 'primer_apellido' || sortBy === 'apellidos') {
-        return `${row.primer_apellido ?? ''} ${row.segundo_apellido ?? ''}`.trim().toLowerCase();
-      }
+  const getValue = (row: Hermano): string => {
+    if (sortBy === 'primerApellido') {
+      return `${row.primerApellido ?? ''} ${row.segundoApellido ?? ''}`.trim().toLowerCase();
+    }
 
-      if (sortBy === 'numeroHermano') {
-        return String(row.numeroHermano ?? 0);
-      }
+    if (sortBy === 'numeroHermano') {
+      return String(row.numeroHermano ?? 0);
+    }
 
-      return String(row[sortBy as keyof Hermano] ?? '').toLowerCase();
-    };
+    return String(row[sortBy as keyof Hermano] ?? '').toLowerCase();
+  };
 
-    return [...rows].sort((a, b) => {
-      const left = getValue(a);
-      const right = getValue(b);
-      if (left < right) {
-        return -1 * sortDirection;
-      }
-      if (left > right) {
-        return 1 * sortDirection;
-      }
-      return 0;
-    });
-  }
+  return [...rows].sort((a, b) => {
+    const left = getValue(a);
+    const right = getValue(b);
+
+    if (left < right) {
+      return -1 * sortDirection;
+    }
+
+    if (left > right) {
+      return 1 * sortDirection;
+    }
+
+    return 0;
+  });
+}
 }
