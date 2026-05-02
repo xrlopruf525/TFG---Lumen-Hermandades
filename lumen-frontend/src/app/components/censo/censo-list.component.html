@@ -93,6 +93,7 @@
           <th>
             <button type="button" (click)="sortBy('estado')">Estado {{ getSortIcon('estado') }}</button>
           </th>
+          <th>Cuotas</th>
           <th class="actions-col">Acciones</th>
         </tr>
       </thead>
@@ -109,6 +110,11 @@
               {{ hermano.estado || 'SIN ESTADO' }}
             </span>
           </td>
+          <td>
+            <span class="quota-pill" [ngClass]="getCuotaClass(hermano.id)">
+              {{ getCuotaResumen(hermano.id) }}
+            </span>
+          </td>
           <td class="actions-col">
             <button type="button" class="action-btn" (click)="openEditForm(hermano)">Editar</button>
             <button
@@ -122,7 +128,7 @@
           </td>
         </tr>
         <tr *ngIf="hermanos.length === 0">
-          <td colspan="8" class="empty-state">No hay registros para mostrar.</td>
+          <td colspan="9" class="empty-state">No hay registros para mostrar.</td>
         </tr>
       </tbody>
     </table>

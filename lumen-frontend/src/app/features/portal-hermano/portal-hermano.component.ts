@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 
 import { AuthService } from '../../core/services/auth.service';
 import { PortalHermanoProfile, HermanoService } from '../../services/hermano.service';
+import { Cuota } from '../../core/models/cuota.model';
+import { CuotaService } from '../../core/services/cuota.service';
 
 interface PortalNotice {
   title: string;
@@ -28,6 +30,7 @@ export class PortalHermanoComponent implements OnInit {
   profile: PortalHermanoProfile | null = null;
   loading = false;
   errorMessage = '';
+  cuotas: Cuota[] = [];
 
   readonly notices: PortalNotice[] = [
     { title: 'Recordatorio de cuota trimestral', date: '15 mayo 2026', type: 'warning' },
@@ -44,7 +47,8 @@ export class PortalHermanoComponent implements OnInit {
   constructor(
     private readonly hermanoService: HermanoService,
     private readonly authService: AuthService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly cuotaService: CuotaService
   ) {}
 
   ngOnInit(): void {
@@ -79,6 +83,7 @@ export class PortalHermanoComponent implements OnInit {
     this.hermanoService.getPortalHermano().subscribe({
       next: (profile) => {
         this.profile = profile;
+        this.loadCuotas();
         this.loading = false;
       },
       error: () => {
@@ -87,5 +92,40 @@ export class PortalHermanoComponent implements OnInit {
         this.errorMessage = 'No se pudo cargar tu portal. Revisa la conexion con la API.';
       }
     });
+  }
+
+  private loadCuotas(): void {
+    let id: number | null = null;
+
+    if (this.profile) {
+      // El perfil actual es la fuente más fiable: primero su id real y luego el numero de hermano.
+      id = this.profile.id ?? this.profile.numeroHermano ?? null;
+    }
+
+    if (!id) {
+      id = this.authService.getAuthenticatedHermanoId();
+    }
+
+    if (!id) {
+      this.cuotas = [];
+      return;
+    }
+
+    this.cuotaService.obtenerCuotasPorHermano(id).subscribe({
+      next: (cuotas) => {
+        this.cuotas = cuotas || [];
+      },
+      error: () => {
+        this.cuotas = [];
+      }
+    });
+  }
+
+  pagarCuotaSimulada(cuota: Cuota): void {
+    if (!cuota) return;
+    // Marcar pago localmente (simulado)
+    cuota.estado = 'PAGADA';
+    cuota.fecha_pago = new Date().toISOString();
+    cuota.pagoSimulado = true;
   }
 }

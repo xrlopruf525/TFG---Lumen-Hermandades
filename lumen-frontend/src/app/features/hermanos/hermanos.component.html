@@ -1,3 +1,21 @@
-<div class="container-fluid mt-3">
-  <app-censo-list></app-censo-list>
+<div class="hermanos-container">
+  <div class="tabs-header">
+    <button class="tab-button" [class.active]="activeTab === 'hermanos'" (click)="activeTab = 'hermanos'">👥 Gestión de Hermanos</button>
+    <button *ngIf="isAdmin" class="tab-button" [class.active]="activeTab === 'economica'" (click)="activeTab = 'economica'">💰 Gestión Económica</button>
+    <button class="tab-button" [class.active]="activeTab === 'informes'" (click)="activeTab = 'informes'" disabled>📊 Informes</button>
+  </div>
+
+  <div class="tabs-content">
+    <div *ngIf="activeTab === 'hermanos'" class="tab-pane active">
+      <app-censo-list></app-censo-list>
+    </div>
+
+    <div *ngIf="activeTab === 'economica' && isAdmin" class="tab-pane active">
+      <app-gestion-economica></app-gestion-economica>
+    </div>
+
+    <div *ngIf="activeTab === 'informes'" class="tab-pane active">
+      <div class="coming-soon"><p>Informes próximamente</p></div>
+    </div>
+  </div>
 </div>

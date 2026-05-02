@@ -15,6 +15,8 @@ import {
   HermanosQueryParams,
   UpsertHermanoPayload
 } from '../../models/hermano.model';
+import { Cuota } from '../../core/models/cuota.model';
+import { CuotaService } from '../../core/services/cuota.service';
 import { HermanoService } from '../../services/hermano.service';
 import { CensoFormComponent } from './censo-form.component';
 import * as XLSX from 'xlsx';
@@ -47,6 +49,7 @@ export class CensoListComponent implements OnInit, OnDestroy {
   ];
 
   hermanos: Hermano[] = [];
+  cuotasByHermanoId = new Map<number, Cuota[]>();
 
   searchTerm = '';
   estadoFiltro = '';
@@ -68,7 +71,10 @@ export class CensoListComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private readonly searchTerm$ = new Subject<string>();
 
-  constructor(private readonly hermanoService: HermanoService) {}
+  constructor(
+    private readonly hermanoService: HermanoService,
+    private readonly cuotaService: CuotaService
+  ) {}
 
   ngOnInit(): void {
     this.searchTerm$
@@ -79,6 +85,7 @@ export class CensoListComponent implements OnInit, OnDestroy {
       });
 
     this.loadHermanos();
+    this.loadCuotas();
   }
 
   ngOnDestroy(): void {
@@ -105,6 +112,30 @@ export class CensoListComponent implements OnInit, OnDestroy {
           ? 'No se pudo cargar el censo porque la API no esta disponible (backend apagado o sin conexion a BD).'
           : 'No se pudo cargar el censo. Revisa la conexion con la API.';
         this.loading = false;
+      }
+    });
+  }
+
+  private loadCuotas(): void {
+    this.cuotaService.obtenerTodasLasCuotas().pipe(takeUntil(this.destroy$)).subscribe({
+      next: (cuotas) => {
+        const grouped = new Map<number, Cuota[]>();
+
+        (cuotas || []).forEach((cuota) => {
+          const idHermano = cuota.idHermano;
+          if (!idHermano) {
+            return;
+          }
+
+          const current = grouped.get(idHermano) ?? [];
+          current.push(cuota);
+          grouped.set(idHermano, current);
+        });
+
+        this.cuotasByHermanoId = grouped;
+      },
+      error: () => {
+        this.cuotasByHermanoId = new Map<number, Cuota[]>();
       }
     });
   }
@@ -252,6 +283,42 @@ export class CensoListComponent implements OnInit, OnDestroy {
   formatApellidos(hermano: Hermano): string {
     const full = `${hermano.primer_apellido ?? ''} ${hermano.segundo_apellido ?? ''}`.trim();
     return full || '-';
+  }
+
+  getCuotaResumen(hermanoId: number): string {
+    const cuotas = this.cuotasByHermanoId.get(hermanoId) ?? [];
+    if (!cuotas.length) {
+      return 'Sin cuotas';
+    }
+
+    const pendientes = cuotas.filter((cuota) => String(cuota.estado).toUpperCase() === 'PENDIENTE').length;
+    const pagadas = cuotas.filter((cuota) => String(cuota.estado).toUpperCase() === 'PAGADA').length;
+
+    if (pendientes > 0 && pagadas === 0) {
+      return `${pendientes} pendiente${pendientes === 1 ? '' : 's'}`;
+    }
+
+    if (pagadas > 0 && pendientes === 0) {
+      return 'Pagada';
+    }
+
+    return `${pendientes} pendientes / ${pagadas} pagadas`;
+  }
+
+  getCuotaClass(hermanoId: number): string {
+    const cuotas = this.cuotasByHermanoId.get(hermanoId) ?? [];
+    const pendientes = cuotas.filter((cuota) => String(cuota.estado).toUpperCase() === 'PENDIENTE').length;
+    const pagadas = cuotas.filter((cuota) => String(cuota.estado).toUpperCase() === 'PAGADA').length;
+
+    if (pendientes > 0 && pagadas === 0) {
+      return 'quota-pill--pending';
+    }
+
+    if (pagadas > 0 && pendientes === 0) {
+      return 'quota-pill--paid';
+    }
+
+    return 'quota-pill--neutral';
   }
 
   trackByHermanoId(_index: number, hermano: Hermano): number {

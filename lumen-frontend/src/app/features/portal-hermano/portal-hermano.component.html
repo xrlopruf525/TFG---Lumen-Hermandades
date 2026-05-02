@@ -59,6 +59,36 @@
         </div>
       </article>
 
+      <article class="portal-card">
+        <header class="portal-card__header">
+          <h2>Cuotas</h2>
+          <span class="portal-card__tag portal-card__tag--soft">Pendientes y pagadas</span>
+        </header>
+
+        <div *ngIf="cuotas?.length; else noCuotas">
+          <table class="cuotas-table">
+            <thead>
+              <tr><th>Concepto</th><th>Vencimiento</th><th>Importe</th><th>Estado</th><th></th></tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let cuota of cuotas">
+                <td>{{ cuota.concepto }}</td>
+                <td>{{ (cuota.fecha_vencimiento || cuota.fechaPago || cuota.fecha_pago) | date:'dd/MM/yyyy' }}</td>
+                <td>{{ cuota.importe | currency }}</td>
+                <td>{{ cuota.estado }}</td>
+                <td>
+                  <button *ngIf="cuota.estado !== 'PAGADA'" class="btn btn--primary" (click)="pagarCuotaSimulada(cuota)">Pagar (simulado)</button>
+                  <span *ngIf="cuota.estado === 'PAGADA'" class="badge">Pagada</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <ng-template #noCuotas>
+          <p>No hay cuotas registradas.</p>
+        </ng-template>
+      </article>
+
       <article class="portal-card portal-card--accent">
         <header class="portal-card__header">
           <h2>Estado de cuotas</h2>

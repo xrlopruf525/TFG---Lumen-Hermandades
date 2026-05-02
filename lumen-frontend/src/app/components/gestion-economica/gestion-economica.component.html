@@ -1,0 +1,60 @@
+<section class="gestion-economica">
+  <div class="stats-container">
+    <div class="stat-card ingresos">
+      <h3>Ingresos del mes</h3>
+      <p class="amount">{{ (estadisticas$ | async)?.total_ingresos | currency }}</p>
+    </div>
+
+    <div class="stat-card gastos">
+      <h3>Gastos del mes</h3>
+      <p class="amount negative">-{{ (estadisticas$ | async)?.total_gastos | currency }}</p>
+    </div>
+
+    <div class="stat-card balance">
+      <h3>Balance</h3>
+      <p class="amount" [ngClass]="{'positive': ((estadisticas$ | async)?.balance ?? 0) > 0}">
+        {{ (((estadisticas$ | async)?.balance ?? 0) > 0 ? '+' : '') }}{{ ((estadisticas$ | async)?.balance ?? 0) | currency }}
+      </p>
+    </div>
+  </div>
+
+  <div class="movimientos-section">
+    <div class="movimientos-header">
+      <h2>Movimientos Recientes</h2>
+      <button type="button" class="btn-nuevo" (click)="abrirNuevoMovimiento()">+ Nuevo Movimiento</button>
+    </div>
+
+    <div *ngIf="showNewForm" class="nuevo-movimiento-container">
+      <app-gestion-economica-new (created)="onCreated()" (cancel)="onCancel()"></app-gestion-economica-new>
+    </div>
+
+    <div class="table-wrapper" *ngIf="!loading; else loadingState">
+      <table class="movimientos-table" *ngIf="(movimientos$ | async) as movimientos">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Concepto</th>
+            <th>Tipo</th>
+            <th>Importe</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let movimiento of movimientos">
+            <td>{{ movimiento.fecha | date:'short' }}</td>
+            <td>{{ movimiento.concepto }}</td>
+            <td><span [ngClass]="'tipo-' + movimiento.tipo">{{ movimiento.tipo === 'ingreso' ? 'Ingreso' : 'Gasto' }}</span></td>
+            <td [ngClass]="'importe-' + movimiento.tipo">{{ (movimiento.tipo === 'ingreso' ? '+' : '-') }}{{ movimiento.importe | currency }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div *ngIf="!(movimientos$ | async) || (movimientos$ | async)?.length === 0" class="empty-state">
+        <p>No hay movimientos registrados</p>
+      </div>
+    </div>
+
+    <ng-template #loadingState>
+      <div class="loading">Cargando movimientos...</div>
+    </ng-template>
+  </div>
+</section>
