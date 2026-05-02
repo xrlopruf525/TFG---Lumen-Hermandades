@@ -4,9 +4,32 @@
       <h2>Censo de Hermanos</h2>
       <p>Vista de Junta de Gobierno con paginacion y filtros backend</p>
     </div>
-    <button type="button" class="primary-btn" (click)="openCreateForm()">
-      + Nuevo hermano
-    </button>
+
+    <div class="censo-list__actions">
+      <button type="button" class="primary-btn" (click)="openCreateForm()">
+        + Nuevo hermano
+      </button>
+
+      <button type="button" class="secondary-btn" (click)="descargarPlantilla()">
+        Descargar plantilla
+      </button>
+
+      <button type="button" class="secondary-btn" (click)="exportarHermanos()">
+        Exportar hermanos
+      </button>
+
+      <button type="button" class="secondary-btn" (click)="fileInput.click()">
+        Importar hermanos
+      </button>
+
+      <input
+        #fileInput
+        type="file"
+        accept=".xlsx,.xls"
+        hidden
+        (change)="importarHermanosDesdeExcel($event)"
+      >
+    </div>
   </header>
 
   <app-censo-form
@@ -53,13 +76,13 @@
             <button type="button" (click)="sortBy('nombre')">Nombre {{ getSortIcon('nombre') }}</button>
           </th>
           <th>
-            <button type="button" (click)="sortBy('primer_apellido')">Apellidos {{ getSortIcon('primer_apellido') }}</button>
+            <button type="button" (click)="sortBy('primerApellido')">Apellidos {{ getSortIcon('primerApellido') }}</button>
           </th>
           <th>
-            <button type="button" (click)="sortBy('dni')">DNI {{ getSortIcon('dni') }}</button>
+            <button type="button" (click)="sortBy('nif')">DNI {{ getSortIcon('nif') }}</button>
           </th>
           <th>
-            <button type="button" (click)="sortBy('telefono_movil')">Móvil {{ getSortIcon('telefono_movil') }}</button>
+            <button type="button" (click)="sortBy('telefonoMovil')">Móvil {{ getSortIcon('telefonoMovil') }}</button>
           </th>
           <th>
             <button type="button" (click)="sortBy('email')">Email {{ getSortIcon('email') }}</button>
@@ -77,8 +100,8 @@
         <tr *ngFor="let hermano of hermanos; trackBy: trackByHermanoId">
           <td>{{ hermano.nombre || '-' }}</td>
           <td>{{ formatApellidos(hermano) }}</td>
-          <td>{{ hermano.dni || '-' }}</td>
-          <td>{{ hermano.telefono_movil || '-' }}</td>
+          <td>{{ hermano.nif || '-' }}</td>
+          <td>{{ hermano.telefonoMovil || '-' }}</td>
           <td>{{ hermano.email || '-' }}</td>
           <td>{{ hermano.numeroHermano || '-' }}</td>
           <td>

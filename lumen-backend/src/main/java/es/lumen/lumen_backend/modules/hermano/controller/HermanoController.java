@@ -1,9 +1,11 @@
 package es.lumen.lumen_backend.modules.hermano.controller;
 
 import es.lumen.lumen_backend.modules.hermano.dto.HermanoDto;
+import es.lumen.lumen_backend.modules.hermano.dto.ImportarHermanosResponse;
 import es.lumen.lumen_backend.modules.hermano.dto.PortalHermanoDto;
 import es.lumen.lumen_backend.modules.hermano.entity.Hermano;
 import es.lumen.lumen_backend.modules.hermano.service.HermanoService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +31,12 @@ public class HermanoController {
     @GetMapping("/inactivos")
     public List<Hermano> listarInactivos() {
         return hermanoService.buscarInactivos();
+    }
+
+    @PostMapping("/importar")
+    public ResponseEntity<ImportarHermanosResponse> importarHermanos(@RequestBody List<HermanoDto> hermanos) {
+        ImportarHermanosResponse response = hermanoService.importarHermanos(hermanos);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")

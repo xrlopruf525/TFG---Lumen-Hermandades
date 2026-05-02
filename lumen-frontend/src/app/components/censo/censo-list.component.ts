@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import {
   Subject,
   debounceTime,
@@ -18,13 +17,14 @@ import {
 } from '../../models/hermano.model';
 import { HermanoService } from '../../services/hermano.service';
 import { CensoFormComponent } from './censo-form.component';
+import * as XLSX from 'xlsx';
 
 type SortDirection = 'asc' | 'desc';
 type SortableColumn =
   | 'nombre'
-  | 'primer_apellido'
-  | 'dni'
-  | 'telefono_movil'
+  | 'primerApellido'
+  | 'nif'
+  | 'telefonoMovil'
   | 'email'
   | 'estado'
   | 'numeroHermano';
@@ -50,7 +50,7 @@ export class CensoListComponent implements OnInit, OnDestroy {
 
   searchTerm = '';
   estadoFiltro = '';
-  sortColumn: SortableColumn = 'primer_apellido';
+  sortColumn: SortableColumn = 'primerApellido';
   sortDirection: SortDirection = 'asc';
   page = 1;
   pageSize = 10;
@@ -68,10 +68,7 @@ export class CensoListComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private readonly searchTerm$ = new Subject<string>();
 
-  constructor(
-    private readonly hermanoService: HermanoService,
-    private readonly router: Router
-  ) {}
+  constructor(private readonly hermanoService: HermanoService) {}
 
   ngOnInit(): void {
     this.searchTerm$
@@ -187,7 +184,7 @@ export class CensoListComponent implements OnInit, OnDestroy {
   }
 
   deleteHermano(hermano: Hermano): void {
-    if (!window.confirm(`Eliminar a ${hermano.nombre} ${hermano.primer_apellido}?`)) {
+    if (!window.confirm(`Eliminar a ${hermano.nombre} ${hermano.primerApellido}?`)) {
       return;
     }
 
@@ -253,7 +250,7 @@ export class CensoListComponent implements OnInit, OnDestroy {
   }
 
   formatApellidos(hermano: Hermano): string {
-    const full = `${hermano.primer_apellido ?? ''} ${hermano.segundo_apellido ?? ''}`.trim();
+    const full = `${hermano.primerApellido ?? ''} ${hermano.segundoApellido ?? ''}`.trim();
     return full || '-';
   }
 
@@ -270,5 +267,250 @@ export class CensoListComponent implements OnInit, OnDestroy {
       sortBy: this.sortColumn,
       sortDirection: this.sortDirection
     };
+  }
+
+      camposHermano: string[] = [
+    'idHermandad',
+    'numeroHermano',
+    'nif',
+    'nombre',
+    'primerApellido',
+    'segundoApellido',
+    'fechaNacimiento',
+    'direccion',
+    'numero',
+    'pisoPuerta',
+    'codigoPostal',
+    'poblacion',
+    'provincia',
+    'pais',
+    'telefonoMovil',
+    'telefonoFijo',
+    'email',
+    'fechaAlta',
+    'fechaBaja',
+    'estado',
+    'formaPago',
+    'iban',
+    'titularCuenta',
+    'enCuotas',
+    'observaciones',
+    'tutorLegal',
+  ];
+
+  descargarPlantilla(): void {
+    const filaVacia: any = {};
+
+    this.camposHermano.forEach(campo => {
+      filaVacia[campo] = '';
+    });
+
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet([filaVacia], {
+      header: this.camposHermano
+    });
+
+    const workbook: XLSX.WorkBook = {
+      Sheets: { 'Plantilla hermanos': worksheet },
+      SheetNames: ['Plantilla hermanos']
+    };
+
+    XLSX.writeFile(workbook, 'plantilla_hermanos.xlsx');
+  }
+
+  exportarHermanos(): void {
+    const hermanosParaExportar = this.obtenerHermanosParaExportar();
+
+    if (!hermanosParaExportar || hermanosParaExportar.length === 0) {
+      alert('No hay hermanos para exportar.');
+      return;
+    }
+
+    const datosExcel = hermanosParaExportar.map((hermano: any) => {
+      const fila: any = {};
+
+      this.camposHermano.forEach(campo => {
+        fila[campo] = hermano[campo] ?? '';
+      });
+
+      return fila;
+    });
+
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(datosExcel, {
+      header: this.camposHermano
+    });
+
+    const workbook: XLSX.WorkBook = {
+      Sheets: { 'Hermanos': worksheet },
+      SheetNames: ['Hermanos']
+    };
+
+    XLSX.writeFile(workbook, 'exportacion_hermanos.xlsx');
+  }
+
+  private obtenerHermanosParaExportar(): Hermano[] {
+    return this.hermanos || [];
+  }
+
+    importarHermanosDesdeExcel(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      try {
+        const data = new Uint8Array(reader.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: 'array' });
+
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+
+        const rows = XLSX.utils.sheet_to_json<Record<string, any>>(worksheet, {
+          defval: ''
+        });
+
+        if (!rows || rows.length === 0) {
+          alert('El Excel está vacío.');
+          input.value = '';
+          return;
+        }
+
+        const hermanos = rows
+          .map((row) => this.normalizarHermanoImportado(row))
+          .filter((hermano) => hermano.nombre && hermano.primerApellido && hermano.nif);
+
+        if (hermanos.length === 0) {
+          alert('No se encontraron hermanos válidos. Revisa que el Excel tenga nombre, primerApellido y nif.');
+          input.value = '';
+          return;
+        }
+
+        if (!window.confirm(`Se van a importar ${hermanos.length} hermanos. ¿Deseas continuar?`)) {
+          input.value = '';
+          return;
+        }
+
+        this.loading = true;
+        this.errorMessage = '';
+
+        this.hermanoService.importarHermanos(hermanos).subscribe({
+          next: (response) => {
+            this.loading = false;
+            input.value = '';
+
+            alert(
+              `Importación finalizada.\n\n` +
+              `Total leídos: ${response.totalLeidos}\n` +
+              `Importados correctamente: ${response.importados}\n` +
+              `Errores: ${response.errores}`
+            );
+
+            this.page = 1;
+            this.loadHermanos();
+          },
+          error: () => {
+            this.loading = false;
+            input.value = '';
+            this.errorMessage = 'No se pudo importar el Excel. Revisa el formato de la plantilla.';
+          }
+        });
+      } catch (error) {
+        input.value = '';
+        this.loading = false;
+        this.errorMessage = 'Error leyendo el archivo Excel.';
+      }
+    };
+
+    reader.readAsArrayBuffer(file);
+  }
+
+  private normalizarHermanoImportado(row: Record<string, any>): UpsertHermanoPayload {
+    return {
+      idHermandad: this.toNumberOrUndefined(row['idHermandad']),
+      numeroHermano: this.toNumberOrUndefined(row['numeroHermano']),
+      nif: this.toText(row['nif']),
+      nombre: this.toText(row['nombre']) ?? '',
+      primerApellido: this.toText(row['primerApellido']) ?? '',
+      segundoApellido: this.toText(row['segundoApellido']),
+      fechaNacimiento: this.toExcelDate(row['fechaNacimiento']),
+      direccion: this.toText(row['direccion']),
+      numero: this.toText(row['numero']),
+      pisoPuerta: this.toText(row['pisoPuerta']),
+      codigoPostal: this.toText(row['codigoPostal']),
+      poblacion: this.toText(row['poblacion']),
+      provincia: this.toText(row['provincia']),
+      pais: this.toText(row['pais']) || 'Espana',
+      telefonoMovil: this.toText(row['telefonoMovil']),
+      telefonoFijo: this.toText(row['telefonoFijo']),
+      email: this.toText(row['email']),
+      fechaAlta: this.toExcelDate(row['fechaAlta']),
+      fechaBaja: this.toExcelDate(row['fechaBaja']),
+      estado: this.toText(row['estado']) || 'ACTIVO',
+      formaPago: this.toText(row['formaPago']),
+      iban: this.toText(row['iban']),
+      titularCuenta: this.toText(row['titularCuenta']),
+      enCuotas: this.toBoolean(row['enCuotas']),
+      observaciones: this.toText(row['observaciones']),
+      tutorLegal: this.toText(row['tutorLegal'])
+    };
+  }
+
+  private toText(value: unknown): string | undefined {
+    const text = String(value ?? '').trim();
+    return text ? text : undefined;
+  }
+
+  private toNumberOrUndefined(value: unknown): number | undefined {
+    if (value === null || value === undefined || value === '') {
+      return undefined;
+    }
+
+    const number = Number(value);
+    return Number.isFinite(number) ? number : undefined;
+  }
+
+  private toBoolean(value: unknown): boolean {
+    const text = String(value ?? '').trim().toLowerCase();
+
+    return text === 'true' ||
+      text === '1' ||
+      text === 'sí' ||
+      text === 'si' ||
+      text === 'x';
+  }
+
+  private toExcelDate(value: unknown): string | undefined {
+    if (!value) {
+      return undefined;
+    }
+
+    if (value instanceof Date) {
+      return value.toISOString().slice(0, 10);
+    }
+
+    if (typeof value === 'number') {
+      const parsedDate = XLSX.SSF.parse_date_code(value);
+
+      if (!parsedDate) {
+        return undefined;
+      }
+
+      const month = String(parsedDate.m).padStart(2, '0');
+      const day = String(parsedDate.d).padStart(2, '0');
+
+      return `${parsedDate.y}-${month}-${day}`;
+    }
+
+    const text = String(value).trim();
+
+    if (!text) {
+      return undefined;
+    }
+
+    return text;
   }
 }
