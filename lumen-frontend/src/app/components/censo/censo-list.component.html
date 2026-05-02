@@ -76,13 +76,13 @@
             <button type="button" (click)="sortBy('nombre')">Nombre {{ getSortIcon('nombre') }}</button>
           </th>
           <th>
-            <button type="button" (click)="sortBy('primerApellido')">Apellidos {{ getSortIcon('primerApellido') }}</button>
+            <button type="button" (click)="sortBy('primer_apellido')">Apellidos {{ getSortIcon('primer_apellido') }}</button>
           </th>
           <th>
-            <button type="button" (click)="sortBy('nif')">DNI {{ getSortIcon('nif') }}</button>
+            <button type="button" (click)="sortBy('dni')">DNI {{ getSortIcon('dni') }}</button>
           </th>
           <th>
-            <button type="button" (click)="sortBy('telefonoMovil')">Móvil {{ getSortIcon('telefonoMovil') }}</button>
+            <button type="button" (click)="sortBy('telefono_movil')">Móvil {{ getSortIcon('telefono_movil') }}</button>
           </th>
           <th>
             <button type="button" (click)="sortBy('email')">Email {{ getSortIcon('email') }}</button>
@@ -100,8 +100,8 @@
         <tr *ngFor="let hermano of hermanos; trackBy: trackByHermanoId">
           <td>{{ hermano.nombre || '-' }}</td>
           <td>{{ formatApellidos(hermano) }}</td>
-          <td>{{ hermano.nif || '-' }}</td>
-          <td>{{ hermano.telefonoMovil || '-' }}</td>
+          <td>{{ hermano.dni || '-' }}</td>
+          <td>{{ hermano.telefono_movil || '-' }}</td>
           <td>{{ hermano.email || '-' }}</td>
           <td>{{ hermano.numeroHermano || '-' }}</td>
           <td>
