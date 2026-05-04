@@ -124,13 +124,30 @@ export class PortalHermanoComponent implements OnInit {
   pagarCuotaSimulada(cuota: Cuota): void {
     if (!cuota) return;
 
+    // Llamar al endpoint backend para marcar como pagada en la base de datos
+    // mostramos resultado optimista mientras el backend responde
     const fechaPago = new Date().toISOString();
     cuota.estado = 'PAGADA';
     cuota.fechaPago = fechaPago;
     cuota.fecha_pago = fechaPago;
-    cuota.pagoSimulado = true;
 
-    this.cuotaService.registrarPagoSimulado(cuota.idCuota, fechaPago);
+    this.cuotaService.pagarCuotaBackend(cuota.idCuota).subscribe({
+      next: (updated) => {
+        if (updated) {
+          // actualizar cuota con datos devueltos por backend
+          cuota.estado = updated.estado ?? 'PAGADA';
+          cuota.fechaPago = (updated['fechaPago'] as any) ?? (updated['fecha_pago'] as any) ?? fechaPago;
+          cuota.fecha_pago = cuota.fechaPago;
+          cuota.pagoSimulado = false;
+        }
+      },
+      error: () => {
+        // si falla la petición, revertir el cambio de UI
+        cuota.estado = 'PENDIENTE';
+        cuota.fechaPago = undefined;
+        cuota.fecha_pago = undefined;
+      }
+    });
   }
 
   get cuotasPendientes(): Cuota[] {
