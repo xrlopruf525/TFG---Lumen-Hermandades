@@ -56,11 +56,27 @@ export class PortalHermanoComponent implements OnInit {
   }
 
   get cuotaStatus(): string {
+    const pendientes = this.cuotas.filter((c) => String(c.estado).toUpperCase() !== 'PAGADA').length;
+
+    if (pendientes > 0) {
+      return `Debe pagar ${pendientes} cuota${pendientes > 1 ? 's' : ''}`;
+    }
+
     return 'Al corriente';
   }
 
   get proximaCuota(): string {
-    return '15/05/2026';
+    const pendientes = this.cuotas
+      .filter((c) => String(c.estado).toUpperCase() !== 'PAGADA')
+      .map((c) => c.fecha_vencimiento || c.fechaPago || c.fecha_pago)
+      .filter(Boolean)
+      .map((d) => new Date(d as string))
+      .filter((dt) => !isNaN(dt.getTime()));
+
+    if (!pendientes || pendientes.length === 0) return '';
+
+    const next = pendientes.reduce((a, b) => (a.getTime() < b.getTime() ? a : b));
+    return next.toISOString();
   }
 
   get grupo(): string {
@@ -113,7 +129,14 @@ export class PortalHermanoComponent implements OnInit {
 
     this.cuotaService.obtenerCuotasPorHermano(id).subscribe({
       next: (cuotas) => {
-        this.cuotas = cuotas || [];
+        const currentYear = new Date().getFullYear();
+        this.cuotas = (cuotas || []).filter((c) => {
+          if (c.anyo && Number(c.anyo) === currentYear) return true;
+          const dateStr = c.fecha_vencimiento || c.fechaPago || c.fecha_pago;
+          if (!dateStr) return false;
+          const d = new Date(dateStr as string);
+          return !isNaN(d.getTime()) && d.getFullYear() === currentYear;
+        });
       },
       error: () => {
         this.cuotas = [];

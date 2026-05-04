@@ -1,6 +1,7 @@
 export interface Cuota {
   idCuota: number;
   idHermano?: number;
+  anyo?: number;
   concepto: string;
   importe: number;
   fecha_emision?: string | Date;

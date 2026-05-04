@@ -18,7 +18,8 @@ export class GestionEconomicaNewComponent {
     tipo: ['gasto', Validators.required],
     concepto: ['', [Validators.required, Validators.maxLength(255)]],
     importe: [0, [Validators.required]],
-    fecha: ['']
+    fecha: [''],
+    proveedor: ['']
   });
 
   saving = false;
@@ -39,7 +40,8 @@ export class GestionEconomicaNewComponent {
     const payload = {
       concepto: String(raw.concepto || '').trim(),
       importe,
-      fecha: raw.fecha || new Date().toISOString()
+      fecha: raw.fecha || new Date().toISOString(),
+      proveedor: raw.proveedor ? String(raw.proveedor).trim() : undefined
     };
 
     this.saving = true;

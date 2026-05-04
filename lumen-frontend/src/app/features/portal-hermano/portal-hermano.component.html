@@ -125,7 +125,7 @@
           </div>
           <div class="quota-item">
             <span class="quota-item__label">Próximo vencimiento</span>
-            <strong>{{ proximaCuota }}</strong>
+            <strong>{{ proximaCuota ? (proximaCuota | date:'dd/MM/yyyy') : '-' }}</strong>
           </div>
           <div class="quota-item">
             <span class="quota-item__label">Forma de pago</span>

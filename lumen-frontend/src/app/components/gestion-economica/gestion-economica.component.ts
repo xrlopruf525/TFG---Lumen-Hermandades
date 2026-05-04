@@ -46,11 +46,14 @@ export class GestionEconomicaComponent implements OnInit {
       map(([cuotas, gastos]) => {
         const movimientos: Movimiento[] = [];
 
-        const cuotasPagadas = (cuotas || []).filter(c => c.estado === 'PAGADA');
-        cuotasPagadas.forEach(cuota => {
+        const now = new Date();
+        const currentYear = now.getFullYear();
+
+        const cuotasPagadasThisYear = (cuotas || []).filter(c => c.estado === 'PAGADA' && (c.anyo ? Number(c.anyo) === currentYear : (new Date(c.fecha_pago || c.fechaPago || 0)).getFullYear() === currentYear));
+        cuotasPagadasThisYear.forEach(cuota => {
           movimientos.push({
             id: cuota.idCuota,
-            fecha: cuota.fecha_pago || new Date(),
+            fecha: cuota.fecha_pago || cuota.fechaPago || new Date(),
             concepto: cuota.concepto,
             tipo: 'ingreso',
             importe: Number(cuota.importe) || 0
@@ -73,10 +76,29 @@ export class GestionEconomicaComponent implements OnInit {
 
     this.estadisticas$ = combineLatest([cuotas$, gastos$]).pipe(
       map(([cuotas, gastos]) => {
-        const cuotasPagadas = (cuotas || []).filter(c => c.estado === 'PAGADA');
-        const total_ingresos_from_cuotas = cuotasPagadas.reduce((s, c) => s + Number(c.importe || 0), 0);
-        const total_ingresos_from_gastos = (gastos || []).filter(g => Number(g.importe) < 0).reduce((s, g) => s + Math.abs(Number(g.importe || 0)), 0);
-        const total_gastos = (gastos || []).filter(g => Number(g.importe) >= 0).reduce((s, g) => s + Number(g.importe || 0), 0);
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth();
+
+        const cuotasPagadasThisMonth = (cuotas || []).filter((c) => {
+          if (String(c.estado).toUpperCase() !== 'PAGADA') return false;
+          const fecha = c.fecha_pago || c.fechaPago || c.fechaPago;
+          if (!fecha) return false;
+          const d = new Date(fecha as string);
+          return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
+        });
+
+        const total_ingresos_from_cuotas = cuotasPagadasThisMonth.reduce((s, c) => s + Number(c.importe || 0), 0);
+
+        const gastosThisMonth = (gastos || []).filter((g) => {
+          const fecha = g.fecha;
+          if (!fecha) return false;
+          const d = new Date(fecha as string);
+          return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
+        });
+
+        const total_ingresos_from_gastos = gastosThisMonth.filter(g => Number(g.importe) < 0).reduce((s, g) => s + Math.abs(Number(g.importe || 0)), 0);
+        const total_gastos = gastosThisMonth.filter(g => Number(g.importe) >= 0).reduce((s, g) => s + Number(g.importe || 0), 0);
 
         const total_ingresos = total_ingresos_from_cuotas + total_ingresos_from_gastos;
         const balance = total_ingresos - total_gastos;

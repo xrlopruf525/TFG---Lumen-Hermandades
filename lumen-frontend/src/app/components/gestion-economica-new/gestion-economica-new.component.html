@@ -27,6 +27,11 @@
         <input type="number" formControlName="importe" step="0.01" placeholder="0.00" class="form-control" />
       </div>
 
+      <div class="form-row" *ngIf="form.controls['tipo'].value === 'gasto'">
+        <label class="form-label">Proveedor (opcional)</label>
+        <input type="text" formControlName="proveedor" placeholder="Proveedor, tienda..." class="form-control" />
+      </div>
+
       <div class="form-row">
         <label class="form-label">Fecha
           <input type="date" formControlName="fecha" class="form-control" />

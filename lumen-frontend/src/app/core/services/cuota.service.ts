@@ -50,6 +50,7 @@ export class CuotaService {
     return {
       idCuota: Number(cuota['idCuota'] ?? cuota['id_cuota'] ?? 0),
       idHermano: this.toPositiveNumber(cuota['idHermano'] ?? cuota['id_hermano'] ?? hermano['id'] ?? hermano['idHermano']),
+      anyo: cuota['anyo'] ? Number(cuota['anyo']) : undefined,
       concepto: String(cuota['concepto'] ?? ''),
       importe: Number(cuota['importe'] ?? 0),
       fecha_emision: cuota['fecha_emision'] as string | Date | undefined,
