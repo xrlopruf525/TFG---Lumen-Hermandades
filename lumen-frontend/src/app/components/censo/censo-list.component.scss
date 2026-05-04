@@ -161,6 +161,35 @@ th button {
   color: #344054;
 }
 
+.quota-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 7.5rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.quota-pill--pending {
+  background: #fff4e5;
+  color: #b45309;
+  border-color: #fed7aa;
+}
+
+.quota-pill--paid {
+  background: #ecfdf3;
+  color: #047857;
+  border-color: #a7f3d0;
+}
+
+.quota-pill--neutral {
+  background: #eef2ff;
+  color: #4338ca;
+  border-color: #c7d2fe;
+}
 .status-pill--neutral {
   background: #eef2f6;
   color: #425466;

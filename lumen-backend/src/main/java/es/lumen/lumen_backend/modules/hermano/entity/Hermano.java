@@ -49,7 +49,7 @@ public class Hermano {
     @Column(name = "direccion", length = 200)
     private String direccion;
 
-    @Column(name = "numero", length = 10)
+    @Column(name = "numero", length = 50)
     private String numero;
 
     @Column(name = "piso_puerta", length = 20)

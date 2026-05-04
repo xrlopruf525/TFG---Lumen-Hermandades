@@ -15,6 +15,8 @@ import {
   HermanosQueryParams,
   UpsertHermanoPayload
 } from '../../models/hermano.model';
+import { Cuota } from '../../core/models/cuota.model';
+import { CuotaService } from '../../core/services/cuota.service';
 import { HermanoService } from '../../services/hermano.service';
 import { CensoFormComponent } from './censo-form.component';
 import * as XLSX from 'xlsx';
@@ -22,9 +24,9 @@ import * as XLSX from 'xlsx';
 type SortDirection = 'asc' | 'desc';
 type SortableColumn =
   | 'nombre'
-  | 'primerApellido'
-  | 'nif'
-  | 'telefonoMovil'
+  | 'primer_apellido'
+  | 'dni'
+  | 'telefono_movil'
   | 'email'
   | 'estado'
   | 'numeroHermano';
@@ -47,10 +49,11 @@ export class CensoListComponent implements OnInit, OnDestroy {
   ];
 
   hermanos: Hermano[] = [];
+  cuotasByHermanoId = new Map<number, Cuota[]>();
 
   searchTerm = '';
   estadoFiltro = '';
-  sortColumn: SortableColumn = 'primerApellido';
+  sortColumn: SortableColumn = 'primer_apellido';
   sortDirection: SortDirection = 'asc';
   page = 1;
   pageSize = 10;
@@ -68,7 +71,10 @@ export class CensoListComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private readonly searchTerm$ = new Subject<string>();
 
-  constructor(private readonly hermanoService: HermanoService) {}
+  constructor(
+    private readonly hermanoService: HermanoService,
+    private readonly cuotaService: CuotaService
+  ) {}
 
   ngOnInit(): void {
     this.searchTerm$
@@ -79,6 +85,7 @@ export class CensoListComponent implements OnInit, OnDestroy {
       });
 
     this.loadHermanos();
+    this.loadCuotas();
   }
 
   ngOnDestroy(): void {
@@ -105,6 +112,30 @@ export class CensoListComponent implements OnInit, OnDestroy {
           ? 'No se pudo cargar el censo porque la API no esta disponible (backend apagado o sin conexion a BD).'
           : 'No se pudo cargar el censo. Revisa la conexion con la API.';
         this.loading = false;
+      }
+    });
+  }
+
+  private loadCuotas(): void {
+    this.cuotaService.obtenerTodasLasCuotas().pipe(takeUntil(this.destroy$)).subscribe({
+      next: (cuotas) => {
+        const grouped = new Map<number, Cuota[]>();
+
+        (cuotas || []).forEach((cuota) => {
+          const idHermano = cuota.idHermano;
+          if (!idHermano) {
+            return;
+          }
+
+          const current = grouped.get(idHermano) ?? [];
+          current.push(cuota);
+          grouped.set(idHermano, current);
+        });
+
+        this.cuotasByHermanoId = grouped;
+      },
+      error: () => {
+        this.cuotasByHermanoId = new Map<number, Cuota[]>();
       }
     });
   }
@@ -184,7 +215,7 @@ export class CensoListComponent implements OnInit, OnDestroy {
   }
 
   deleteHermano(hermano: Hermano): void {
-    if (!window.confirm(`Eliminar a ${hermano.nombre} ${hermano.primerApellido}?`)) {
+    if (!window.confirm(`Eliminar a ${hermano.nombre} ${hermano.primer_apellido}?`)) {
       return;
     }
 
@@ -250,8 +281,44 @@ export class CensoListComponent implements OnInit, OnDestroy {
   }
 
   formatApellidos(hermano: Hermano): string {
-    const full = `${hermano.primerApellido ?? ''} ${hermano.segundoApellido ?? ''}`.trim();
+    const full = `${hermano.primer_apellido ?? ''} ${hermano.segundo_apellido ?? ''}`.trim();
     return full || '-';
+  }
+
+  getCuotaResumen(hermanoId: number): string {
+    const cuotas = this.cuotasByHermanoId.get(hermanoId) ?? [];
+    if (!cuotas.length) {
+      return 'Sin cuotas';
+    }
+
+    const pendientes = cuotas.filter((cuota) => String(cuota.estado).toUpperCase() === 'PENDIENTE').length;
+    const pagadas = cuotas.filter((cuota) => String(cuota.estado).toUpperCase() === 'PAGADA').length;
+
+    if (pendientes > 0 && pagadas === 0) {
+      return `${pendientes} pendiente${pendientes === 1 ? '' : 's'}`;
+    }
+
+    if (pagadas > 0 && pendientes === 0) {
+      return 'Pagada';
+    }
+
+    return `${pendientes} pendientes / ${pagadas} pagadas`;
+  }
+
+  getCuotaClass(hermanoId: number): string {
+    const cuotas = this.cuotasByHermanoId.get(hermanoId) ?? [];
+    const pendientes = cuotas.filter((cuota) => String(cuota.estado).toUpperCase() === 'PENDIENTE').length;
+    const pagadas = cuotas.filter((cuota) => String(cuota.estado).toUpperCase() === 'PAGADA').length;
+
+    if (pendientes > 0 && pagadas === 0) {
+      return 'quota-pill--pending';
+    }
+
+    if (pagadas > 0 && pendientes === 0) {
+      return 'quota-pill--paid';
+    }
+
+    return 'quota-pill--neutral';
   }
 
   trackByHermanoId(_index: number, hermano: Hermano): number {
@@ -272,30 +339,29 @@ export class CensoListComponent implements OnInit, OnDestroy {
       camposHermano: string[] = [
     'idHermandad',
     'numeroHermano',
-    'nif',
+    'dni',
     'nombre',
-    'primerApellido',
-    'segundoApellido',
-    'fechaNacimiento',
+    'primer_apellido',
+    'segundo_apellido',
+    'fecha_nacimiento',
     'direccion',
-    'numero',
-    'pisoPuerta',
-    'codigoPostal',
-    'poblacion',
+    'piso_puerta',
+    'codigo_postal',
+    'localidad',
     'provincia',
     'pais',
-    'telefonoMovil',
-    'telefonoFijo',
+    'telefono_movil',
+    'telefono_fijo',
     'email',
     'fechaAlta',
     'fechaBaja',
     'estado',
-    'formaPago',
+    'forma_pago',
     'iban',
-    'titularCuenta',
-    'enCuotas',
+    'titular_cuenta',
+    'en_cuotas',
     'observaciones',
-    'tutorLegal',
+    'tutor_legal',
   ];
 
   descargarPlantilla(): void {
@@ -381,10 +447,10 @@ export class CensoListComponent implements OnInit, OnDestroy {
 
         const hermanos = rows
           .map((row) => this.normalizarHermanoImportado(row))
-          .filter((hermano) => hermano.nombre && hermano.primerApellido && hermano.nif);
+          .filter((hermano) => hermano.nombre && hermano.primer_apellido && hermano.dni);
 
         if (hermanos.length === 0) {
-          alert('No se encontraron hermanos válidos. Revisa que el Excel tenga nombre, primerApellido y nif.');
+          alert('No se encontraron hermanos válidos. Revisa que el Excel tenga nombre, primer_apellido y dni.');
           input.value = '';
           return;
         }
@@ -430,32 +496,29 @@ export class CensoListComponent implements OnInit, OnDestroy {
 
   private normalizarHermanoImportado(row: Record<string, any>): UpsertHermanoPayload {
     return {
-      idHermandad: this.toNumberOrUndefined(row['idHermandad']),
       numeroHermano: this.toNumberOrUndefined(row['numeroHermano']),
-      nif: this.toText(row['nif']),
+      dni: this.toText(row['dni'] ?? row['nif']),
       nombre: this.toText(row['nombre']) ?? '',
-      primerApellido: this.toText(row['primerApellido']) ?? '',
-      segundoApellido: this.toText(row['segundoApellido']),
-      fechaNacimiento: this.toExcelDate(row['fechaNacimiento']),
+      primer_apellido: this.toText(row['primer_apellido'] ?? row['primerApellido']) ?? '',
+      segundo_apellido: this.toText(row['segundo_apellido'] ?? row['segundoApellido']) ?? '',
+      fecha_nacimiento: this.toExcelDate(row['fecha_nacimiento'] ?? row['fechaNacimiento']),
       direccion: this.toText(row['direccion']),
-      numero: this.toText(row['numero']),
-      pisoPuerta: this.toText(row['pisoPuerta']),
-      codigoPostal: this.toText(row['codigoPostal']),
-      poblacion: this.toText(row['poblacion']),
+      piso_puerta: this.toText(row['piso_puerta'] ?? row['pisoPuerta']),
+      codigo_postal: this.toText(row['codigo_postal'] ?? row['codigoPostal']),
+      localidad: this.toText(row['localidad'] ?? row['poblacion']),
       provincia: this.toText(row['provincia']),
       pais: this.toText(row['pais']) || 'Espana',
-      telefonoMovil: this.toText(row['telefonoMovil']),
-      telefonoFijo: this.toText(row['telefonoFijo']),
+      telefono_movil: this.toText(row['telefono_movil'] ?? row['telefonoMovil']),
+      telefono_fijo: this.toText(row['telefono_fijo'] ?? row['telefonoFijo']),
       email: this.toText(row['email']),
       fechaAlta: this.toExcelDate(row['fechaAlta']),
-      fechaBaja: this.toExcelDate(row['fechaBaja']),
       estado: this.toText(row['estado']) || 'ACTIVO',
-      formaPago: this.toText(row['formaPago']),
+      forma_pago: this.toText(row['forma_pago'] ?? row['formaPago']),
       iban: this.toText(row['iban']),
-      titularCuenta: this.toText(row['titularCuenta']),
-      enCuotas: this.toBoolean(row['enCuotas']),
+      titular_cuenta: this.toText(row['titular_cuenta'] ?? row['titularCuenta']),
+      en_cuotas: this.toBoolean(row['en_cuotas'] ?? row['enCuotas']),
       observaciones: this.toText(row['observaciones']),
-      tutorLegal: this.toText(row['tutorLegal'])
+      tutor_legal: this.toText(row['tutor_legal'] ?? row['tutorLegal'])
     };
   }
 

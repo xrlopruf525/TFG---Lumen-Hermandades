@@ -82,29 +82,28 @@ export class CensoFormComponent implements OnChanges {
 
   readonly form: FormGroup = this.formBuilder.group({
     nombre: ['', [Validators.required, Validators.maxLength(80)]],
-    primerApellido: ['', [Validators.required, Validators.maxLength(80)]],
-    segundoApellido: ['', [Validators.maxLength(80)]],
-    nif: ['', [Validators.required, dniValidator()]],
-    fechaNacimiento: [''],
+    primer_apellido: ['', [Validators.required, Validators.maxLength(80)]],
+    segundo_apellido: ['', [Validators.maxLength(80)]],
+    dni: ['', [Validators.required, dniValidator()]],
+    fecha_nacimiento: [''],
     estado: ['ACTIVO', [Validators.required]],
-    tutorLegal: ['', [Validators.maxLength(160)]],
+    tutor_legal: ['', [Validators.maxLength(160)]],
 
-    telefonoMovil: ['', [Validators.pattern(/^\+?[0-9]{9,15}$/)]],
-    telefonoFijo: ['', [Validators.pattern(/^\+?[0-9]{9,15}$/)]],
+    telefono_movil: ['', [Validators.pattern(/^\+?[0-9]{9,15}$/)]],
+    telefono_fijo: ['', [Validators.pattern(/^\+?[0-9]{9,15}$/)]],
     email: ['', [Validators.email, Validators.maxLength(120)]],
 
     direccion: ['', [Validators.maxLength(180)]],
-    numero: ['', [Validators.maxLength(20)]],
-    pisoPuerta: ['', [Validators.maxLength(60)]],
-    codigoPostal: ['', [Validators.pattern(/^\d{5}$/)]],
-    poblacion: ['', [Validators.maxLength(80)]],
+    piso_puerta: ['', [Validators.maxLength(60)]],
+    codigo_postal: ['', [Validators.pattern(/^\d{5}$/)]],
+    localidad: ['', [Validators.maxLength(80)]],
     provincia: ['', [Validators.maxLength(80)]],
     pais: ['Espana', [Validators.maxLength(80)]],
 
-    formaPago: ['DOMICILIACION'],
+    forma_pago: ['DOMICILIACION'],
     iban: ['', [ibanValidator()]],
-    titularCuenta: ['', [Validators.maxLength(120)]],
-    enCuotas: [false],
+    titular_cuenta: ['', [Validators.maxLength(120)]],
+    en_cuotas: [false],
 
     observaciones: ['', [Validators.maxLength(500)]],
     numeroHermano: [null],
@@ -134,11 +133,11 @@ export class CensoFormComponent implements OnChanges {
 
     this.save.emit({
       ...value,
-      nif: this.normalizeValue(value['nif']),
+      dni: this.normalizeValue(value['dni']),
       iban: this.normalizeValue(value['iban']),
       email: this.normalizeValue(value['email']),
-      telefonoMovil: this.normalizeValue(value['telefonoMovil']),
-      telefonoFijo: this.normalizeValue(value['telefonoFijo'])
+      telefono_movil: this.normalizeValue(value['telefono_movil']),
+      telefono_fijo: this.normalizeValue(value['telefono_fijo'])
     } as UpsertHermanoPayload);
   }
 
@@ -201,29 +200,28 @@ export class CensoFormComponent implements OnChanges {
 
     this.form.patchValue({
       nombre: data.nombre ?? '',
-      primerApellido: data.primerApellido ?? '',
-      segundoApellido: data.segundoApellido ?? '',
-      nif: data.nif ?? '',
-      fechaNacimiento: this.toDateInputValue(data.fechaNacimiento),
+      primer_apellido: data.primer_apellido ?? '',
+      segundo_apellido: data.segundo_apellido ?? '',
+      dni: data.dni ?? '',
+      fecha_nacimiento: this.toDateInputValue(data.fecha_nacimiento),
       estado: data.estado ?? 'ACTIVO',
-      tutorLegal: data.tutorLegal ?? '',
+      tutor_legal: data.tutor_legal ?? '',
 
-      telefonoMovil: data.telefonoMovil ?? '',
-      telefonoFijo: data.telefonoFijo ?? '',
+      telefono_movil: data.telefono_movil ?? '',
+      telefono_fijo: data.telefono_fijo ?? '',
       email: data.email ?? '',
 
       direccion: data.direccion ?? '',
-      numero: data.numero ?? '',
-      pisoPuerta: data.pisoPuerta ?? '',
-      codigoPostal: data.codigoPostal ?? '',
-      poblacion: data.poblacion ?? '',
+      piso_puerta: data.piso_puerta ?? '',
+      codigo_postal: data.codigo_postal ?? '',
+      localidad: data.localidad ?? '',
       provincia: data.provincia ?? '',
       pais: data.pais ?? 'Espana',
 
-      formaPago: data.formaPago ?? 'DOMICILIACION',
+      forma_pago: data.forma_pago ?? 'DOMICILIACION',
       iban: data.iban ?? '',
-      titularCuenta: data.titularCuenta ?? '',
-      enCuotas: data.enCuotas ?? false,
+      titular_cuenta: data.titular_cuenta ?? '',
+      en_cuotas: data.en_cuotas ?? false,
 
       observaciones: data.observaciones ?? '',
       numeroHermano: data.numeroHermano ?? null,

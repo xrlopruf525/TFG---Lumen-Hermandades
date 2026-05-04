@@ -83,6 +83,93 @@
   background: linear-gradient(180deg, #fff9fb 0%, #ffffff 100%);
 }
 
+.cuotas-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #0f172a;
+  font-size: 0.98rem;
+}
+
+.cuotas-table thead th {
+  text-align: left;
+  padding: 0.8rem 0.75rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #5b6476;
+  border-bottom: 1px solid #e5e9f0;
+  background: #f8fafc;
+}
+
+.cuotas-table tbody td {
+  padding: 0.95rem 0.75rem;
+  border-bottom: 1px solid #edf0f4;
+  vertical-align: middle;
+}
+
+.cuotas-table tbody tr:nth-child(even) {
+  background: #fcfdff;
+}
+
+.cuotas-table tbody tr:hover {
+  background: #f7f2ff;
+}
+
+.cuotas-table td:first-child {
+  font-weight: 700;
+  color: #152238;
+}
+
+.cuotas-table td:nth-child(3) {
+  font-weight: 800;
+  color: #0f766e;
+  white-space: nowrap;
+}
+
+.cuotas-table td:nth-child(4) {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.cuotas-table td:last-child {
+  text-align: right;
+}
+
+.cuotas-table .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.4rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid #c7d2fe;
+  background: #ffffff;
+  color: #4f46e5;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cuotas-table .btn:hover {
+  background: #eef2ff;
+}
+
+.cuotas-table .badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: #ecfdf3;
+  color: #047857;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.portal-card p {
+  color: #223248;
+}
+
+.portal-card h3 { color: #111827; }
+
 .portal-card__header {
   display: flex;
   align-items: center;
