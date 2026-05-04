@@ -123,9 +123,21 @@ export class PortalHermanoComponent implements OnInit {
 
   pagarCuotaSimulada(cuota: Cuota): void {
     if (!cuota) return;
-    // Marcar pago localmente (simulado)
+
+    const fechaPago = new Date().toISOString();
     cuota.estado = 'PAGADA';
-    cuota.fecha_pago = new Date().toISOString();
+    cuota.fechaPago = fechaPago;
+    cuota.fecha_pago = fechaPago;
     cuota.pagoSimulado = true;
+
+    this.cuotaService.registrarPagoSimulado(cuota.idCuota, fechaPago);
+  }
+
+  get cuotasPendientes(): Cuota[] {
+    return this.cuotas.filter((cuota) => String(cuota.estado).toUpperCase() !== 'PAGADA');
+  }
+
+  get cuotasPagadas(): Cuota[] {
+    return this.cuotas.filter((cuota) => String(cuota.estado).toUpperCase() === 'PAGADA');
   }
 }

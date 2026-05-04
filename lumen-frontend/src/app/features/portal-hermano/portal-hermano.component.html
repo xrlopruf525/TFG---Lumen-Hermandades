@@ -65,27 +65,50 @@
           <span class="portal-card__tag portal-card__tag--soft">Pendientes y pagadas</span>
         </header>
 
-        <div *ngIf="cuotas?.length; else noCuotas">
+        <div *ngIf="cuotasPendientes.length; else noCuotasPendientes">
+          <h3>Pendientes</h3>
           <table class="cuotas-table">
             <thead>
               <tr><th>Concepto</th><th>Vencimiento</th><th>Importe</th><th>Estado</th><th></th></tr>
             </thead>
             <tbody>
-              <tr *ngFor="let cuota of cuotas">
+              <tr *ngFor="let cuota of cuotasPendientes">
                 <td>{{ cuota.concepto }}</td>
                 <td>{{ (cuota.fecha_vencimiento || cuota.fechaPago || cuota.fecha_pago) | date:'dd/MM/yyyy' }}</td>
                 <td>{{ cuota.importe | currency }}</td>
                 <td>{{ cuota.estado }}</td>
                 <td>
                   <button *ngIf="cuota.estado !== 'PAGADA'" class="btn btn--primary" (click)="pagarCuotaSimulada(cuota)">Pagar (simulado)</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <ng-template #noCuotasPendientes>
+          <p>No hay cuotas pendientes.</p>
+        </ng-template>
+
+        <div *ngIf="cuotasPagadas.length; else noCuotasPagadas">
+          <h3>Pagadas</h3>
+          <table class="cuotas-table">
+            <thead>
+              <tr><th>Concepto</th><th>Vencimiento</th><th>Importe</th><th>Estado</th><th></th></tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let cuota of cuotasPagadas">
+                <td>{{ cuota.concepto }}</td>
+                <td>{{ (cuota.fecha_vencimiento || cuota.fechaPago || cuota.fecha_pago) | date:'dd/MM/yyyy' }}</td>
+                <td>{{ cuota.importe | currency }}</td>
+                <td>{{ cuota.estado }}</td>
+                <td>
                   <span *ngIf="cuota.estado === 'PAGADA'" class="badge">Pagada</span>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
-        <ng-template #noCuotas>
-          <p>No hay cuotas registradas.</p>
+        <ng-template #noCuotasPagadas>
+          <p>No hay cuotas pagadas.</p>
         </ng-template>
       </article>
 
