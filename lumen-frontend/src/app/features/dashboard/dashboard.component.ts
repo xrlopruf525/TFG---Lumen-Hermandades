@@ -1,8 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
+import { catchError, forkJoin, of, Subject, takeUntil } from 'rxjs';
 
+import { Cuota } from '../../core/models/cuota.model';
+import { Gasto } from '../../core/models/gasto.model';
+import { CuotaService } from '../../core/services/cuota.service';
+import { GastoService } from '../../core/services/gasto.service';
 import { HermanoService } from '../../services/hermano.service';
 
 interface Notice {
@@ -12,11 +16,11 @@ interface Notice {
   date: Date;
 }
 
-interface Event {
+interface ExpenseItem {
   id: number;
   title: string;
   date: Date;
-  time: string;
+  amount: number;
 }
 
 @Component({
@@ -29,25 +33,28 @@ interface Event {
 export class DashboardComponent implements OnInit, OnDestroy {
   // Metrics
   totalHermanos = 0;
-  hermanosThisMonth = 12;
-  upcomingEvents = 5;
-  activeNotices = 3;
-  recentActivity = 28;
+  cuotasPendientes = 0;
+  gastosRecientes = 0;
+  alertasPendientes = 0;
+  upcomingEvents = 0;
 
   // Notices & Events
   notices: Notice[] = [];
-  events: Event[] = [];
+  expenses: ExpenseItem[] = [];
+  loading = false;
+  errorMessage = '';
 
   private readonly destroy$ = new Subject<void>();
 
   constructor(
     private readonly router: Router,
-    private readonly hermanoService: HermanoService
+    private readonly hermanoService: HermanoService,
+    private readonly cuotaService: CuotaService,
+    private readonly gastoService: GastoService
   ) {}
 
   ngOnInit(): void {
-    this.loadRealData();
-    this.loadMockData();
+    this.loadDashboardData();
   }
 
   ngOnDestroy(): void {
@@ -56,105 +63,143 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Load real data from services
+   * Load dashboard data from existing services only.
    */
-  private loadRealData(): void {
-    // Cargar hermanos reales del censo
-    this.hermanoService
-      .getHermanos({ page: 1, pageSize: 10000 })
+  private loadDashboardData(): void {
+    this.loading = true;
+    this.errorMessage = '';
+
+    const hermanos$ = this.hermanoService
+      .getHermanos({ page: 1, pageSize: 1 })
+      .pipe(catchError(() => of(null)));
+
+    const cuotas$ = this.cuotaService
+      .obtenerTodasLasCuotas()
+      .pipe(catchError(() => of([] as Cuota[])));
+
+    const gastos$ = this.gastoService
+      .obtenerTodosLosGastos()
+      .pipe(catchError(() => of([] as Gasto[])));
+
+    forkJoin({ hermanos: hermanos$, cuotas: cuotas$, gastos: gastos$ })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (response) => {
-          this.totalHermanos = response.pagination?.total ?? 0;
+        next: ({ hermanos, cuotas, gastos }) => {
+          const cuotasNormalizadas = cuotas ?? [];
+          const gastosNormalizados = gastos ?? [];
+
+          this.totalHermanos = hermanos?.pagination?.total ?? 0;
+          this.cuotasPendientes = cuotasNormalizadas.filter((cuota) => this.isCuotaPendiente(cuota)).length;
+          this.alertasPendientes = this.buildAlertasPendientes(cuotasNormalizadas).length;
+          this.notices = this.buildAlertasPendientes(cuotasNormalizadas);
+          this.gastosRecientes = this.getGastosMensuales(gastosNormalizados);
+          this.expenses = this.buildRecentExpenses(gastosNormalizados);
+          this.upcomingEvents = this.buildUpcomingEvents(cuotasNormalizadas);
+          this.loading = false;
         },
-        error: (err) => {
-          console.error('Error cargando hermanos:', err);
-          this.totalHermanos = 0;
+        error: () => {
+          this.loading = false;
+          this.errorMessage = 'No se pudieron cargar todos los datos del dashboard.';
         }
       });
-  }
-
-  /**
-   * Load mock data - replace with real service calls when API is ready
-   */
-  private loadMockData(): void {
-    this.notices = [
-      {
-        id: 1,
-        title: 'Junta General Ordinaria el próximo 15 de mayo',
-        priority: 'high',
-        date: new Date(2024, 4, 8, 10, 30)
-      },
-      {
-        id: 2,
-        title: 'Cambio de horario en procesión',
-        priority: 'medium',
-        date: new Date(2024, 4, 7, 14, 0)
-      },
-      {
-        id: 3,
-        title: 'Nuevas cuotas para el año fiscal',
-        priority: 'low',
-        date: new Date(2024, 4, 6, 9, 15)
-      },
-      {
-        id: 4,
-        title: 'Recordatorio: Envío de documentos por correo',
-        priority: 'low',
-        date: new Date(2024, 4, 5, 11, 45)
-      }
-    ];
-
-    this.events = [
-      {
-        id: 1,
-        title: 'Procesión de Pascua',
-        date: new Date(2024, 4, 12),
-        time: '09:00'
-      },
-      {
-        id: 2,
-        title: 'Junta de Gobierno',
-        date: new Date(2024, 4, 15),
-        time: '19:00'
-      },
-      {
-        id: 3,
-        title: 'Acto de caridad comunitaria',
-        date: new Date(2024, 4, 18),
-        time: '18:30'
-      },
-      {
-        id: 4,
-        title: 'Reunión de tesorería',
-        date: new Date(2024, 4, 22),
-        time: '19:30'
-      }
-    ];
   }
 
   /**
    * Quick action: Add new hermano - navigates to census form
    */
   onAddHermano(): void {
-    this.router.navigate(['/hermanos']);
+    this.router.navigate(['/hermanos/nuevo']);
   }
 
   /**
    * Quick action: Send notice - will open notice creation modal/page
    */
   onSendNotice(): void {
-    console.log('Enviar aviso...');
-    // TODO: Navigate to notice creation or open modal
-    // this.router.navigate(['/avisos/crear']);
+    this.router.navigate(['/censo']);
   }
 
   /**
-   * Quick action: Generate report - will download/generate report
+   * Quick action: Open the existing calendar view.
    */
-  onGenerateReport(): void {
-    console.log('Generar informe...');
-    // TODO: Call report service to generate and download report
-    // this.reportService.generateReport().subscribe(...);
+  onNuevoEvento(): void {
+    this.router.navigate(['/eventos']);
+  }
+
+  private isCuotaPendiente(cuota: Cuota): boolean {
+    return String(cuota.estado).toUpperCase() === 'PENDIENTE';
+  }
+
+  private buildAlertasPendientes(cuotas: Cuota[]): Notice[] {
+    const now = new Date();
+
+    return cuotas
+      .filter((cuota) => this.isCuotaPendiente(cuota))
+      .map((cuota) => {
+        const fechaVencimiento = this.toDate(cuota.fecha_vencimiento ?? cuota.fechaPago ?? cuota.fecha_pago ?? cuota.fecha_emision);
+        const diffDays = fechaVencimiento ? Math.ceil((fechaVencimiento.getTime() - now.getTime()) / 86400000) : Number.POSITIVE_INFINITY;
+
+        return {
+          cuota,
+          fechaVencimiento,
+          diffDays
+        };
+      })
+      .sort((a, b) => a.diffDays - b.diffDays)
+      .slice(0, 4)
+      .map((item, index) => ({
+        id: item.cuota.idCuota ?? index + 1,
+        title: item.diffDays <= 0
+          ? `Cuota vencida: ${item.cuota.concepto || 'Pendiente'}`
+          : `Cuota próxima: ${item.cuota.concepto || 'Pendiente'}`,
+        priority: item.diffDays <= 0 ? 'high' : item.diffDays <= 7 ? 'medium' : 'low',
+        date: item.fechaVencimiento ?? now
+      }));
+  }
+
+  private buildRecentExpenses(gastos: Gasto[]): ExpenseItem[] {
+    return gastos
+      .slice()
+      .sort((left, right) => this.toDate(right.fecha).getTime() - this.toDate(left.fecha).getTime())
+      .slice(0, 4)
+      .map((gasto) => ({
+        id: gasto.idGasto,
+        title: gasto.concepto,
+        date: this.toDate(gasto.fecha),
+        amount: Number(gasto.importe) || 0
+      }));
+  }
+
+  private buildUpcomingEvents(cuotas: Cuota[]): number {
+    return cuotas.filter((cuota) => {
+      const fechaVencimiento = this.toDate(cuota.fecha_vencimiento ?? cuota.fechaPago ?? cuota.fecha_pago ?? cuota.fecha_emision);
+
+      if (!fechaVencimiento) {
+        return false;
+      }
+
+      const now = new Date();
+      const diffDays = Math.ceil((fechaVencimiento.getTime() - now.getTime()) / 86400000);
+      return diffDays >= 0 && diffDays <= 30;
+    }).length;
+  }
+
+  private getGastosMensuales(gastos: Gasto[]): number {
+    const now = new Date();
+
+    return gastos
+      .filter((gasto) => {
+        const date = this.toDate(gasto.fecha);
+        return date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth();
+      })
+      .reduce((sum, gasto) => sum + Math.max(Number(gasto.importe) || 0, 0), 0);
+  }
+
+  private toDate(value: string | Date | undefined | null): Date {
+    if (!value) {
+      return new Date(0);
+    }
+
+    const date = value instanceof Date ? value : new Date(value);
+    return Number.isNaN(date.getTime()) ? new Date(0) : date;
   }
 }

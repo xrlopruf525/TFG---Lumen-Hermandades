@@ -3,9 +3,14 @@
   <header class="dashboard__header">
     <div>
       <h1 class="dashboard__title">Panel de Administración</h1>
-      <p class="dashboard__subtitle">Bienvenido a Lumen Hermandades. Aquí puedes gestionar todas las operaciones.</p>
+      <p class="dashboard__subtitle">Resumen operativo con datos reales del censo, cuotas y gastos.</p>
     </div>
   </header>
+
+  <div class="dashboard__status" *ngIf="loading">Cargando datos del panel...</div>
+  <div class="dashboard__status dashboard__status--error" *ngIf="!loading && errorMessage">
+    {{ errorMessage }}
+  </div>
 
   <!-- Metrics Cards -->
   <section class="metrics-grid">
@@ -22,10 +27,11 @@
       <div class="metric-card__content">
         <p class="metric-card__label">Hermanos Activos</p>
         <p class="metric-card__value">{{ totalHermanos }}</p>
+        <p class="metric-card__change">Datos reales del censo</p>
       </div>
     </div>
 
-    <!-- Card 2: Eventos -->
+    <!-- Card 2: Cuotas -->
     <div class="metric-card">
       <div class="metric-card__icon metric-card__icon--orange">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -36,13 +42,13 @@
         </svg>
       </div>
       <div class="metric-card__content">
-        <p class="metric-card__label">Eventos Próximos</p>
-        <p class="metric-card__value">{{ upcomingEvents }}</p>
-        <p class="metric-card__change">Esta semana</p>
+        <p class="metric-card__label">Cuotas Pendientes</p>
+        <p class="metric-card__value">{{ cuotasPendientes }}</p>
+        <p class="metric-card__change">Cuotas sin pagar</p>
       </div>
     </div>
 
-    <!-- Card 3: Avisos -->
+    <!-- Card 3: Gastos -->
     <div class="metric-card">
       <div class="metric-card__icon metric-card__icon--purple">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -50,13 +56,13 @@
         </svg>
       </div>
       <div class="metric-card__content">
-        <p class="metric-card__label">Avisos Activos</p>
-        <p class="metric-card__value">{{ activeNotices }}</p>
-        <p class="metric-card__change">Por revisar</p>
+        <p class="metric-card__label">Gastos del mes</p>
+        <p class="metric-card__value">{{ gastosRecientes | currency }}</p>
+        <p class="metric-card__change">Total del mes en curso</p>
       </div>
     </div>
 
-    <!-- Card 4: Actividad -->
+    <!-- Card 4: Alertas -->
     <div class="metric-card">
       <div class="metric-card__icon metric-card__icon--green">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -65,23 +71,23 @@
         </svg>
       </div>
       <div class="metric-card__content">
-        <p class="metric-card__label">Actividad Reciente</p>
-        <p class="metric-card__value">{{ recentActivity }}</p>
-        <p class="metric-card__change">Últimas 24 horas</p>
+        <p class="metric-card__label">Alertas pendientes</p>
+        <p class="metric-card__value">{{ alertasPendientes }}</p>
+        <p class="metric-card__change">Cuotas vencidas o próximas</p>
       </div>
     </div>
   </section>
 
   <!-- Content Grid: 2 Columns -->
   <section class="content-grid">
-    <!-- Left Column: Recent Notices -->
+    <!-- Left Column: Recent Alerts -->
     <div class="content-card">
       <header class="content-card__header">
-        <h2>Últimos Avisos</h2>
+        <h2>Alertas recientes</h2>
       </header>
       <div class="content-card__body">
         <div *ngIf="notices.length === 0; else noticesList" class="empty-state">
-          <p>No hay avisos actualmente</p>
+          <p>No hay alertas de cuotas actualmente</p>
         </div>
         <ng-template #noticesList>
           <ul class="item-list">
@@ -89,7 +95,7 @@
               <div class="item-list__badge" [ngClass]="'badge--' + notice.priority"></div>
               <div class="item-list__content">
                 <p class="item-list__title">{{ notice.title }}</p>
-                <p class="item-list__meta">{{ notice.date | date: 'dd MMM, HH:mm' }}</p>
+                <p class="item-list__meta">{{ notice.date | date: 'dd MMM yyyy' }}</p>
               </div>
             </li>
           </ul>
@@ -97,28 +103,27 @@
       </div>
     </div>
 
-    <!-- Right Column: Upcoming Events -->
+    <!-- Right Column: Recent Expenses -->
     <div class="content-card">
       <header class="content-card__header">
-        <h2>Próximos Eventos</h2>
+        <h2>Gastos recientes</h2>
       </header>
       <div class="content-card__body">
-        <div *ngIf="events.length === 0; else eventsList" class="empty-state">
-          <p>No hay eventos programados</p>
+        <div *ngIf="expenses.length === 0; else expensesList" class="empty-state">
+          <p>No hay gastos recientes</p>
         </div>
-        <ng-template #eventsList>
+        <ng-template #expensesList>
           <ul class="item-list">
-            <li *ngFor="let event of events" class="item-list__item">
+            <li *ngFor="let expense of expenses" class="item-list__item">
               <div class="item-list__icon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                  <line x1="16" y1="2" x2="16" y2="6"></line>
-                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <circle cx="12" cy="12" r="9"></circle>
+                  <path d="M8 12h8"></path>
                 </svg>
               </div>
               <div class="item-list__content">
-                <p class="item-list__title">{{ event.title }}</p>
-                <p class="item-list__meta">{{ event.date | date: 'dd MMM yyyy' }} a las {{ event.time }}</p>
+                <p class="item-list__title">{{ expense.title }}</p>
+                <p class="item-list__meta">{{ expense.date | date: 'dd MMM yyyy' }} · {{ expense.amount | currency }}</p>
               </div>
             </li>
           </ul>
@@ -141,14 +146,11 @@
       </svg>
       Enviar Aviso
     </button>
-    <button class="quick-btn" (click)="onGenerateReport()">
+    <button class="quick-btn" (click)="onNuevoEvento()">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-        <polyline points="14 2 14 8 20 8"></polyline>
-        <line x1="12" y1="19" x2="12" y2="13"></line>
-        <line x1="9" y1="16" x2="15" y2="16"></line>
+        <path d="M12 5v14M5 12h14"></path>
       </svg>
-      Generar Informe
+      Nuevo Evento
     </button>
   </section>
 </section>
