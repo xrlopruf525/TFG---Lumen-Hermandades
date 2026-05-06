@@ -4,32 +4,9 @@
       <h2>Censo de Hermanos</h2>
       <p>Vista de Junta de Gobierno con paginacion y filtros backend</p>
     </div>
-
-    <div class="censo-list__actions">
-      <button type="button" class="primary-btn" (click)="openCreateForm()">
-        + Nuevo hermano
-      </button>
-
-      <button type="button" class="secondary-btn" (click)="descargarPlantilla()">
-        Descargar plantilla
-      </button>
-
-      <button type="button" class="secondary-btn" (click)="exportarHermanos()">
-        Exportar hermanos
-      </button>
-
-      <button type="button" class="secondary-btn" (click)="fileInput.click()">
-        Importar hermanos
-      </button>
-
-      <input
-        #fileInput
-        type="file"
-        accept=".xlsx,.xls"
-        hidden
-        (change)="importarHermanosDesdeExcel($event)"
-      >
-    </div>
+    <button type="button" class="primary-btn" (click)="openCreateForm()">
+      + Nuevo hermano
+    </button>
   </header>
 
   <app-censo-form
@@ -93,7 +70,6 @@
           <th>
             <button type="button" (click)="sortBy('estado')">Estado {{ getSortIcon('estado') }}</button>
           </th>
-          <th>Cuotas</th>
           <th class="actions-col">Acciones</th>
         </tr>
       </thead>
@@ -110,11 +86,6 @@
               {{ hermano.estado || 'SIN ESTADO' }}
             </span>
           </td>
-          <td>
-            <span class="quota-pill" [ngClass]="getCuotaClass(hermano.id)">
-              {{ getCuotaResumen(hermano.id) }}
-            </span>
-          </td>
           <td class="actions-col">
             <button type="button" class="action-btn" (click)="openEditForm(hermano)">Editar</button>
             <button
@@ -128,7 +99,7 @@
           </td>
         </tr>
         <tr *ngIf="hermanos.length === 0">
-          <td colspan="9" class="empty-state">No hay registros para mostrar.</td>
+          <td colspan="8" class="empty-state">No hay registros para mostrar.</td>
         </tr>
       </tbody>
     </table>

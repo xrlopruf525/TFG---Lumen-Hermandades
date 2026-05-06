@@ -1,15 +1,22 @@
 package es.lumen.lumen_backend.modules.hermano.controller;
 
+import java.util.List;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import es.lumen.lumen_backend.modules.hermano.dto.HermanoDto;
-import es.lumen.lumen_backend.modules.hermano.dto.ImportarHermanosResponse;
 import es.lumen.lumen_backend.modules.hermano.dto.PortalHermanoDto;
 import es.lumen.lumen_backend.modules.hermano.entity.Hermano;
 import es.lumen.lumen_backend.modules.hermano.service.HermanoService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/hermanos")
@@ -31,12 +38,6 @@ public class HermanoController {
     @GetMapping("/inactivos")
     public List<Hermano> listarInactivos() {
         return hermanoService.buscarInactivos();
-    }
-
-    @PostMapping("/importar")
-    public ResponseEntity<ImportarHermanosResponse> importarHermanos(@RequestBody List<HermanoDto> hermanos) {
-        ImportarHermanosResponse response = hermanoService.importarHermanos(hermanos);
-        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
