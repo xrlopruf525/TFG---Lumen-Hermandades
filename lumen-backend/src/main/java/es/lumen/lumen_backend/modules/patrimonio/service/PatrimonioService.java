@@ -1,7 +1,8 @@
 package es.lumen.lumen_backend.modules.patrimonio.service;
 
-import es.lumen.lumen_backend.modules.patrimonio.entity.Patrimonio;
 import java.util.List;
+
+import es.lumen.lumen_backend.modules.patrimonio.entity.Patrimonio;
 
 public interface PatrimonioService {
     Patrimonio obtenerPatrimonioPorId(Integer id);

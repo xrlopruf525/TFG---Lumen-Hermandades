@@ -1,7 +1,8 @@
 package es.lumen.lumen_backend.modules.patrimonio.service;
 
-import es.lumen.lumen_backend.modules.patrimonio.entity.CategoriaPatrimonio;
 import java.util.List;
+
+import es.lumen.lumen_backend.modules.patrimonio.entity.CategoriaPatrimonio;
 
 public interface CategoriaPatrimonioService {
     CategoriaPatrimonio obtenerCategoriaPorId(Integer id);
