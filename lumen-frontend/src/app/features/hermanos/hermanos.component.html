@@ -1,8 +1,29 @@
 <div class="hermanos-container">
   <div class="tabs-header">
-    <button class="tab-button" [class.active]="activeTab === 'hermanos'" (click)="activeTab = 'hermanos'">👥 Gestión de Hermanos</button>
-    <button *ngIf="isAdmin" class="tab-button" [class.active]="activeTab === 'economica'" (click)="activeTab = 'economica'">💰 Gestión Económica</button>
-    <button class="tab-button" [class.active]="activeTab === 'informes'" (click)="activeTab = 'informes'" disabled>📊 Informes</button>
+    <button
+      type="button"
+      class="tab-button"
+      [class.active]="activeTab === 'hermanos'"
+      (click)="mostrarCenso()">
+      👥 Gestión de Hermanos
+    </button>
+
+    <button
+      *ngIf="isAdmin"
+      type="button"
+      class="tab-button"
+      [class.active]="activeTab === 'economica'"
+      (click)="mostrarGestionEconomica()">
+      💰 Gestión Económica
+    </button>
+
+    <button
+      type="button"
+      class="tab-button"
+      [class.active]="activeTab === 'informes'"
+      (click)="mostrarInformes()">
+      📊 Informes
+    </button>
   </div>
 
   <div class="tabs-content">
@@ -15,7 +36,7 @@
     </div>
 
     <div *ngIf="activeTab === 'informes'" class="tab-pane active">
-      <div class="coming-soon"><p>Informes próximamente</p></div>
+      <app-informes></app-informes>
     </div>
   </div>
 </div>

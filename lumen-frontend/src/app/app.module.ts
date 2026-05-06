@@ -21,7 +21,7 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
     LoginComponent,
     CalendarioComponent,
     NavbarComponent,
-    SidebarComponent
+    SidebarComponent,
   ],
   imports: [
     BrowserModule,

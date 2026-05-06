@@ -14,7 +14,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/hermanos")
 @CrossOrigin(origins = {"http://localhost:4200", "http://127.0.0.1:4200"})
-@PreAuthorize("hasRole('ADMIN')")
 public class HermanoController {
 
     private final HermanoService hermanoService;

@@ -1,0 +1,84 @@
+.informes-container {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  padding: 24px 12px;
+}
+
+.informe-card {
+  min-height: 150px;
+  border: 1px solid #e5dff4;
+  border-radius: 12px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(75, 35, 130, 0.05);
+}
+
+.informe-icono {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: 12px;
+  background: #f1ddff;
+  color: #9b12ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.informe-icono span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.informe-contenido h3 {
+  margin: 0 0 10px;
+  font-size: 17px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.informe-contenido p {
+  margin: 0 0 18px;
+  font-size: 15px;
+  color: #374151;
+}
+
+.btn-excel {
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #111827;
+  padding: 10px 20px;
+  border-radius: 9px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-excel span {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.btn-excel:hover {
+  background: #f9fafb;
+}
+
+.btn-excel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+  .informes-container {
+    grid-template-columns: 1fr;
+  }
+}
