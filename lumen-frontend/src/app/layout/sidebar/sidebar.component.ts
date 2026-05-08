@@ -80,10 +80,10 @@ export class SidebarComponent {
   }
 
   get isAdmin(): boolean {
-    return this.currentUser?.role === 'ADMIN';
+    return !!this.currentUser && this.currentUser.roles?.includes('ADMIN');
   }
 
   get isHermano(): boolean {
-    return this.currentUser?.role === 'HERMANO';
+    return !!this.currentUser && this.currentUser.roles?.includes('HERMANO');
   }
 }

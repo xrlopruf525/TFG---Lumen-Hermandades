@@ -25,16 +25,16 @@ export class AuthGuard implements CanActivate, CanActivateChild {
       return this.router.createUrlTree(['/login']);
     }
 
-    const expectedRole = route.data['role'] as string | undefined;
-    if (!expectedRole) {
+    const expectedRoles = route.data['roles'] as string[] | undefined;
+    if (!expectedRoles || expectedRoles.length === 0) {
       return true;
     }
 
     const user = this.authService.getUser();
-    if (user?.role === expectedRole) {
+    if (user && this.authService.hasAnyRole(expectedRoles)) {
       return true;
     }
 
-    return this.router.createUrlTree([user?.role === 'HERMANO' ? '/portal-hermano' : '/dashboard']);
+    return this.router.createUrlTree([user?.roles?.includes('HERMANO') ? '/portal-hermano' : '/dashboard']);
   }
 }

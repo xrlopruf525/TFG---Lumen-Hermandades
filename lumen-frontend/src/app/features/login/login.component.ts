@@ -60,7 +60,7 @@ export class LoginComponent {
     })).subscribe({
       next: () => {
         const user = this.authService.getUser();
-        this.router.navigate([user?.role === 'HERMANO' ? '/portal-hermano' : '/dashboard']);
+        this.router.navigate([user?.roles?.includes('HERMANO') ? '/portal-hermano' : '/dashboard']);
       },
       error: (error) => {
         const status = error?.status;

@@ -1,6 +1,9 @@
 package es.lumen.lumen_backend.modules.rol.entity;
 
 import jakarta.persistence.*;
+import es.lumen.lumen_backend.modules.usuario.entity.UsuarioRol;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "rol")
@@ -20,12 +23,47 @@ public class Rol {
     @Column(name = "deleted", nullable = false)
     private Boolean deleted = false;
 
-    public Integer getId() { return id; }
-    public void setId(Integer id) { this.id = id; }
-    public String getNombreRol() { return nombreRol; }
-    public void setNombreRol(String nombreRol) { this.nombreRol = nombreRol; }
-    public String getPermisos() { return permisos; }
-    public void setPermisos(String permisos) { this.permisos = permisos; }
-    public Boolean getDeleted() { return deleted; }
-    public void setDeleted(Boolean deleted) { this.deleted = deleted; }
+    // ✅ NEW: Relationship with usuario_rol table
+    @OneToMany(mappedBy = "rol", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<UsuarioRol> usuarioRoles = new HashSet<>();
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getNombreRol() {
+        return nombreRol;
+    }
+
+    public void setNombreRol(String nombreRol) {
+        this.nombreRol = nombreRol;
+    }
+
+    public String getPermisos() {
+        return permisos;
+    }
+
+    public void setPermisos(String permisos) {
+        this.permisos = permisos;
+    }
+
+    public Boolean getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    public Set<UsuarioRol> getUsuarioRoles() {
+        return usuarioRoles;
+    }
+
+    public void setUsuarioRoles(Set<UsuarioRol> usuarioRoles) {
+        this.usuarioRoles = usuarioRoles;
+    }
 }
