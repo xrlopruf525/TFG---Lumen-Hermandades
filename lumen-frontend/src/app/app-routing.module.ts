@@ -52,6 +52,11 @@ const routes: Routes = [
         component: HermanoFormComponent
       },
       {
+        path: 'patrimonio',
+        data: { role: 'ADMIN' },
+        loadChildren: () => import('./features/patrimonio/patrimonio.module').then(m => m.PatrimonioModule)
+      },
+      {
         path: 'eventos',
         data: { role: 'ADMIN' },
         component: CalendarioComponent

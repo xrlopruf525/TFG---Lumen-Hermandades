@@ -9,13 +9,17 @@ import org.springframework.stereotype.Service;
 
 import es.lumen.lumen_backend.common.exception.ResourceNotFoundException;
 import es.lumen.lumen_backend.modules.hermano.dto.HermanoDto;
-import es.lumen.lumen_backend.modules.hermano.dto.ImportarHermanosResponse;
 import es.lumen.lumen_backend.modules.hermano.dto.PortalHermanoDto;
 import es.lumen.lumen_backend.modules.hermano.entity.Hermano;
 import es.lumen.lumen_backend.modules.hermano.repository.HermanoRepository;
 import es.lumen.lumen_backend.modules.hermano.service.HermanoService;
+import es.lumen.lumen_backend.modules.rol.entity.Rol;
+import es.lumen.lumen_backend.modules.rol.repository.RolRepository;
 import es.lumen.lumen_backend.modules.usuario.entity.Usuario;
+import es.lumen.lumen_backend.modules.usuario.entity.UsuarioRol;
+import es.lumen.lumen_backend.modules.usuario.entity.UsuarioRolId;
 import es.lumen.lumen_backend.modules.usuario.repository.UsuarioRepository;
+import es.lumen.lumen_backend.modules.usuario.repository.UsuarioRolRepository;
 
 @Service
 public class HermanoServiceImpl implements HermanoService {
@@ -23,15 +27,21 @@ public class HermanoServiceImpl implements HermanoService {
     private final HermanoRepository hermanoRepository;
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RolRepository rolRepository;
+    private final UsuarioRolRepository usuarioRolRepository;
 
     public HermanoServiceImpl(
             HermanoRepository hermanoRepository,
             UsuarioRepository usuarioRepository,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            RolRepository rolRepository,
+            UsuarioRolRepository usuarioRolRepository
     ) {
         this.hermanoRepository = hermanoRepository;
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
+        this.rolRepository = rolRepository;
+        this.usuarioRolRepository = usuarioRolRepository;
     }
 
     @Override
@@ -61,12 +71,33 @@ public class HermanoServiceImpl implements HermanoService {
         Usuario usuario = new Usuario();
         usuario.setUsername(username);
         usuario.setPassword(passwordEncoder.encode(buildInitialPassword(dto.getNombre(), username)));
-        usuario.setRole("HERMANO");
+        usuario.setRole("HERMANO"); // compatibility field
 
         Hermano hermano = new Hermano(dto);
         hermano.setUsuario(usuario);
 
-        return hermanoRepository.save(hermano);
+        // Save hermano (and usuario via cascade if configured)
+        Hermano saved = hermanoRepository.save(hermano);
+
+        // Ensure role exists
+        Rol rolHermano = rolRepository.findAll().stream()
+            .filter(r -> "HERMANO".equalsIgnoreCase(r.getNombreRol()))
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("Rol HERMANO no encontrado"));
+
+        // Create usuario_rol relation if missing
+        UsuarioRolId urId = new UsuarioRolId(saved.getUsuario().getId(), rolHermano.getId());
+        if (!usuarioRolRepository.existsByIdAndDeletedFalse(urId)) {
+            UsuarioRol ur = new UsuarioRol();
+            ur.setId(urId);
+            ur.setUsuario(saved.getUsuario());
+            ur.setRol(rolHermano);
+            ur.setFechaAsignacion(java.time.LocalDateTime.now());
+            ur.setDeleted(false);
+            usuarioRolRepository.save(ur);
+        }
+
+        return saved;
     }
 
     @Override
@@ -148,52 +179,26 @@ public class HermanoServiceImpl implements HermanoService {
     }
 
     @Override
-    public ImportarHermanosResponse importarHermanos(List<HermanoDto> hermanos) {
-        ImportarHermanosResponse response = new ImportarHermanosResponse();
-
-        int totalLeidos = hermanos != null ? hermanos.size() : 0;
+    public es.lumen.lumen_backend.modules.hermano.dto.ImportarHermanosResponse importarHermanos(List<HermanoDto> hermanos) {
+        es.lumen.lumen_backend.modules.hermano.dto.ImportarHermanosResponse response = new es.lumen.lumen_backend.modules.hermano.dto.ImportarHermanosResponse();
+        response.setTotalLeidos(hermanos.size());
         int importados = 0;
         int errores = 0;
         List<String> detalleErrores = new ArrayList<>();
 
-        if (hermanos == null || hermanos.isEmpty()) {
-            response.setTotalLeidos(0);
-            response.setImportados(0);
-            response.setErrores(0);
-            response.setDetalleErrores(detalleErrores);
-            return response;
-        }
-
-        for (int i = 0; i < hermanos.size(); i++) {
-            HermanoDto hermanoDto = hermanos.get(i);
-
+        for (HermanoDto hermanoDto : hermanos) {
             try {
-                if (hermanoDto.getNombre() == null || hermanoDto.getNombre().isBlank()) {
-                    throw new IllegalArgumentException("El nombre es obligatorio");
-                }
-
-                if (hermanoDto.getPrimerApellido() == null || hermanoDto.getPrimerApellido().isBlank()) {
-                    throw new IllegalArgumentException("El primer apellido es obligatorio");
-                }
-
-                if (hermanoDto.getNif() == null || hermanoDto.getNif().isBlank()) {
-                    throw new IllegalArgumentException("El NIF es obligatorio");
-                }
-
                 guardar(hermanoDto);
                 importados++;
-
             } catch (Exception e) {
                 errores++;
-                detalleErrores.add("Fila " + (i + 2) + ": " + e.getMessage());
+                detalleErrores.add("Error al importar hermano: " + hermanoDto.getNombre() + " - " + e.getMessage());
             }
         }
 
-        response.setTotalLeidos(totalLeidos);
         response.setImportados(importados);
         response.setErrores(errores);
         response.setDetalleErrores(detalleErrores);
-
         return response;
     }
 }

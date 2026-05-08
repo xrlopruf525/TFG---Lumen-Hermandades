@@ -11,17 +11,17 @@ interface LoginResponsePayload {
   accessToken?: string;
   jwt?: string;
   username?: string;
-  role?: string;
+  roles?: string[];
   data?: {
     token?: string;
     username?: string;
-    role?: string;
+    roles?: string[];
   };
 }
 
 export interface AuthUser {
   username: string;
-  role: string;
+  roles: string[];
 }
 
 export interface LoginCredentials {
@@ -46,7 +46,7 @@ export class AuthService {
     if (environment.enableDevAuthBypass) {
       const devToken = `dev-token-${credentials.username || 'user'}`;
       localStorage.setItem(this.tokenKey, devToken);
-      localStorage.setItem(this.authUserKey, JSON.stringify({ username: credentials.username || 'user', role: 'ADMIN' }));
+      localStorage.setItem(this.authUserKey, JSON.stringify({ username: credentials.username || 'user', roles: ['ADMIN'] }));
       const parsedId = Number(credentials.username);
       if (!Number.isNaN(parsedId) && parsedId > 0) {
         localStorage.setItem(this.authUserIdKey, String(parsedId));
@@ -74,8 +74,8 @@ export class AuthService {
 
         localStorage.setItem(this.tokenKey, token);
         const username = this.extractUsername(response) ?? credentials.username;
-        const role = this.extractRole(response) ?? 'ADMIN';
-        localStorage.setItem(this.authUserKey, JSON.stringify({ username, role }));
+        const roles = this.extractRoles(response) ?? ['ADMIN'];
+        localStorage.setItem(this.authUserKey, JSON.stringify({ username, roles }));
 
         const parsedId = Number(username);
         if (!Number.isNaN(parsedId) && parsedId > 0) {
@@ -116,9 +116,13 @@ export class AuthService {
     }
 
     try {
-      const parsed = JSON.parse(stored) as Partial<AuthUser>;
+      const parsed = JSON.parse(stored) as Partial<AuthUser> | any;
+      if (typeof parsed.username === 'string' && Array.isArray(parsed.roles)) {
+        return { username: parsed.username, roles: parsed.roles };
+      }
+      // Legacy single-role object
       if (typeof parsed.username === 'string' && typeof parsed.role === 'string') {
-        return { username: parsed.username, role: parsed.role };
+        return { username: parsed.username, roles: [parsed.role] };
       }
     } catch {
       return null;
@@ -181,15 +185,36 @@ export class AuthService {
     return null;
   }
 
-  private extractRole(response: LoginResponsePayload): string | null {
-    if (typeof response.role === 'string' && response.role.trim()) {
-      return response.role.trim();
+  private extractRoles(response: LoginResponsePayload): string[] | null {
+    if (Array.isArray(response.roles) && response.roles.length > 0) {
+      return response.roles.map(r => r.trim()).filter(Boolean);
     }
 
-    if (typeof response.data?.role === 'string' && response.data.role.trim()) {
-      return response.data.role.trim();
+    const dataRoles = response.data?.roles;
+    if (Array.isArray(dataRoles) && dataRoles.length > 0) {
+      return dataRoles.map((r: string) => r.trim()).filter(Boolean);
+    }
+
+    // legacy single-role support
+    if (typeof (response as any).role === 'string' && (response as any).role.trim()) {
+      return [(response as any).role.trim()];
+    }
+
+    if (typeof (response as any).data?.role === 'string' && (response as any).data.role.trim()) {
+      return [(response as any).data.role.trim()];
     }
 
     return null;
+  }
+
+  hasRole(requiredRole: string): boolean {
+    const user = this.getUser();
+    return !!user && user.roles.includes(requiredRole);
+  }
+
+  hasAnyRole(requiredRoles: string[]): boolean {
+    const user = this.getUser();
+    if (!user) return false;
+    return requiredRoles.some(r => user.roles.includes(r));
   }
 }

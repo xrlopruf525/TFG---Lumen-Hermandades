@@ -25,7 +25,7 @@ export class HermanosComponent {
 
   get isAdmin(): boolean {
     const user = this.authService.getUser();
-    return !!user && user.role === 'ADMIN';
+    return !!user && user.roles?.includes('ADMIN');
   }
 
   mostrarCenso(): void {
