@@ -1,8 +1,8 @@
 package es.lumen.lumen_backend.auth.security;
 
-import es.lumen.lumen_backend.modules.usuario.entity.Usuario;
-import es.lumen.lumen_backend.modules.usuario.repository.UsuarioRepository;
-import es.lumen.lumen_backend.modules.usuario.repository.UsuarioRolRepository;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,8 +10,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import es.lumen.lumen_backend.modules.usuario.entity.Usuario;
+import es.lumen.lumen_backend.modules.usuario.repository.UsuarioRepository;
+import es.lumen.lumen_backend.modules.usuario.repository.UsuarioRolRepository;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {

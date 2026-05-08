@@ -1,9 +1,15 @@
 package es.lumen.lumen_backend.modules.usuario.entity;
 
-import jakarta.persistence.*;
-import es.lumen.lumen_backend.modules.rol.entity.Rol;
-
 import java.time.LocalDateTime;
+
+import es.lumen.lumen_backend.modules.rol.entity.Rol;
+import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "usuario_rol")

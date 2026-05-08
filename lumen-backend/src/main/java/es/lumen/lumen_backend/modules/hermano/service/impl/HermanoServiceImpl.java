@@ -13,13 +13,13 @@ import es.lumen.lumen_backend.modules.hermano.dto.PortalHermanoDto;
 import es.lumen.lumen_backend.modules.hermano.entity.Hermano;
 import es.lumen.lumen_backend.modules.hermano.repository.HermanoRepository;
 import es.lumen.lumen_backend.modules.hermano.service.HermanoService;
+import es.lumen.lumen_backend.modules.rol.entity.Rol;
+import es.lumen.lumen_backend.modules.rol.repository.RolRepository;
 import es.lumen.lumen_backend.modules.usuario.entity.Usuario;
 import es.lumen.lumen_backend.modules.usuario.entity.UsuarioRol;
 import es.lumen.lumen_backend.modules.usuario.entity.UsuarioRolId;
 import es.lumen.lumen_backend.modules.usuario.repository.UsuarioRepository;
 import es.lumen.lumen_backend.modules.usuario.repository.UsuarioRolRepository;
-import es.lumen.lumen_backend.modules.rol.entity.Rol;
-import es.lumen.lumen_backend.modules.rol.repository.RolRepository;
 
 @Service
 public class HermanoServiceImpl implements HermanoService {

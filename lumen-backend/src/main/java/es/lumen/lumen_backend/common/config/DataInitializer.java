@@ -1,19 +1,20 @@
 package es.lumen.lumen_backend.common.config;
 
-import es.lumen.lumen_backend.modules.usuario.entity.Usuario;
-import es.lumen.lumen_backend.modules.usuario.entity.UsuarioRol;
-import es.lumen.lumen_backend.modules.usuario.entity.UsuarioRolId;
-import es.lumen.lumen_backend.modules.usuario.repository.UsuarioRepository;
-import es.lumen.lumen_backend.modules.usuario.repository.UsuarioRolRepository;
-import es.lumen.lumen_backend.modules.rol.entity.Rol;
-import es.lumen.lumen_backend.modules.rol.repository.RolRepository;
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
+import es.lumen.lumen_backend.modules.rol.entity.Rol;
+import es.lumen.lumen_backend.modules.rol.repository.RolRepository;
+import es.lumen.lumen_backend.modules.usuario.entity.Usuario;
+import es.lumen.lumen_backend.modules.usuario.entity.UsuarioRol;
+import es.lumen.lumen_backend.modules.usuario.entity.UsuarioRolId;
+import es.lumen.lumen_backend.modules.usuario.repository.UsuarioRepository;
+import es.lumen.lumen_backend.modules.usuario.repository.UsuarioRolRepository;
 
 @Configuration
 public class DataInitializer {

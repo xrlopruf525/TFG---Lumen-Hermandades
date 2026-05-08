@@ -1,10 +1,10 @@
 package es.lumen.lumen_backend.modules.usuario.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-
 import java.io.Serializable;
 import java.util.Objects;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class UsuarioRolId implements Serializable {
