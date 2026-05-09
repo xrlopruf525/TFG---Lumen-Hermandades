@@ -42,7 +42,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     .requestMatchers("/auth/**").permitAll()
-                    .requestMatchers("/hermanos/**").permitAll()
                     .requestMatchers("/cuotas/**").permitAll()
                     .requestMatchers("/gastos/**").permitAll()
                     .anyRequest().authenticated())
