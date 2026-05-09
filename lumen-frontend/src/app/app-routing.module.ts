@@ -23,47 +23,47 @@ const routes: Routes = [
     children: [
       {
         path: 'dashboard',
-        data: { role: 'ADMIN' },
+        data: { roles: ['ADMIN'] },
         component: DashboardComponent
       },
       {
         path: 'censo',
-        data: { role: 'ADMIN' },
+        data: { roles: ['ADMIN'] },
         component: HermanosComponent
       },
       {
         path: 'hermandades',
-        data: { role: 'ADMIN' },
+        data: { roles: ['ADMIN'] },
         component: HermanosComponent
       },
       {
         path: 'hermanos',
-        data: { role: 'ADMIN' },
+        data: { roles: ['ADMIN'] },
         component: HermanosComponent
       },
       {
         path: 'hermanos/nuevo',
-        data: { role: 'ADMIN' },
+        data: { roles: ['ADMIN'] },
         component: HermanoFormComponent
       },
       {
         path: 'hermanos/editar/:id',
-        data: { role: 'ADMIN' },
+        data: { roles: ['ADMIN'] },
         component: HermanoFormComponent
       },
       {
         path: 'patrimonio',
-        data: { role: 'ADMIN' },
+        data: { roles: ['ADMIN'] },
         loadChildren: () => import('./features/patrimonio/patrimonio.module').then(m => m.PatrimonioModule)
       },
       {
         path: 'eventos',
-        data: { role: 'ADMIN' },
+        data: { roles: ['ADMIN', 'HERMANO'] },
         component: CalendarioComponent
       },
       {
         path: 'portal-hermano',
-        data: { role: 'HERMANO' },
+        data: { roles: ['HERMANO'] },
         component: PortalHermanoComponent
       },
       {

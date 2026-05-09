@@ -1,3 +1,247 @@
 :host {
   display: block;
 }
+
+.calendario-card {
+  border: 0;
+  border-radius: 1rem;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid #eef2ff;
+}
+
+.toolbar h2 {
+  color: #111827;
+  font-weight: 700;
+}
+
+.secondary-text {
+  color: #475569 !important;
+}
+
+.detalle-evento {
+  background: #f8f9fa;
+  color: #0f172a;
+}
+
+.detalle-evento h5,
+.detalle-evento p,
+.detalle-evento strong {
+  color: #0f172a;
+}
+
+.nav-btn {
+  color: #111827;
+  font-size: 1.6rem;
+  line-height: 1;
+  text-decoration: none;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.nav-btn:hover {
+  background: #eef2ff;
+  color: #312e81;
+}
+
+.cal-grid-header,
+.cal-grid-body {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.cal-grid-header {
+  border: 1px solid #dee2e6;
+  border-bottom: 0;
+  border-radius: 0.5rem 0.5rem 0 0;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.cal-grid-header > div {
+  background: #eef2ff;
+  text-align: center;
+  font-weight: 700;
+  padding: 0.7rem 0.2rem;
+  border-right: 1px solid #dee2e6;
+}
+
+.weekday-label {
+  color: #1e293b;
+  letter-spacing: 0.01em;
+}
+
+.cal-grid-header > div:last-child {
+  border-right: 0;
+}
+
+.cal-grid-body {
+  border: 1px solid #dee2e6;
+  border-radius: 0 0 0.5rem 0.5rem;
+  overflow: hidden;
+}
+
+.day-cell {
+  min-height: 140px;
+  border-right: 1px solid #dee2e6;
+  border-top: 1px solid #dee2e6;
+  padding: 0.4rem;
+  background: #fff;
+  transition: background-color 0.2s ease;
+}
+
+.day-cell:hover {
+  background: #f8faff;
+}
+
+.day-cell:nth-child(7n) {
+  border-right: 0;
+}
+
+.day-cell.other-month {
+  background: #f8fafc;
+}
+
+.day-number {
+  font-size: 0.95rem;
+  color: #111827;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.event-chip {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 1px solid #c4b5fd;
+  background: #ede9fe;
+  color: #5b21b6;
+  border-radius: 0.35rem;
+  font-size: 0.78rem;
+  margin-bottom: 0.25rem;
+  padding: 0.2rem 0.4rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(91, 33, 182, 0.08);
+}
+
+.event-chip:hover {
+  border-color: #a78bfa;
+  background: #ddd6fe;
+}
+
+.event-chip.selected-chip {
+  border-color: #7c3aed;
+  background: #7c3aed;
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(124, 58, 237, 0.3);
+}
+
+.btn-cancel-event {
+  background: #ffffff;
+  border: 1px solid #475569;
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.btn-cancel-event:hover {
+  background: #f1f5f9;
+  border-color: #334155;
+  color: #0f172a;
+}
+
+.btn-cancel-event:disabled {
+  opacity: 0.6;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 1rem;
+}
+
+.modal-panel {
+  width: min(900px, 100%);
+  max-height: calc(100vh - 2rem);
+  background: linear-gradient(180deg, #ffffff 0%, #fbfbff 100%);
+  border-radius: 0.9rem;
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.35);
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header-custom,
+.modal-footer-custom {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.modal-footer-custom {
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+.modal-header-custom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-body-custom {
+  padding: 1rem 1.25rem;
+  overflow: auto;
+}
+
+.actions-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.listado-hermanos {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.65rem;
+  max-height: 360px;
+  overflow: auto;
+}
+
+.hermano-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background-color 0.15s ease;
+}
+
+.hermano-item:hover {
+  background: #f8fafc;
+}
+
+.hermano-item:last-child {
+  border-bottom: 0;
+}
+
+.hermano-nombre {
+  flex: 1;
+  color: #0f172a;
+}
+
+@media (max-width: 991px) {
+  .day-cell {
+    min-height: 100px;
+  }
+}

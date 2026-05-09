@@ -1,8 +1,186 @@
 <div class="container-fluid p-4">
-  <div class="card shadow-sm">
+  <div class="card shadow-sm calendario-card">
     <div class="card-body">
-      <h2 class="mb-2">Calendario</h2>
-      <p class="text-muted mb-0">Próximamente añadiremos los eventos y cultos de la hermandad.</p>
+      <div class="toolbar mb-3">
+        <button class="btn btn-link nav-btn" type="button" (click)="cambiarMes(-1)">&lsaquo;</button>
+        <h2 class="mb-0 text-capitalize">{{ tituloMesActual }}</h2>
+        <button class="btn btn-link nav-btn" type="button" (click)="cambiarMes(1)">&rsaquo;</button>
+
+        <button
+          *ngIf="isAdmin"
+          type="button"
+          class="btn btn-primary ms-auto"
+          (click)="toggleFormulario()"
+        >
+          + Nuevo Evento
+        </button>
+      </div>
+
+      <div *ngIf="isAdmin && mostrarFormulario" class="card border-0 bg-light mb-3">
+        <div class="card-body">
+          <h5 class="mb-3">Crear evento</h5>
+          <div class="row g-2">
+            <div class="col-12 col-md-6">
+              <label class="form-label">Titulo</label>
+              <input class="form-control" [(ngModel)]="nuevoEvento.titulo" />
+            </div>
+            <div class="col-12 col-md-3">
+              <label class="form-label">Fecha inicio</label>
+              <input class="form-control" type="date" [(ngModel)]="nuevoEvento.fechaInicio" />
+            </div>
+            <div class="col-12 col-md-3">
+              <label class="form-label">Fecha fin</label>
+              <input class="form-control" type="date" [(ngModel)]="nuevoEvento.fechaFin" />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Lugar</label>
+              <input class="form-control" [(ngModel)]="nuevoEvento.lugar" />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Tipo</label>
+              <input class="form-control" [(ngModel)]="nuevoEvento.tipoEvento" />
+            </div>
+          </div>
+
+          <div *ngIf="errorGuardado" class="alert alert-danger mt-3 mb-0">{{ errorGuardado }}</div>
+          <div *ngIf="successGuardado" class="alert alert-success mt-3 mb-0">{{ successGuardado }}</div>
+
+          <div class="mt-3 d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-cancel-event" [disabled]="guardando" (click)="cancelarFormulario()">
+              Cancelar
+            </button>
+            <button type="button" class="btn btn-primary" [disabled]="guardando" (click)="crearEvento()">
+              {{ guardando ? 'Guardando...' : 'Guardar evento' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="cargando" class="secondary-text">Cargando eventos...</div>
+      <div *ngIf="errorCarga" class="alert alert-danger mb-0">{{ errorCarga }}</div>
+
+      <div *ngIf="!cargando && !errorCarga" class="row g-3">
+        <div class="col-12 col-xl-9">
+          <div class="cal-grid-header">
+            <div class="weekday-label">Lun</div>
+            <div class="weekday-label">Mar</div>
+            <div class="weekday-label">Mie</div>
+            <div class="weekday-label">Jue</div>
+            <div class="weekday-label">Vie</div>
+            <div class="weekday-label">Sab</div>
+            <div class="weekday-label">Dom</div>
+          </div>
+
+          <div class="cal-grid-body">
+            <div class="day-cell" *ngFor="let day of diasCalendario" [class.other-month]="!day.inCurrentMonth">
+              <div class="day-number">{{ day.date.getDate() }}</div>
+              <button
+                type="button"
+                class="event-chip"
+                [class.selected-chip]="eventoSeleccionado?.idEvento === evento.idEvento"
+                *ngFor="let evento of day.eventos"
+                (click)="seleccionarEvento(evento)"
+              >
+                {{ evento.titulo }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-xl-3" *ngIf="eventoSeleccionado as evento">
+          <div class="detalle-evento border rounded p-3 h-100">
+            <h5 class="mb-3">{{ evento.titulo }}</h5>
+            <p class="mb-2"><strong>Fecha inicio:</strong> {{ evento.fechaInicio | date:'dd/MM/yyyy' }}</p>
+            <p class="mb-2"><strong>Fecha fin:</strong> {{ (evento.fechaFin || evento.fechaInicio) | date:'dd/MM/yyyy' }}</p>
+            <p class="mb-2"><strong>Lugar:</strong> {{ evento.lugar || 'Sin especificar' }}</p>
+            <p class="mb-3"><strong>Tipo:</strong> {{ evento.tipoEvento || 'General' }}</p>
+
+            <button
+              *ngIf="isAdmin"
+              type="button"
+              class="btn btn-outline-primary w-100 mb-2"
+              (click)="abrirModalInscripciones(evento)"
+            >
+              Gestionar inscripciones
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-primary w-100"
+              [disabled]="!evento.googleCalendarUrl"
+              (click)="abrirGoogleCalendar(evento)"
+            >
+              Anadir a mi calendario
+            </button>
+          </div>
+        </div>
+
+        <div class="col-12 col-xl-3" *ngIf="!eventoSeleccionado">
+          <div class="detalle-evento border rounded p-3 h-100 secondary-text">
+            Selecciona un evento del calendario para ver el detalle.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="modalInscripcionesAbierto" class="modal-overlay" (click)="cerrarModalInscripciones()">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+    <div class="modal-header-custom">
+      <h5 class="mb-0">Inscripciones de hermanos</h5>
+      <button type="button" class="btn-close" (click)="cerrarModalInscripciones()" aria-label="Cerrar"></button>
+    </div>
+
+    <div class="modal-body-custom">
+      <div class="mb-3">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Buscar por nombre o numero de hermano"
+          [(ngModel)]="buscandoHermano"
+        />
+      </div>
+
+      <div class="actions-bar mb-2">
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="marcarTodosFiltrados(true)">
+          Seleccionar filtrados
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="marcarTodosFiltrados(false)">
+          Limpiar filtrados
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-primary ms-auto" (click)="inscribirTodosActivos()" [disabled]="guardandoInscripciones">
+          Inscribir a todos los activos
+        </button>
+      </div>
+
+      <div *ngIf="cargandoInscripciones" class="secondary-text">Cargando hermanos...</div>
+      <div *ngIf="errorInscripciones" class="alert alert-danger mb-2">{{ errorInscripciones }}</div>
+      <div *ngIf="successInscripciones" class="alert alert-success mb-2">{{ successInscripciones }}</div>
+
+      <div class="listado-hermanos" *ngIf="!cargandoInscripciones">
+        <label class="hermano-item" *ngFor="let hermano of hermanosFiltrados">
+          <input
+            type="checkbox"
+            class="form-check-input"
+            [checked]="hermano.inscrito"
+            (change)="actualizarInscrito(hermano.idHermano, $any($event.target).checked)"
+          />
+          <span class="hermano-nombre">{{ hermano.nombreCompleto }}</span>
+          <span class="badge text-bg-light">#{{ hermano.numeroHermano || '-' }}</span>
+        </label>
+
+        <div *ngIf="hermanosFiltrados.length === 0" class="secondary-text py-3 text-center">
+          No hay hermanos que coincidan con la busqueda.
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer-custom">
+      <button type="button" class="btn btn-outline-secondary" (click)="cerrarModalInscripciones()">Cerrar</button>
+      <button type="button" class="btn btn-primary" [disabled]="guardandoInscripciones" (click)="guardarSeleccionInscripciones()">
+        {{ guardandoInscripciones ? 'Guardando...' : 'Guardar seleccion' }}
+      </button>
     </div>
   </div>
 </div>

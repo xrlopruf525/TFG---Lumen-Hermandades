@@ -25,7 +25,7 @@ export class AuthGuard implements CanActivate, CanActivateChild {
       return this.router.createUrlTree(['/login']);
     }
 
-    const expectedRoles = route.data['roles'] as string[] | undefined;
+    const expectedRoles = this.normalizeExpectedRoles(route);
     if (!expectedRoles || expectedRoles.length === 0) {
       return true;
     }
@@ -36,5 +36,19 @@ export class AuthGuard implements CanActivate, CanActivateChild {
     }
 
     return this.router.createUrlTree([user?.roles?.includes('HERMANO') ? '/portal-hermano' : '/dashboard']);
+  }
+
+  private normalizeExpectedRoles(route: ActivatedRouteSnapshot): string[] | undefined {
+    const roles = route.data['roles'];
+    if (Array.isArray(roles)) {
+      return roles.filter((role) => typeof role === 'string' && role.trim().length > 0);
+    }
+
+    const role = route.data['role'];
+    if (typeof role === 'string' && role.trim().length > 0) {
+      return [role.trim()];
+    }
+
+    return undefined;
   }
 }

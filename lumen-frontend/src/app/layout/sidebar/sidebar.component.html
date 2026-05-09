@@ -58,5 +58,12 @@
       </span>
       <span class="nav-label">Portal del Hermano</span>
     </a>
+
+    <a *ngIf="isHermano" routerLink="/eventos" routerLinkActive="active-link" class="nav-link-item" (click)="onNavigate()">
+      <span class="nav-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M7 2h2v2h6V2h2v2h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3zm13 8H4v10h16z"/></svg>
+      </span>
+      <span class="nav-label">Mis Eventos</span>
+    </a>
   </nav>
 </aside>
