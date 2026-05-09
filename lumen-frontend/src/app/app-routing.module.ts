@@ -57,6 +57,11 @@ const routes: Routes = [
         loadChildren: () => import('./features/patrimonio/patrimonio.module').then(m => m.PatrimonioModule)
       },
       {
+        path: 'tickets',
+        data: { roles: ['ADMIN'] },
+        loadChildren: () => import('./features/tickets/tickets.module').then(m => m.TicketsModule)
+      },
+      {
         path: 'eventos',
         data: { roles: ['ADMIN', 'HERMANO'] },
         component: CalendarioComponent

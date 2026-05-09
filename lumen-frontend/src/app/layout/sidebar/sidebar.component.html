@@ -52,6 +52,13 @@
       <span class="nav-label">Armario Virtual</span>
     </a>
 
+    <a *ngIf="isAdmin" routerLink="/tickets" routerLinkActive="active-link" class="nav-link-item" (click)="onNavigate()">
+      <span class="nav-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zm2 2v12h12V6zm3 2h6v2H9zm0 4h6v2H9z"/></svg>
+      </span>
+      <span class="nav-label">Tickets</span>
+    </a>
+
     <a *ngIf="isHermano" routerLink="/portal-hermano" routerLinkActive="active-link" class="nav-link-item" (click)="onNavigate()">
       <span class="nav-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 3a3 3 0 1 1-3 3 3 3 0 0 1 3-3m0 14.2A7.2 7.2 0 0 1 6.8 16c0-1.8 3.5-2.8 5.2-2.8s5.2 1 5.2 2.8A7.2 7.2 0 0 1 12 19.2"/></svg>
