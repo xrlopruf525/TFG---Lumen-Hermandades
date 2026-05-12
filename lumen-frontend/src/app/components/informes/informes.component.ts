@@ -15,9 +15,11 @@ export class InformesComponent {
 
   descargando = false;
 
-  private readonly API_HERMANOS = '/api/hermanos';
-  private readonly API_CUOTAS = '/api/cuotas';
-  private readonly API_GASTOS = '/api/gastos';
+  private readonly API_BASE = 'http://localhost:8080';
+
+private readonly API_HERMANOS = `${this.API_BASE}/hermanos`;
+private readonly API_CUOTAS = `${this.API_BASE}/cuotas`;
+private readonly API_GASTOS = `${this.API_BASE}/gastos`;
 
   constructor(private http: HttpClient) {}
 
@@ -96,41 +98,61 @@ export class InformesComponent {
   descargarBalanceEconomico(): void {
     this.descargando = true;
 
-    forkJoin({
-      cuotas: this.http.get<any>(this.API_CUOTAS, {
-        params: this.paramsExportacion()
-      }),
-      gastos: this.http.get<any>(this.API_GASTOS, {
-        params: this.paramsExportacion()
-      })
+    this.http.get<any>(this.API_GASTOS, {
+      params: this.paramsExportacion()
     }).subscribe({
-      next: ({ cuotas, gastos }) => {
-        const listaCuotas = this.normalizarRespuesta(cuotas);
-        const listaGastos = this.normalizarRespuesta(gastos);
+      next: (response) => {
+        const movimientos = this.normalizarRespuesta(response);
 
-        const cuotasPagadas = listaCuotas.filter((c: any) => {
-            const estado = String(c.estado ?? '').toLowerCase();
-            return estado.includes('pagada') || estado.includes('pagado') || estado.includes('cobrada') || estado.includes('cobrado');
-            });
+        console.log('RESPUESTA BALANCE ECONÓMICO:', response);
+        console.log('MOVIMIENTOS NORMALIZADOS:', movimientos);
+        console.table(movimientos);
 
-        const totalIngresos = cuotasPagadas.reduce((total: number, cuota: any) => {
-          return total + this.obtenerImporte(cuota);
-        }, 0);
+        let totalIngresos = 0;
+        let totalGastos = 0;
 
-        const totalGastos = listaGastos.reduce((total: number, gasto: any) => {
-          return total + this.obtenerImporte(gasto);
-        }, 0);
+        const detalleMovimientos = movimientos.map((m: any) => {
+          const importeOriginal = Number(m.importe ?? 0);
+
+          let tipo = '';
+          let importeExcel = 0;
+
+          if (importeOriginal < 0) {
+            tipo = 'Ingreso';
+            importeExcel = Math.abs(importeOriginal);
+            totalIngresos += Math.abs(importeOriginal);
+          } else if (importeOriginal > 0) {
+            tipo = 'Gasto';
+            importeExcel = -Math.abs(importeOriginal);
+            totalGastos += Math.abs(importeOriginal);
+          } else {
+            tipo = 'Sin importe';
+            importeExcel = 0;
+          }
+
+          return {
+            Fecha: m.fecha ?? '',
+            Concepto: m.concepto ?? '',
+            Tipo: tipo,
+            Importe: importeExcel,
+            Proveedor: m.proveedor ?? ''
+          };
+        });
 
         const diferencia = totalIngresos - totalGastos;
 
+        console.log('TOTAL INGRESOS:', totalIngresos);
+        console.log('TOTAL GASTOS:', totalGastos);
+        console.log('DIFERENCIA:', diferencia);
+
         const resumen = [
           {
-            Concepto: 'Total ingresos por cuotas pagadas',
+            Concepto: 'Total ingresos',
             Importe: totalIngresos
           },
           {
             Concepto: 'Total gastos',
-            Importe: totalGastos
+            Importe: -totalGastos
           },
           {
             Concepto: 'Diferencia final',
@@ -138,36 +160,23 @@ export class InformesComponent {
           }
         ];
 
-        const ingresosDetalle = cuotasPagadas.map((c: any) => ({
-          Tipo: 'Ingreso',
-          Hermano: this.obtenerNombreHermano(c),
-          Concepto: c.concepto ?? c.descripcion ?? '',
-          Estado: c.estado ?? '',
-          Importe: this.obtenerImporte(c),
-          Fecha: c.fechaPago ?? c.fecha_pago ?? c.fechaVencimiento ?? c.fecha_vencimiento ?? ''
-        }));
-
-        const gastosDetalle = listaGastos.map((g: any) => ({
-          Tipo: 'Gasto',
-          Concepto: g.concepto ?? g.descripcion ?? g.nombre ?? '',
-          Categoría: g.categoria ?? '',
-          Importe: this.obtenerImporte(g),
-          Fecha: g.fecha ?? g.fechaGasto ?? g.fecha_gasto ?? '',
-          Observaciones: g.observaciones ?? ''
-        }));
+        const detalleIngresos = detalleMovimientos.filter((m: any) => m.Tipo === 'Ingreso');
+        const detalleGastos = detalleMovimientos.filter((m: any) => m.Tipo === 'Gasto');
 
         this.generarExcelConVariasHojas(
           [
             { nombre: 'Resumen', datos: resumen },
-            { nombre: 'Ingresos', datos: ingresosDetalle },
-            { nombre: 'Gastos', datos: gastosDetalle }
+            { nombre: 'Movimientos', datos: detalleMovimientos },
+            { nombre: 'Ingresos', datos: detalleIngresos },
+            { nombre: 'Gastos', datos: detalleGastos }
           ],
           'balance_economico'
         );
 
         this.descargando = false;
       },
-      error: () => {
+      error: (error) => {
+        console.error('Error descargando balance económico:', error);
         this.descargando = false;
         alert('No se pudo descargar el balance económico.');
       }
@@ -177,7 +186,6 @@ export class InformesComponent {
   private paramsExportacion(): HttpParams {
     return new HttpParams()
       .set('page', '0')
-      .set('pageSize', '10000')
       .set('size', '10000');
   }
 
@@ -215,7 +223,15 @@ export class InformesComponent {
   }
 
   private obtenerImporte(item: any): number {
-    const valor = item.importe ?? item.cantidad ?? item.monto ?? item.total ?? item.baseImponible ?? 0;
+    const valor =
+      item.importe ??
+      item.cantidad ??
+      item.monto ??
+      item.total ??
+      item.valor ??
+      item.baseImponible ??
+      item.precio ??
+      0;
 
     if (typeof valor === 'number') {
       return valor;
@@ -224,10 +240,36 @@ export class InformesComponent {
     return Number(
       String(valor)
         .replace('€', '')
+        .replace(/\s/g, '')
         .replace(/\./g, '')
         .replace(',', '.')
         .trim()
     ) || 0;
+  }
+
+  private obtenerTipoMovimiento(item: any): string {
+    return String(
+      item.tipo ??
+      item.tipoMovimiento ??
+      item.tipo_movimiento ??
+      item.categoria ??
+      item.clase ??
+      ''
+    ).toLowerCase();
+  }
+
+  private esIngreso(item: any): boolean {
+    const tipo = this.obtenerTipoMovimiento(item);
+    const importe = this.obtenerImporte(item);
+
+    return tipo.includes('ingreso') || importe > 0;
+  }
+
+  private esGasto(item: any): boolean {
+    const tipo = this.obtenerTipoMovimiento(item);
+    const importe = this.obtenerImporte(item);
+
+    return tipo.includes('gasto') || importe < 0;
   }
 
   private generarExcel(datos: any[], nombreHoja: string, nombreArchivo: string): void {

@@ -40,11 +40,18 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                    .requestMatchers("/auth/**").permitAll()
-                    .requestMatchers("/cuotas/**").permitAll()
-                    .requestMatchers("/gastos/**").permitAll()
-                    .anyRequest().authenticated())
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/hermanos/**").permitAll()
+                .requestMatchers("/api/hermanos/**").permitAll()
+                .requestMatchers("/cuotas/**").permitAll()
+                .requestMatchers("/gastos/**").permitAll()
+                .requestMatchers("/avisos/**").permitAll()
+                .requestMatchers("/api/avisos/**").permitAll()
+                .requestMatchers("/grupos/**").permitAll()
+                .requestMatchers("/api/grupos/**").permitAll()
+                .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

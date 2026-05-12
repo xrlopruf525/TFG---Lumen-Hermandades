@@ -1,205 +1,293 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { catchError, forkJoin, of, Subject, takeUntil } from 'rxjs';
-
-import { Cuota } from '../../core/models/cuota.model';
-import { Gasto } from '../../core/models/gasto.model';
-import { CuotaService } from '../../core/services/cuota.service';
-import { GastoService } from '../../core/services/gasto.service';
-import { HermanoService } from '../../services/hermano.service';
 
 interface Notice {
-  id: number;
   title: string;
-  priority: 'high' | 'medium' | 'low';
-  date: Date;
+  date: string | Date;
+  priority: 'low' | 'medium' | 'high';
 }
 
-interface ExpenseItem {
-  id: number;
+interface Expense {
   title: string;
-  date: Date;
+  date: string | Date;
   amount: number;
 }
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
-export class DashboardComponent implements OnInit, OnDestroy {
-  // Metrics
+export class DashboardComponent implements OnInit {
+
+  loading = false;
+  errorMessage = '';
+
   totalHermanos = 0;
   cuotasPendientes = 0;
   gastosRecientes = 0;
   alertasPendientes = 0;
-  upcomingEvents = 0;
 
-  // Notices & Events
   notices: Notice[] = [];
-  expenses: ExpenseItem[] = [];
-  loading = false;
-  errorMessage = '';
+  expenses: Expense[] = [];
 
-  private readonly destroy$ = new Subject<void>();
+  // Modal enviar aviso
+  mostrarModalAviso = false;
+  enviandoAviso = false;
+
+  tipoDestinatario = 'HERMANO';
+  idHermanoSeleccionado: number | null = null;
+  idGrupoSeleccionado: number | null = null;
+  asuntoAviso = '';
+  mensajeAviso = '';
+
+  hermanos: any[] = [];
+  grupos: any[] = [];
+
+  private readonly API_BASE = 'http://localhost:8080';
 
   constructor(
-    private readonly router: Router,
-    private readonly hermanoService: HermanoService,
-    private readonly cuotaService: CuotaService,
-    private readonly gastoService: GastoService
+    private router: Router,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
-    this.loadDashboardData();
+    this.cargarDatosDashboard();
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  /**
-   * Load dashboard data from existing services only.
-   */
-  private loadDashboardData(): void {
+  cargarDatosDashboard(): void {
     this.loading = true;
     this.errorMessage = '';
 
-    const hermanos$ = this.hermanoService
-      .getHermanos({ page: 1, pageSize: 1 })
-      .pipe(catchError(() => of(null)));
+    this.http.get<any>(`${this.API_BASE}/hermanos`, {
+      params: {
+        page: 0,
+        size: 10000
+      }
+    }).subscribe({
+      next: (response) => {
+        const hermanos = this.normalizarRespuesta(response);
+        this.totalHermanos = hermanos.length;
+      },
+      error: (error) => {
+        console.error('Error cargando hermanos:', error);
+        this.errorMessage = 'No se pudieron cargar los hermanos.';
+      }
+    });
 
-    const cuotas$ = this.cuotaService
-      .obtenerTodasLasCuotas()
-      .pipe(catchError(() => of([] as Cuota[])));
+    this.http.get<any>(`${this.API_BASE}/cuotas`, {
+      params: {
+        page: 0,
+        size: 10000
+      }
+    }).subscribe({
+      next: (response) => {
+        const cuotas = this.normalizarRespuesta(response);
 
-    const gastos$ = this.gastoService
-      .obtenerTodosLosGastos()
-      .pipe(catchError(() => of([] as Gasto[])));
+        const pendientes = cuotas.filter((cuota: any) => {
+          const estado = String(cuota.estado ?? '').toLowerCase();
+          return estado.includes('pendiente') || estado.includes('sin pagar') || estado.includes('vencida');
+        });
 
-    forkJoin({ hermanos: hermanos$, cuotas: cuotas$, gastos: gastos$ })
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: ({ hermanos, cuotas, gastos }) => {
-          const cuotasNormalizadas = cuotas ?? [];
-          const gastosNormalizados = gastos ?? [];
+        this.cuotasPendientes = pendientes.length;
+        this.alertasPendientes = pendientes.length;
 
-          this.totalHermanos = hermanos?.pagination?.total ?? 0;
-          this.cuotasPendientes = cuotasNormalizadas.filter((cuota) => this.isCuotaPendiente(cuota)).length;
-          this.alertasPendientes = this.buildAlertasPendientes(cuotasNormalizadas).length;
-          this.notices = this.buildAlertasPendientes(cuotasNormalizadas);
-          this.gastosRecientes = this.getGastosMensuales(gastosNormalizados);
-          this.expenses = this.buildRecentExpenses(gastosNormalizados);
-          this.upcomingEvents = this.buildUpcomingEvents(cuotasNormalizadas);
-          this.loading = false;
-        },
-        error: () => {
-          this.loading = false;
-          this.errorMessage = 'No se pudieron cargar todos los datos del dashboard.';
-        }
-      });
+        this.notices = pendientes.slice(0, 5).map((cuota: any) => ({
+          title: cuota.concepto ?? cuota.descripcion ?? 'Cuota pendiente',
+          date: cuota.fechaVencimiento ?? cuota.fecha_vencimiento ?? new Date(),
+          priority: 'high'
+        }));
+      },
+      error: (error) => {
+        console.error('Error cargando cuotas:', error);
+      }
+    });
+
+    this.http.get<any>(`${this.API_BASE}/gastos`, {
+      params: {
+        page: 0,
+        size: 10000
+      }
+    }).subscribe({
+      next: (response) => {
+        const movimientos = this.normalizarRespuesta(response);
+
+        // En este proyecto:
+        // importe negativo = ingreso
+        // importe positivo = gasto
+        const gastos = movimientos.filter((mov: any) => this.obtenerImporte(mov) > 0);
+
+        this.gastosRecientes = gastos.reduce((total: number, gasto: any) => {
+          return total + Math.abs(this.obtenerImporte(gasto));
+        }, 0);
+
+        this.expenses = movimientos.slice(0, 5).map((mov: any) => ({
+          title: mov.concepto ?? mov.descripcion ?? mov.nombre ?? 'Movimiento',
+          date: mov.fecha ?? mov.fechaMovimiento ?? mov.fecha_movimiento ?? new Date(),
+          amount: this.obtenerImporte(mov)
+        }));
+
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error cargando gastos:', error);
+        this.loading = false;
+      }
+    });
   }
 
   /**
-   * Quick action: Add new hermano - navigates to census form
+   * Quick action: Add hermano
    */
   onAddHermano(): void {
-    this.router.navigate(['/hermanos/nuevo']);
-  }
-
-  /**
-   * Quick action: Send notice - will open notice creation modal/page
-   */
-  onSendNotice(): void {
     this.router.navigate(['/censo']);
   }
 
   /**
-   * Quick action: Open the existing calendar view.
+   * Quick action: Send notice
+   */
+  onSendNotice(): void {
+    this.abrirModalAviso();
+  }
+
+  /**
+   * Quick action: New event
    */
   onNuevoEvento(): void {
     this.router.navigate(['/eventos']);
   }
 
-  private isCuotaPendiente(cuota: Cuota): boolean {
-    return String(cuota.estado).toUpperCase() === 'PENDIENTE';
+  abrirModalAviso(): void {
+    this.mostrarModalAviso = true;
+    this.cargarHermanos();
+    this.cargarGrupos();
   }
 
-  private buildAlertasPendientes(cuotas: Cuota[]): Notice[] {
-    const now = new Date();
-
-    return cuotas
-      .filter((cuota) => this.isCuotaPendiente(cuota))
-      .map((cuota) => {
-        const fechaVencimiento = this.toDate(cuota.fecha_vencimiento ?? cuota.fechaPago ?? cuota.fecha_pago ?? cuota.fecha_emision);
-        const diffDays = fechaVencimiento ? Math.ceil((fechaVencimiento.getTime() - now.getTime()) / 86400000) : Number.POSITIVE_INFINITY;
-
-        return {
-          cuota,
-          fechaVencimiento,
-          diffDays
-        };
-      })
-      .sort((a, b) => a.diffDays - b.diffDays)
-      .slice(0, 4)
-      .map((item, index) => ({
-        id: item.cuota.idCuota ?? index + 1,
-        title: item.diffDays <= 0
-          ? `Cuota vencida: ${item.cuota.concepto || 'Pendiente'}`
-          : `Cuota próxima: ${item.cuota.concepto || 'Pendiente'}`,
-        priority: item.diffDays <= 0 ? 'high' : item.diffDays <= 7 ? 'medium' : 'low',
-        date: item.fechaVencimiento ?? now
-      }));
+  cerrarModalAviso(): void {
+    this.mostrarModalAviso = false;
   }
 
-  private buildRecentExpenses(gastos: Gasto[]): ExpenseItem[] {
-    return gastos
-      .slice()
-      .sort((left, right) => this.toDate(right.fecha).getTime() - this.toDate(left.fecha).getTime())
-      .slice(0, 4)
-      .map((gasto) => ({
-        id: gasto.idGasto,
-        title: gasto.concepto,
-        date: this.toDate(gasto.fecha),
-        amount: Number(gasto.importe) || 0
-      }));
-  }
-
-  private buildUpcomingEvents(cuotas: Cuota[]): number {
-    return cuotas.filter((cuota) => {
-      const fechaVencimiento = this.toDate(cuota.fecha_vencimiento ?? cuota.fechaPago ?? cuota.fecha_pago ?? cuota.fecha_emision);
-
-      if (!fechaVencimiento) {
-        return false;
+  cargarHermanos(): void {
+    this.http.get<any>(`${this.API_BASE}/hermanos`, {
+      params: {
+        page: 0,
+        size: 10000
       }
-
-      const now = new Date();
-      const diffDays = Math.ceil((fechaVencimiento.getTime() - now.getTime()) / 86400000);
-      return diffDays >= 0 && diffDays <= 30;
-    }).length;
+    }).subscribe({
+      next: (response) => {
+        this.hermanos = this.normalizarRespuesta(response);
+      },
+      error: (error) => {
+        console.error('Error cargando hermanos para aviso:', error);
+      }
+    });
   }
 
-  private getGastosMensuales(gastos: Gasto[]): number {
-    const now = new Date();
-
-    return gastos
-      .filter((gasto) => {
-        const date = this.toDate(gasto.fecha);
-        return date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth();
-      })
-      .reduce((sum, gasto) => sum + Math.max(Number(gasto.importe) || 0, 0), 0);
+  cargarGrupos(): void {
+    this.http.get<any>(`${this.API_BASE}/grupos`).subscribe({
+      next: (response) => {
+        this.grupos = this.normalizarRespuesta(response);
+      },
+      error: (error) => {
+        console.error('Error cargando grupos para aviso:', error);
+        this.grupos = [];
+      }
+    });
   }
 
-  private toDate(value: string | Date | undefined | null): Date {
-    if (!value) {
-      return new Date(0);
+  enviarAviso(): void {
+    if (!this.asuntoAviso.trim() || !this.mensajeAviso.trim()) {
+      alert('Debes escribir un asunto y un mensaje.');
+      return;
     }
 
-    const date = value instanceof Date ? value : new Date(value);
-    return Number.isNaN(date.getTime()) ? new Date(0) : date;
+    if (this.tipoDestinatario === 'HERMANO' && !this.idHermanoSeleccionado) {
+      alert('Debes seleccionar un hermano.');
+      return;
+    }
+
+    if (this.tipoDestinatario === 'GRUPO' && !this.idGrupoSeleccionado) {
+      alert('Debes seleccionar un grupo.');
+      return;
+    }
+
+    this.enviandoAviso = true;
+
+    const payload = {
+      tipoDestinatario: this.tipoDestinatario,
+      idHermano: this.tipoDestinatario === 'HERMANO' ? this.idHermanoSeleccionado : null,
+      idGrupo: this.tipoDestinatario === 'GRUPO' ? this.idGrupoSeleccionado : null,
+      asunto: this.asuntoAviso,
+      mensaje: this.mensajeAviso
+    };
+
+    this.http.post<any>(`${this.API_BASE}/avisos/enviar`, payload).subscribe({
+      next: (response) => {
+        this.enviandoAviso = false;
+        alert(`Aviso enviado correctamente a ${response.totalEnviados} destinatario/s.`);
+        this.limpiarFormularioAviso();
+        this.cerrarModalAviso();
+      },
+      error: (error) => {
+        console.error('Error enviando aviso:', error);
+        this.enviandoAviso = false;
+        alert('No se pudo enviar el aviso.');
+      }
+    });
+  }
+
+  limpiarFormularioAviso(): void {
+    this.tipoDestinatario = 'HERMANO';
+    this.idHermanoSeleccionado = null;
+    this.idGrupoSeleccionado = null;
+    this.asuntoAviso = '';
+    this.mensajeAviso = '';
+  }
+
+  normalizarRespuesta(response: any): any[] {
+    if (Array.isArray(response)) {
+      return response;
+    }
+
+    if (Array.isArray(response?.content)) {
+      return response.content;
+    }
+
+    if (Array.isArray(response?.data)) {
+      return response.data;
+    }
+
+    if (Array.isArray(response?.items)) {
+      return response.items;
+    }
+
+    return [];
+  }
+
+  obtenerImporte(item: any): number {
+    const valor =
+      item.importe ??
+      item.cantidad ??
+      item.monto ??
+      item.total ??
+      0;
+
+    if (typeof valor === 'number') {
+      return valor;
+    }
+
+    return Number(
+      String(valor)
+        .replace('€', '')
+        .replace(/\s/g, '')
+        .replace(/\./g, '')
+        .replace(',', '.')
+        .trim()
+    ) || 0;
   }
 }

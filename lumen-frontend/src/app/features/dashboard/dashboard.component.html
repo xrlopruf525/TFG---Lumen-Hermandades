@@ -153,4 +153,66 @@
       Nuevo Evento
     </button>
   </section>
+
+  <!-- Modal Enviar Aviso -->
+<div class="modal-aviso-backdrop" *ngIf="mostrarModalAviso">
+  <div class="modal-aviso">
+    <div class="modal-aviso-header">
+      <h2>Enviar aviso</h2>
+      <button type="button" class="cerrar-modal" (click)="cerrarModalAviso()">×</button>
+    </div>
+
+    <label>Destinatario</label>
+    <select [(ngModel)]="tipoDestinatario">
+      <option value="HERMANO">Hermano concreto</option>
+      <option value="GRUPO">Grupo de hermanos</option>
+      <option value="TODOS">Todos los hermanos</option>
+    </select>
+
+    <div *ngIf="tipoDestinatario === 'HERMANO'">
+      <label>Seleccionar hermano</label>
+      <select [(ngModel)]="idHermanoSeleccionado">
+        <option [ngValue]="null">Selecciona un hermano</option>
+        <option *ngFor="let hermano of hermanos" [ngValue]="hermano.idHermano ?? hermano.id">
+          {{ hermano.nombre }} {{ hermano.primerApellido ?? hermano.primer_apellido ?? '' }}
+        </option>
+      </select>
+    </div>
+
+    <div *ngIf="tipoDestinatario === 'GRUPO'">
+      <label>Seleccionar grupo</label>
+      <select [(ngModel)]="idGrupoSeleccionado">
+        <option [ngValue]="null">Selecciona un grupo</option>
+        <option *ngFor="let grupo of grupos" [ngValue]="grupo.idGrupo ?? grupo.id">
+          {{ grupo.nombre ?? grupo.nombreGrupo }}
+        </option>
+      </select>
+    </div>
+
+    <label>Asunto</label>
+    <input
+      type="text"
+      [(ngModel)]="asuntoAviso"
+      placeholder="Ej: Ensayo general de costaleros"
+    >
+
+    <label>Mensaje</label>
+    <textarea
+      rows="6"
+      [(ngModel)]="mensajeAviso"
+      placeholder="Escribe aquí el aviso..."
+    ></textarea>
+
+    <div class="modal-aviso-actions">
+      <button type="button" class="btn-cancelar" (click)="cerrarModalAviso()">
+        Cancelar
+      </button>
+
+      <button type="button" class="btn-enviar" (click)="enviarAviso()" [disabled]="enviandoAviso">
+        {{ enviandoAviso ? 'Enviando...' : 'Enviar correo' }}
+      </button>
+    </div>
+  </div>
+</div>
+
 </section>
