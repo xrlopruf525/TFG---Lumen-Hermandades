@@ -1,0 +1,42 @@
+.comunicacion-container {
+  padding: 20px;
+  height: 100%;
+
+  .tabs-header {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+
+    .tab-button {
+      padding: 12px 24px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      color: #666;
+      transition: all 0.3s ease;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -10px;
+
+      &:hover {
+        color: #7c3aed;
+      }
+
+      &.active {
+        color: #7c3aed;
+        border-bottom-color: #7c3aed;
+      }
+    }
+  }
+
+  .tabs-content {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    min-height: 400px;
+  }
+}

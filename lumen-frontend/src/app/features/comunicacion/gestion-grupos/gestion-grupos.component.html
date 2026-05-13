@@ -1,0 +1,214 @@
+<div class="gestion-grupos">
+  <!-- Mensaje de éxito/error -->
+  <div *ngIf="mensaje" class="alert" [class.success]="tipoMensaje === 'success'" [class.error]="tipoMensaje === 'error'">
+    <span class="alert-icon">{{ tipoMensaje === 'success' ? '✓' : '✕' }}</span>
+    <span class="alert-message">{{ mensaje }}</span>
+  </div>
+
+  <!-- Header principal -->
+  <header class="gestion-header">
+    <div>
+      <h2>Gestión de Grupos</h2>
+      <p>Administra los grupos de hermanos y sus miembros</p>
+    </div>
+    <button type="button" class="btn btn-primary btn-lg" (click)="showFormularioGrupo = !showFormularioGrupo; editandoGrupo = false">
+      + Nuevo Grupo
+    </button>
+  </header>
+
+  <div class="gestion-layout">
+    <!-- Panel izquierdo - Listado de grupos -->
+    <aside class="grupos-panel">
+      <div class="panel-title">
+        <h3>Grupos Disponibles</h3>
+        <span class="count-badge">{{ grupos.length }}</span>
+      </div>
+
+      <div *ngIf="cargando" class="loading-state">
+        <div class="spinner"></div>
+        <span>Cargando grupos...</span>
+      </div>
+
+      <div *ngIf="!cargando && grupos.length === 0" class="empty-state">
+        <p>📭 No hay grupos creados</p>
+        <small>Crea un nuevo grupo para empezar</small>
+      </div>
+
+      <div class="grupos-list" *ngIf="!cargando && grupos.length > 0">
+        <button type="button"
+                class="grupo-item"
+                *ngFor="let grupo of grupos"
+                [class.active]="grupoSeleccionado?.id === grupo.id"
+                (click)="seleccionarGrupo(grupo)">
+          <div class="grupo-icon">👥</div>
+          <div class="grupo-content">
+            <div class="grupo-name">{{ grupo.nombre }}</div>
+            <div class="grupo-meta">{{ grupo.tipo || 'Sin tipo' }}</div>
+          </div>
+          <div class="grupo-count">{{ hermanosDelGrupo.length || 0 }}</div>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Panel central - Formulario o detalles -->
+    <main class="content-panel">
+      <!-- Formulario de nuevo/editar grupo -->
+      <div *ngIf="showFormularioGrupo" class="form-section">
+        <h3 class="form-title">{{ editandoGrupo ? '✏️ Editar Grupo' : '➕ Nuevo Grupo' }}</h3>
+        
+        <form [formGroup]="formularioGrupo" class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Nombre del Grupo *</label>
+            <input type="text" 
+                   formControlName="nombre" 
+                   placeholder="Ej: Costaleros" 
+                   class="form-input">
+            <small *ngIf="formularioGrupo.get('nombre')?.invalid && formularioGrupo.get('nombre')?.touched"
+                   class="error-text">
+              Requerido (mínimo 3 caracteres)
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Tipo</label>
+            <input type="text" 
+                   formControlName="tipo" 
+                   placeholder="Ej: Cofradía, Penitentes..." 
+                   class="form-input">
+          </div>
+
+          <div class="form-group form-group--full">
+            <label class="form-label">Descripción</label>
+            <textarea formControlName="descripcion" 
+                      placeholder="Descripción del grupo..." 
+                      class="form-textarea"
+                      rows="3"></textarea>
+          </div>
+
+          <div class="form-actions form-group--full">
+            <button type="button"
+                    class="btn btn-primary"
+                    (click)="editandoGrupo ? actualizarGrupo() : crearGrupo()"
+                    [disabled]="cargando || formularioGrupo.invalid">
+              <span>{{ cargando ? '⏳ Guardando...' : (editandoGrupo ? '💾 Actualizar' : '✓ Crear Grupo') }}</span>
+            </button>
+            <button type="button" class="btn btn-secondary" (click)="cancelarFormulario()" [disabled]="cargando">
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Detalles del grupo seleccionado -->
+      <div *ngIf="!showFormularioGrupo && grupoSeleccionado" class="details-section">
+        <div class="details-header">
+          <div>
+            <h3>{{ grupoSeleccionado.nombre }}</h3>
+            <p class="details-subtitle">{{ grupoSeleccionado.tipo || 'Sin tipo especificado' }}</p>
+          </div>
+          <div class="details-actions">
+            <button type="button" class="btn btn-sm btn-secondary" (click)="iniciarEdicion()">✏️ Editar</button>
+            <button type="button" class="btn btn-sm btn-danger" (click)="eliminarGrupo()">🗑️ Eliminar</button>
+          </div>
+        </div>
+
+        <div class="details-info">
+          <div class="info-card">
+            <div class="info-label">Descripción</div>
+            <div class="info-value">{{ grupoSeleccionado.descripcion || 'Sin descripción' }}</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Total de Miembros</div>
+            <div class="info-value info-value--large">{{ hermanosDelGrupo.length }}</div>
+          </div>
+        </div>
+
+        <!-- Sección de hermanos del grupo -->
+        <div class="hermanos-section">
+          <div class="section-header">
+            <h4>👥 Miembros del Grupo</h4>
+            <button type="button" class="btn btn-sm btn-primary" (click)="abrirFormularioHermano()">
+              + Agregar Miembro
+            </button>
+          </div>
+
+          <!-- Formulario para agregar hermano -->
+          <div *ngIf="showFormularioHermano" class="form-section form-section--compact">
+            <form [formGroup]="formularioHermano">
+              <div class="form-group">
+                <label class="form-label">Selecciona un hermano</label>
+                <select formControlName="idHermano" class="form-input">
+                  <option value="">-- Selecciona un hermano --</option>
+                  <option *ngFor="let hermano of hermanos"
+                          [value]="hermano.id"
+                          [disabled]="hermanoYaEnGrupo(hermano.id)">
+                    {{ hermano.nombre }} {{ hermano.primer_apellido }} {{ hermanoYaEnGrupo(hermano.id) ? '(ya en grupo)' : '' }}
+                  </option>
+                </select>
+              </div>
+              <div class="form-actions">
+                <button type="button" 
+                        class="btn btn-primary btn-sm" 
+                        (click)="agregarHermano()" 
+                        [disabled]="cargando || formularioHermano.invalid">
+                  {{ cargando ? '⏳ Agregando...' : '✓ Agregar' }}
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" (click)="showFormularioHermano = false">
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Tabla de hermanos -->
+          <div *ngIf="hermanosDelGrupo.length === 0 && !showFormularioHermano" class="empty-state">
+            <p>📭 No hay miembros en este grupo</p>
+            <small>Agrega miembros para comenzar</small>
+          </div>
+
+          <div class="table-wrapper" *ngIf="hermanosDelGrupo.length > 0">
+            <table class="hermanos-table">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Apellidos</th>
+                  <th>Email</th>
+                  <th>Teléfono</th>
+                  <th class="actions-col">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let hermano of hermanosDelGrupo; trackBy: trackByHermanoId">
+                  <td>{{ hermano.nombre }}</td>
+                  <td>{{ hermano.primer_apellido }} {{ hermano.segundo_apellido || '' }}</td>
+                  <td>
+                    <a *ngIf="hermano.email" [href]="'mailto:' + hermano.email" class="email-link">
+                      {{ hermano.email }}
+                    </a>
+                    <span *ngIf="!hermano.email" class="text-muted">-</span>
+                  </td>
+                  <td>{{ hermano.telefono_movil || '-' }}</td>
+                  <td class="actions-col">
+                    <button type="button" 
+                            class="btn btn-sm btn-danger" 
+                            (click)="quitarHermano(hermano.id)" 
+                            [disabled]="cargando">
+                      Quitar
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estado vacío -->
+      <div *ngIf="!showFormularioGrupo && !grupoSeleccionado" class="empty-state-lg">
+        <div class="empty-icon">📋</div>
+        <p>Selecciona un grupo o crea uno nuevo</p>
+        <small>Los grupos te permiten enviar avisos a múltiples hermanos</small>
+      </div>
+    </main>
+  </div>
+</div>

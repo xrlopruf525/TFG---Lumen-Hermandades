@@ -62,6 +62,11 @@ const routes: Routes = [
         loadChildren: () => import('./features/tickets/tickets.module').then(m => m.TicketsModule)
       },
       {
+        path: 'comunicacion',
+        data: { roles: ['ADMIN'] },
+        loadChildren: () => import('./features/comunicacion/comunicacion.module').then(m => m.ComunicacionModule)
+      },
+      {
         path: 'eventos',
         data: { roles: ['ADMIN', 'HERMANO'] },
         component: CalendarioComponent

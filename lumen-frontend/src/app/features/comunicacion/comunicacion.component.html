@@ -1,0 +1,15 @@
+<div class="comunicacion-container">
+  <div class="tabs-header">
+    <button class="tab-button" [class.active]="activeTab === 'avisos'" (click)="changeTab('avisos')">
+      📧 Enviar Avisos
+    </button>
+    <button class="tab-button" [class.active]="activeTab === 'grupos'" (click)="changeTab('grupos')">
+      👥 Gestionar Grupos
+    </button>
+  </div>
+
+  <div class="tabs-content">
+    <app-envio-avisos *ngIf="activeTab === 'avisos'"></app-envio-avisos>
+    <app-gestion-grupos *ngIf="activeTab === 'grupos'"></app-gestion-grupos>
+  </div>
+</div>
