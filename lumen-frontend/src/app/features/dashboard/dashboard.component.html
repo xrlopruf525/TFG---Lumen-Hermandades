@@ -17,12 +17,7 @@
     <!-- Card 1: Hermanos -->
     <div class="metric-card">
       <div class="metric-card__icon metric-card__icon--blue">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-          <circle cx="9" cy="7" r="4"></circle>
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-        </svg>
+        <i class="fa-solid fa-users"></i>
       </div>
       <div class="metric-card__content">
         <p class="metric-card__label">Hermanos Activos</p>
@@ -34,12 +29,7 @@
     <!-- Card 2: Cuotas -->
     <div class="metric-card">
       <div class="metric-card__icon metric-card__icon--orange">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-          <line x1="16" y1="2" x2="16" y2="6"></line>
-          <line x1="8" y1="2" x2="8" y2="6"></line>
-          <line x1="3" y1="10" x2="21" y2="10"></line>
-        </svg>
+        <i class="fa-solid fa-calendar-days"></i>
       </div>
       <div class="metric-card__content">
         <p class="metric-card__label">Cuotas Pendientes</p>
@@ -51,9 +41,7 @@
     <!-- Card 3: Gastos -->
     <div class="metric-card">
       <div class="metric-card__icon metric-card__icon--purple">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-        </svg>
+        <i class="fa-solid fa-money-bill"></i>
       </div>
       <div class="metric-card__content">
         <p class="metric-card__label">Gastos del mes</p>
@@ -65,10 +53,7 @@
     <!-- Card 4: Alertas -->
     <div class="metric-card">
       <div class="metric-card__icon metric-card__icon--green">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="12 6 12 12 16 14"></polyline>
-          <circle cx="12" cy="12" r="10"></circle>
-        </svg>
+        <i class="fa-solid fa-triangle-exclamation"></i>
       </div>
       <div class="metric-card__content">
         <p class="metric-card__label">Alertas pendientes</p>
@@ -116,10 +101,7 @@
           <ul class="item-list">
             <li *ngFor="let expense of expenses" class="item-list__item">
               <div class="item-list__icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="9"></circle>
-                  <path d="M8 12h8"></path>
-                </svg>
+                <i class="fa-solid fa-receipt"></i>
               </div>
               <div class="item-list__content">
                 <p class="item-list__title">{{ expense.title }}</p>
@@ -135,21 +117,15 @@
   <!-- Quick Actions -->
   <section class="quick-actions">
     <button class="quick-btn" (click)="onAddHermano()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M12 5v14M5 12h14"></path>
-      </svg>
+      <i class="fa-solid fa-user-plus"></i>
       Añadir Hermano
     </button>
     <button class="quick-btn" (click)="onSendNotice()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-      </svg>
+      <i class="fa-solid fa-bell"></i>
       Enviar Aviso
     </button>
     <button class="quick-btn" (click)="onNuevoEvento()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M12 5v14M5 12h14"></path>
-      </svg>
+      <i class="fa-solid fa-calendar-plus"></i>
       Nuevo Evento
     </button>
   </section>
@@ -159,7 +135,9 @@
   <div class="modal-aviso">
     <div class="modal-aviso-header">
       <h2>Enviar aviso</h2>
-      <button type="button" class="cerrar-modal" (click)="cerrarModalAviso()">×</button>
+      <button type="button" class="cerrar-modal" (click)="cerrarModalAviso()" aria-label="Cerrar modal">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
     </div>
 
     <label>Destinatario</label>

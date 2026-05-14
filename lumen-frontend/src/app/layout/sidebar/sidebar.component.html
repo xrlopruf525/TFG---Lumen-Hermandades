@@ -17,58 +17,56 @@
     </div>
 
     <button class="collapse-btn" type="button" (click)="toggleSidebar()" aria-label="Alternar sidebar">
-      <svg viewBox="0 0 24 24" role="img" aria-hidden="true">
-        <path d="M9.41 7.41 8 8.83 11.17 12 8 15.17l1.41 1.42L14 12z" />
-      </svg>
+        <i class="fa-solid fa-angles-left" aria-hidden="true"></i>
     </button>
   </div>
 
   <nav class="sidebar__nav" aria-label="Navegacion principal">
     <a *ngIf="isAdmin" routerLink="/dashboard" routerLinkActive="active-link" class="nav-link-item" (click)="onNavigate()">
       <span class="nav-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>
+        <i class="fa-solid fa-gauge-high"></i>
       </span>
       <span class="nav-label">Dashboard</span>
     </a>
 
     <a *ngIf="isAdmin" routerLink="/censo" routerLinkActive="active-link" class="nav-link-item" (click)="onNavigate()">
       <span class="nav-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zM4 11h16v2H4zM4 16h10v2H4z"/></svg>
+        <i class="fa-solid fa-users"></i>
       </span>
       <span class="nav-label">Censo</span>
     </a>
 
     <a *ngIf="isAdmin" routerLink="/eventos" routerLinkActive="active-link" class="nav-link-item" (click)="onNavigate()">
       <span class="nav-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M7 2h2v2h6V2h2v2h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3zm13 8H4v10h16z"/></svg>
+        <i class="fa-solid fa-calendar-days"></i>
       </span>
       <span class="nav-label">Eventos</span>
     </a>
 
     <a *ngIf="isAdmin" routerLink="/patrimonio" routerLinkActive="active-link" class="nav-link-item" (click)="onNavigate()">
       <span class="nav-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M3 3h18v2H3zm1 3h16v2H4zm0 3h14v10H4zm11 3h-2v4h2zm-4-1h-2v5h2zm-4 1h-2v4h2z"/></svg>
+        <i class="fa-solid fa-landmark"></i>
       </span>
       <span class="nav-label">Armario Virtual</span>
     </a>
 
     <a *ngIf="isAdmin" routerLink="/tickets" routerLinkActive="active-link" class="nav-link-item" (click)="onNavigate()">
       <span class="nav-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zm2 2v12h12V6zm3 2h6v2H9zm0 4h6v2H9z"/></svg>
+        <i class="fa-solid fa-ticket"></i>
       </span>
       <span class="nav-label">Tickets</span>
     </a>
 
     <a *ngIf="isHermano" routerLink="/portal-hermano" routerLinkActive="active-link" class="nav-link-item" (click)="onNavigate()">
       <span class="nav-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 3a3 3 0 1 1-3 3 3 3 0 0 1 3-3m0 14.2A7.2 7.2 0 0 1 6.8 16c0-1.8 3.5-2.8 5.2-2.8s5.2 1 5.2 2.8A7.2 7.2 0 0 1 12 19.2"/></svg>
+        <i class="fa-solid fa-user"></i>
       </span>
       <span class="nav-label">Portal del Hermano</span>
     </a>
 
     <a *ngIf="isHermano" routerLink="/eventos" routerLinkActive="active-link" class="nav-link-item" (click)="onNavigate()">
       <span class="nav-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M7 2h2v2h6V2h2v2h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3zm13 8H4v10h16z"/></svg>
+        <i class="fa-solid fa-calendar-check"></i>
       </span>
       <span class="nav-label">Mis Eventos</span>
     </a>
