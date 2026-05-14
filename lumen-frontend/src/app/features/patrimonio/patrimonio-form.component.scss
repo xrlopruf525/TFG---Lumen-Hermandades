@@ -3,28 +3,28 @@
 // =============================================
 
 :host {
-  --primary-color: #5a1323;
-  --primary-light: #8b4f7a;
-  --secondary-color: #6d28d9;
-  --accent-color: #a855f7;
+  --primary-color: #9B1EB9;
+  --primary-light: #7a2f3b;
+  --secondary-color: #7a2f3b;
+  --accent-color: #b38a3d;
   
   --success-color: #10b981;
   --error-color: #ef4444;
   --warning-color: #f59e0b;
   
-  --bg-light: #fbfcff;
+  --bg-light: #fbf7f2;
   --bg-white: #ffffff;
-  --bg-pale: #f9fafb;
+  --bg-pale: #f8f2ee;
   
-  --text-dark: #1a1a2e;
-  --text-mid: #5f6b7a;
-  --text-light: #8b98ab;
+  --text-dark: #21171b;
+  --text-mid: #5b4d50;
+  --text-light: #75686b;
   
-  --border-color: #e8edf3;
-  --border-light: #f0f4f8;
+  --border-color: rgba(90, 19, 35, 0.12);
+  --border-light: rgba(90, 19, 35, 0.08);
   
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 1px 2px rgba(68, 41, 33, 0.05);
+  --shadow-md: 0 4px 12px rgba(68, 41, 33, 0.08);
   
   --radius-sm: 8px;
   --radius-md: 12px;

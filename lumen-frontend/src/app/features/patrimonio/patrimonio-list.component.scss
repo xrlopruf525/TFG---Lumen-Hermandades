@@ -3,32 +3,32 @@
 // =============================================
 
 :host {
-  --primary-color: #5a1323;
-  --primary-light: #8b4f7a;
-  --secondary-color: #6d28d9;
-  --accent-color: #a855f7;
-  --accent-warm: #f97316;
+  --primary-color: #9B1EB9;
+  --primary-light: #7a2f3b;
+  --secondary-color: #7a2f3b;
+  --accent-color: #b38a3d;
+  --accent-warm: #d4b15f;
   
   --success-color: #10b981;
   --warning-color: #f59e0b;
   --error-color: #ef4444;
   
-  --bg-light: #fbfcff;
+  --bg-light: #fbf7f2;
   --bg-white: #ffffff;
-  --bg-pale: #f9fafb;
+  --bg-pale: #f8f2ee;
   
-  --text-dark: #1a1a2e;
-  --text-mid: #5f6b7a;
-  --text-light: #8b98ab;
-  --text-lightest: #b5bed9;
+  --text-dark: #21171b;
+  --text-mid: #5b4d50;
+  --text-light: #75686b;
+  --text-lightest: #a08f92;
   
-  --border-color: #e8edf3;
-  --border-light: #f0f4f8;
+  --border-color: rgba(90, 19, 35, 0.12);
+  --border-light: rgba(90, 19, 35, 0.08);
   
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
-  --shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.15);
+  --shadow-sm: 0 1px 2px rgba(68, 41, 33, 0.05);
+  --shadow-md: 0 4px 12px rgba(68, 41, 33, 0.08);
+  --shadow-lg: 0 10px 30px rgba(68, 41, 33, 0.12);
+  --shadow-xl: 0 20px 50px rgba(68, 41, 33, 0.15);
   
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -212,7 +212,7 @@
   }
 
   &.stat-icon-purple {
-    background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+    background: linear-gradient(135deg, #9B1EB9 0%, #7a1a9a 100%);
   }
 
   &.stat-icon-orange {

@@ -23,7 +23,7 @@
 
   .stat-card.ingresos .amount { color: #16a34a; }
   .stat-card.gastos .amount { color: #ef4444; }
-  .stat-card.balance .amount { color: #7c3aed; }
+  .stat-card.balance .amount { color: #9B1EB9; }
 
   .movimientos-section {
     margin-top: 1.5rem;
@@ -46,12 +46,12 @@
   }
 
   .btn-nuevo {
-    background: linear-gradient(90deg,#7c3aed,#a78bfa);
+    background: linear-gradient(90deg,#9B1EB9,#7a1a9a);
     color:#fff;
     border:none;
     padding:0.6rem 1rem;
     border-radius:18px;
-    box-shadow: 0 6px 16px rgba(124,58,237,0.18);
+    box-shadow: 0 6px 16px rgba(90,19,35,0.18);
     cursor:pointer;
     display:inline-flex;
     gap:0.5rem;
