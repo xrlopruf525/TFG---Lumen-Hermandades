@@ -1,0 +1,146 @@
+<section class="avisos-page">
+
+  <div class="avisos-layout">
+
+    <!-- COLUMNA IZQUIERDA -->
+    <div class="avisos-card">
+
+      <div class="avisos-card__header">
+        <div class="avisos-card__icon">
+          <i class="fa-solid fa-bell"></i>
+        </div>
+
+        <div>
+          <h2>Nuevo Mensaje</h2>
+          <p>Envía comunicados a hermanos concretos, grupos o a todos los hermanos.</p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label>Destinatarios</label>
+          <select [(ngModel)]="tipoDestinatario">
+            <option value="TODOS">Todos los hermanos</option>
+            <option value="HERMANO">Hermano concreto</option>
+            <option value="GRUPO">Grupo de hermanos</option>
+          </select>
+        </div>
+
+        <div class="form-group" *ngIf="tipoDestinatario === 'HERMANO'">
+          <label>Seleccionar hermano</label>
+          <select [(ngModel)]="idHermanoSeleccionado">
+            <option [ngValue]="null">Selecciona un hermano</option>
+            <option *ngFor="let hermano of hermanos" [ngValue]="hermano.idHermano ?? hermano.id">
+              {{ hermano.nombre }} {{ hermano.primerApellido ?? hermano.primer_apellido ?? '' }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group" *ngIf="tipoDestinatario === 'GRUPO'">
+          <label>Seleccionar grupo</label>
+          <select [(ngModel)]="idGrupoSeleccionado">
+            <option [ngValue]="null">Selecciona un grupo</option>
+            <option *ngFor="let grupo of grupos" [ngValue]="grupo.idGrupo ?? grupo.id ?? grupo.id_grupo">
+              {{ grupo.nombre ?? grupo.nombreGrupo }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group form-group--full">
+          <label>Asunto</label>
+          <input
+            type="text"
+            [(ngModel)]="asuntoAviso"
+            placeholder="Asunto del mensaje..."
+          >
+        </div>
+
+        <div class="form-group form-group--full">
+          <label>Mensaje</label>
+          <textarea
+            rows="8"
+            [(ngModel)]="mensajeAviso"
+            placeholder="Escribe tu mensaje aquí..."
+          ></textarea>
+        </div>
+
+      </div>
+
+      <div class="avisos-actions">
+        <button type="button" class="btn-secundario" (click)="limpiarFormularioAviso()">
+          Limpiar
+        </button>
+
+        <button type="button" class="btn-principal" (click)="enviarAviso()" [disabled]="enviandoAviso">
+          <i class="fa-solid fa-paper-plane"></i>
+          {{ enviandoAviso ? 'Enviando...' : 'Enviar correo' }}
+        </button>
+      </div>
+
+    </div>
+
+    <!-- COLUMNA DERECHA -->
+    <aside class="grupos-card">
+
+      <div class="grupos-card__header">
+        <div>
+          <h2>Grupos</h2>
+        </div>
+
+        <button type="button" class="btn-crear-grupo" (click)="mostrarCrearGrupo = !mostrarCrearGrupo">
+          <i class="fa-solid fa-plus"></i>
+        </button>
+      </div>
+
+      <div class="crear-grupo" *ngIf="mostrarCrearGrupo">
+        <label>Nuevo grupo</label>
+
+        <div class="crear-grupo__row">
+          <input
+            type="text"
+            [(ngModel)]="nombreNuevoGrupo"
+            placeholder="Ej: Costaleros"
+            (keyup.enter)="crearGrupo()"
+          >
+
+          <button type="button" (click)="crearGrupo()" [disabled]="creandoGrupo">
+            {{ creandoGrupo ? 'Creando...' : 'Crear' }}
+          </button>
+        </div>
+
+        <p class="grupo-error" *ngIf="errorGrupo">
+          {{ errorGrupo }}
+        </p>
+      </div>
+
+      <div class="grupos-listado" *ngIf="gruposResumen.length > 0; else sinGruposDerecha">
+        <div class="grupo-item" *ngFor="let grupo of gruposResumen">
+
+          <div class="grupo-item__icon">
+            <i class="fa-solid fa-users"></i>
+          </div>
+
+          <div class="grupo-item__content">
+            <h3>{{ grupo.nombre }}</h3>
+            <p>
+              {{ grupo.numeroMiembros }}
+              {{ grupo.numeroMiembros === 1 ? 'hermano' : 'hermanos' }}
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+      <ng-template #sinGruposDerecha>
+        <div class="sin-grupos">
+          <i class="fa-solid fa-circle-info"></i>
+          <p>No hay grupos creados todavía.</p>
+        </div>
+      </ng-template>
+
+    </aside>
+
+  </div>
+
+</section>

@@ -9,6 +9,7 @@ import { HermanosComponent } from './features/hermanos/hermanos.component';
 import { LoginComponent } from './features/login/login.component';
 import { PortalHermanoComponent } from './features/portal-hermano/portal-hermano.component';
 import { LayoutComponent } from './layout/layout/layout.component';
+import { AvisosComponent } from './features/avisos/avisos.component';
 
 const routes: Routes = [
   {
@@ -65,6 +66,11 @@ const routes: Routes = [
         path: 'eventos',
         data: { roles: ['ADMIN', 'HERMANO'] },
         component: CalendarioComponent
+      },
+      {
+        path: 'avisos',
+        data: { roles: ['ADMIN'] },
+        component: AvisosComponent
       },
       {
         path: 'portal-hermano',

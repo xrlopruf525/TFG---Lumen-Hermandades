@@ -57,6 +57,13 @@
       <span class="nav-label">Tickets</span>
     </a>
 
+    <a *ngIf="isAdmin" routerLink="/avisos" routerLinkActive="active-link" class="nav-link-item" (click)="onNavigate()">
+      <span class="nav-icon" aria-hidden="true">
+        <i class="fa-solid fa-bell"></i>
+      </span>
+      <span class="nav-label">Avisos</span>
+    </a>
+
     <a *ngIf="isHermano" routerLink="/portal-hermano" routerLinkActive="active-link" class="nav-link-item" (click)="onNavigate()">
       <span class="nav-icon" aria-hidden="true">
         <i class="fa-solid fa-user"></i>

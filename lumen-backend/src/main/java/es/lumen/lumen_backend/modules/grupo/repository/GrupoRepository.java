@@ -4,4 +4,6 @@ import es.lumen.lumen_backend.modules.grupo.entity.Grupo;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface GrupoRepository extends JpaRepository<Grupo, Integer> {
+
+    boolean existsByNombreIgnoreCase(String nombre);
 }

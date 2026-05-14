@@ -152,7 +152,7 @@ export class DashboardComponent implements OnInit {
    * Quick action: Send notice
    */
   onSendNotice(): void {
-    this.abrirModalAviso();
+    this.router.navigate(['/avisos']);
   }
 
   /**
