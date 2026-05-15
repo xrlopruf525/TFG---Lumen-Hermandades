@@ -121,14 +121,15 @@ export class TicketsComponent implements OnInit {
 
   formatHermano(hermano: Hermano): string {
     const numero = hermano.numeroHermano ? `#${hermano.numeroHermano}` : '';
-    return `${hermano.nombre} ${hermano.apellidos ?? ''} ${numero}`.trim().replace(/\s+/g, ' ');
+    const apellidos = `${hermano.primerApellido ?? ''} ${hermano.segundoApellido ?? ''}`.trim();
+    return `${hermano.nombre} ${apellidos} ${numero}`.trim().replace(/\s+/g, ' ');
   }
 
   private cargarDatos(): void {
     this.loading = true;
     this.errorMessage = null;
 
-    this.hermanoService.getHermanos({ page: 1, pageSize: 500, sortBy: 'primer_apellido', sortDirection: 'asc' }).subscribe({
+    this.hermanoService.getHermanos({ page: 1, pageSize: 500, sortBy: 'primerApellido', sortDirection: 'asc' }).subscribe({
       next: (response) => {
         this.hermanos = response.data;
         this.cargarEventos();
