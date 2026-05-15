@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 
 import { HermanoDto } from '../../models/hermano.model';
+import { environment } from 'src/environments/environment.prod';
 
 interface GrupoResumen {
   idGrupo: number;
@@ -56,7 +57,7 @@ export class AvisosComponent implements OnInit {
   busquedaAviso = '';
   buscandoAviso = false;
 
-  private readonly API_BASE = 'http://localhost:8080';
+  private readonly API_BASE = environment.apiUrl;
   private timerBusquedaGrupo: ReturnType<typeof setTimeout> | null = null;
   private timerBusquedaAviso: ReturnType<typeof setTimeout> | null = null;
 

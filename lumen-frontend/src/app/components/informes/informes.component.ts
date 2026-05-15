@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { forkJoin } from 'rxjs';
 import * as XLSX from 'xlsx';
+import { environment } from 'src/environments/environment.prod';
 
 @Component({
   selector: 'app-informes',
@@ -15,7 +16,7 @@ export class InformesComponent {
 
   descargando = false;
 
-  private readonly API_BASE = 'http://localhost:8080';
+  private readonly API_BASE = environment.apiUrl;
 
 private readonly API_HERMANOS = `${this.API_BASE}/hermanos`;
 private readonly API_CUOTAS = `${this.API_BASE}/cuotas`;

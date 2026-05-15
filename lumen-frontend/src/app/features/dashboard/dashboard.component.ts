@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { environment } from 'src/environments/environment.prod';
 
 interface Notice {
   title: string;
@@ -49,7 +50,7 @@ export class DashboardComponent implements OnInit {
   hermanos: any[] = [];
   grupos: any[] = [];
 
-  private readonly API_BASE = 'http://localhost:8080';
+  private readonly API_BASE = environment.apiUrl;
 
   constructor(
     private router: Router,
