@@ -125,11 +125,11 @@ export class HermanoFormComponent implements OnInit {
     });
   }
 
-  private patchFormWithHermano(hermano: Hermano): void {
+  private patchFormWithHermano(hermano: any): void {
     this.form.patchValue({
       nombre: hermano.nombre ?? '',
-      nif: hermano.dni ?? '',
-      apellidos: `${hermano.primer_apellido ?? ''} ${hermano.segundo_apellido ?? ''}`.trim(),
+      nif: hermano.nif ?? '',
+      apellidos: `${hermano.primerApellido ?? ''} ${hermano.segundoApellido ?? ''}`.trim(),
       email: hermano.email ?? '',
       numeroHermano: hermano.numeroHermano != null ? String(hermano.numeroHermano) : ''
     });
