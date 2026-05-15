@@ -1,34 +1,6 @@
-export interface Hermano {
-  id: number;
-  nombre: string;
-  apellidos?: string;
-  primer_apellido: string;
-  segundo_apellido: string;
-  dni?: string;
-  telefono?: string;
-  telefono_movil?: string;
-  email?: string;
-  estado?: string;
-  numeroHermano?: number;
-  fechaAlta?: string | Date;
-  fecha_nacimiento?: string | Date;
-  direccion?: string;
-  piso_puerta?: string;
-  codigo_postal?: string;
-  localidad?: string;
-  provincia?: string;
-  pais?: string;
-  telefono_fijo?: string;
-  forma_pago?: string;
-  iban?: string;
-  titular_cuenta?: string;
-  en_cuotas?: boolean;
-  observaciones?: string;
-  tutor_legal?: string;
-  deleted?: boolean;
-}
+export type HermanoEstado = 'ACTIVO' | 'BAJA' | 'FALLECIDO' | 'PENDIENTE' | string;
 
-export interface HermanoDto {
+export interface Hermano {
   id: number;
   idHermandad: number;
   numeroHermano?: number;
@@ -36,6 +8,7 @@ export interface HermanoDto {
   nombre: string;
   primerApellido: string;
   segundoApellido?: string;
+  apellidos?: string;
   fechaNacimiento?: string | Date;
   direccion?: string;
   numero?: string;
@@ -49,7 +22,7 @@ export interface HermanoDto {
   email?: string;
   fechaAlta?: string | Date;
   fechaBaja?: string | Date;
-  estado?: string;
+  estado?: HermanoEstado;
   formaPago?: string;
   iban?: string;
   titularCuenta?: string;
@@ -59,45 +32,13 @@ export interface HermanoDto {
   deleted?: boolean;
 }
 
-export interface HermanoRequest {
-  idHermandad: number;
-  numeroHermano?: number;
-  nif: string;
-  nombre: string;
-  primerApellido: string;
-  segundoApellido?: string;
-  fechaNacimiento?: string | Date;
-  direccion?: string | null;
-  numero?: string | null;
-  pisoPuerta?: string | null;
-  codigoPostal?: string | null;
-  poblacion?: string | null;
-  provincia?: string | null;
-  pais?: string | null;
-  telefonoMovil?: string | null;
-  telefonoFijo?: string | null;
-  email?: string | null;
-  fechaAlta?: string | Date | null;
-  fechaBaja?: string | Date | null;
-  estado?: string | null;
-  formaPago?: string | null;
-  iban?: string | null;
-  titularCuenta?: string | null;
-  enCuotas?: boolean | null;
-  observaciones?: string | null;
-  tutorLegal?: string | null;
-}
+export interface HermanoDto extends Hermano {}
 
-export type HermanoEstado = 'ACTIVO' | 'BAJA' | 'FALLECIDO' | 'PENDIENTE' | string;
+export type HermanoRequest = Omit<Hermano, 'id' | 'deleted'> & {
+  id?: number;
+};
 
-export interface HermanosQueryParams {
-  page: number;
-  pageSize: number;
-  search?: string;
-  estado?: string;
-  sortBy?: keyof Hermano | 'apellidos';
-  sortDirection?: 'asc' | 'desc';
-}
+export type UpsertHermanoPayload = HermanoRequest;
 
 export interface PaginatedResponse<T> {
   data: T[];
@@ -109,4 +50,11 @@ export interface PaginatedResponse<T> {
   };
 }
 
-export type UpsertHermanoPayload = HermanoRequest;
+export interface HermanosQueryParams {
+  page: number;
+  pageSize: number;
+  search?: string;
+  estado?: HermanoEstado;
+  sortBy?: keyof Hermano;
+  sortDirection?: 'asc' | 'desc';
+}

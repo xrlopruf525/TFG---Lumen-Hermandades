@@ -82,32 +82,33 @@ export class CensoFormComponent implements OnChanges {
 
   readonly form: FormGroup = this.formBuilder.group({
     nombre: ['', [Validators.required, Validators.maxLength(80)]],
-    primer_apellido: ['', [Validators.required, Validators.maxLength(80)]],
-    segundo_apellido: ['', [Validators.maxLength(80)]],
-    dni: ['', [Validators.required, dniValidator()]],
-    fecha_nacimiento: [''],
+    primerApellido: ['', [Validators.required, Validators.maxLength(80)]],
+    segundoApellido: ['', [Validators.maxLength(80)]],
+    nif: ['', [Validators.required, dniValidator()]],
+    fechaNacimiento: [''],
     estado: ['ACTIVO', [Validators.required]],
-    tutor_legal: ['', [Validators.maxLength(160)]],
+    tutorLegal: ['', [Validators.maxLength(160)]],
 
-    telefono_movil: ['', [Validators.pattern(/^\+?[0-9]{9,15}$/)]],
-    telefono_fijo: ['', [Validators.pattern(/^\+?[0-9]{9,15}$/)]],
+    telefonoMovil: ['', [Validators.pattern(/^\+?[0-9]{9,15}$/)]],
+    telefonoFijo: ['', [Validators.pattern(/^\+?[0-9]{9,15}$/)]],
     email: ['', [Validators.email, Validators.maxLength(120)]],
 
     direccion: ['', [Validators.maxLength(180)]],
-    piso_puerta: ['', [Validators.maxLength(60)]],
-    codigo_postal: ['', [Validators.pattern(/^\d{5}$/)]],
-    localidad: ['', [Validators.maxLength(80)]],
+    pisoPuerta: ['', [Validators.maxLength(60)]],
+    codigoPostal: ['', [Validators.pattern(/^\d{5}$/)]],
+    poblacion: ['', [Validators.maxLength(80)]],
     provincia: ['', [Validators.maxLength(80)]],
-    pais: ['Espana', [Validators.maxLength(80)]],
+    pais: ['España', [Validators.maxLength(80)]],
 
-    forma_pago: ['DOMICILIACION'],
+    formaPago: ['DOMICILIACION'],
     iban: ['', [ibanValidator()]],
-    titular_cuenta: ['', [Validators.maxLength(120)]],
-    en_cuotas: [false],
+    titularCuenta: ['', [Validators.maxLength(120)]],
+    enCuotas: [false],
 
     observaciones: ['', [Validators.maxLength(500)]],
     numeroHermano: [null],
-    fechaAlta: ['']
+    fechaAlta: [''],
+    idHermandad: [1]
   });
 
   constructor(private readonly formBuilder: FormBuilder) {}
@@ -133,11 +134,12 @@ export class CensoFormComponent implements OnChanges {
 
     this.save.emit({
       ...value,
-      dni: this.normalizeValue(value['dni']),
+      idHermandad: 1,
+      nif: this.normalizeValue(value['nif']),
       iban: this.normalizeValue(value['iban']),
       email: this.normalizeValue(value['email']),
-      telefono_movil: this.normalizeValue(value['telefono_movil']),
-      telefono_fijo: this.normalizeValue(value['telefono_fijo'])
+      telefonoMovil: this.normalizeValue(value['telefonoMovil']),
+      telefonoFijo: this.normalizeValue(value['telefonoFijo'])
     } as UpsertHermanoPayload);
   }
 
@@ -191,41 +193,43 @@ export class CensoFormComponent implements OnChanges {
     if (!data) {
       this.form.reset({
         estado: 'ACTIVO',
-        pais: 'Espana',
+        pais: 'España',
         formaPago: 'DOMICILIACION',
-        enCuotas: false
+        enCuotas: false,
+        idHermandad: 1
       });
       return;
     }
 
     this.form.patchValue({
       nombre: data.nombre ?? '',
-      primer_apellido: data.primer_apellido ?? '',
-      segundo_apellido: data.segundo_apellido ?? '',
-      dni: data.dni ?? '',
-      fecha_nacimiento: this.toDateInputValue(data.fecha_nacimiento),
+      primerApellido: data.primerApellido ?? '',
+      segundoApellido: data.segundoApellido ?? '',
+      nif: data.nif ?? '',
+      fechaNacimiento: this.toDateInputValue(data.fechaNacimiento),
       estado: data.estado ?? 'ACTIVO',
-      tutor_legal: data.tutor_legal ?? '',
+      tutorLegal: data.tutorLegal ?? '',
 
-      telefono_movil: data.telefono_movil ?? '',
-      telefono_fijo: data.telefono_fijo ?? '',
+      telefonoMovil: data.telefonoMovil ?? '',
+      telefonoFijo: data.telefonoFijo ?? '',
       email: data.email ?? '',
 
       direccion: data.direccion ?? '',
-      piso_puerta: data.piso_puerta ?? '',
-      codigo_postal: data.codigo_postal ?? '',
-      localidad: data.localidad ?? '',
+      pisoPuerta: data.pisoPuerta ?? '',
+      codigoPostal: data.codigoPostal ?? '',
+      poblacion: data.poblacion ?? '',
       provincia: data.provincia ?? '',
-      pais: data.pais ?? 'Espana',
+      pais: data.pais ?? 'España',
 
-      forma_pago: data.forma_pago ?? 'DOMICILIACION',
+      formaPago: data.formaPago ?? 'DOMICILIACION',
       iban: data.iban ?? '',
-      titular_cuenta: data.titular_cuenta ?? '',
-      en_cuotas: data.en_cuotas ?? false,
+      titularCuenta: data.titularCuenta ?? '',
+      enCuotas: data.enCuotas ?? false,
 
       observaciones: data.observaciones ?? '',
       numeroHermano: data.numeroHermano ?? null,
-      fechaAlta: this.toDateInputValue(data.fechaAlta)
+      fechaAlta: this.toDateInputValue(data.fechaAlta),
+      idHermandad: 1
     });
   }
 
