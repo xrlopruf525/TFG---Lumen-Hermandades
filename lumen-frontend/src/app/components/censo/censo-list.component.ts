@@ -23,9 +23,9 @@ import { CensoFormComponent } from './censo-form.component';
 type SortDirection = 'asc' | 'desc';
 type SortableColumn =
   | 'nombre'
-  | 'primer_apellido'
-  | 'dni'
-  | 'telefono_movil'
+  | 'primerApellido'
+  | 'nif'
+  | 'telefonoMovil'
   | 'email'
   | 'estado'
   | 'numeroHermano';
@@ -80,7 +80,7 @@ export class CensoListComponent implements OnInit, OnDestroy {
 
   searchTerm = '';
   estadoFiltro = '';
-  sortColumn: SortableColumn = 'primer_apellido';
+  sortColumn: SortableColumn = 'primerApellido';
   sortDirection: SortDirection = 'asc';
   page = 1;
   pageSize = 10;
@@ -185,7 +185,7 @@ export class CensoListComponent implements OnInit, OnDestroy {
 
   descargarPlantillaExcel(): void {
     const worksheet = XLSX.utils.json_to_sheet([
-      this.templateHeaders.reduce((acc, header) => ({ ...acc, [header]: '' }), { idHermandad: 1, estado: 'ACTIVO', pais: 'Espana' })
+      this.templateHeaders.reduce((acc, header) => ({ ...acc, [header]: '' }), { idHermandad: 1, estado: 'ACTIVO', pais: 'España' })
     ]);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Plantilla');
@@ -258,14 +258,12 @@ export class CensoListComponent implements OnInit, OnDestroy {
   }
 
   openEditForm(hermano: Hermano): void {
-    // clone the object to avoid accidental mutations in the list
     this.editingHermano = { ...hermano } as Hermano;
     this.errorMessage = '';
     this.formVisible = true;
   }
 
   closeForm(): void {
-    // clear editing state and hide form; clearing editingHermano first
     this.editingHermano = null;
     this.formVisible = false;
   }
@@ -280,7 +278,6 @@ export class CensoListComponent implements OnInit, OnDestroy {
 
     request$.pipe(finalize(() => (this.saving = false)), takeUntil(this.destroy$)).subscribe({
       next: () => {
-        // Close form and refresh list in-place (no routing) to preserve UX and pagination
         this.closeForm();
         this.loadHermanos();
       },
@@ -293,7 +290,7 @@ export class CensoListComponent implements OnInit, OnDestroy {
   }
 
   deleteHermano(hermano: Hermano): void {
-    if (!window.confirm(`Eliminar a ${hermano.nombre} ${hermano.primer_apellido}?`)) {
+    if (!window.confirm(`Eliminar a ${hermano.nombre} ${hermano.primerApellido}?`)) {
       return;
     }
 
@@ -359,7 +356,7 @@ export class CensoListComponent implements OnInit, OnDestroy {
   }
 
   formatApellidos(hermano: Hermano): string {
-    const full = `${hermano.primer_apellido ?? ''} ${hermano.segundo_apellido ?? ''}`.trim();
+    const full = `${hermano.primerApellido ?? ''} ${hermano.segundoApellido ?? ''}`.trim();
     return full || '-';
   }
 
