@@ -10,9 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.lumen.lumen_backend.common.exception.ResourceNotFoundException;
-import es.lumen.lumen_backend.modules.cuota.dto.CuotaResumenDto;
-import es.lumen.lumen_backend.modules.cuota.entity.Cuota;
-import es.lumen.lumen_backend.modules.cuota.repositories.CuotaRepository;
 import es.lumen.lumen_backend.modules.grupo.dto.GrupoResumenDto;
 import es.lumen.lumen_backend.modules.grupo.repository.GrupoRepository;
 import es.lumen.lumen_backend.modules.hermano.dto.HermanoDto;
@@ -165,7 +162,6 @@ public class HermanoServiceImpl implements HermanoService {
                 valor(hermano.getProvincia()),
                 valor(hermano.getPais())).trim().replaceAll(" +", " ");
 
-        // Obtener los grupos del hermano
         List<HermanoGrupo> relacionesGrupos = hermanoGrupoRepository.findByIdIdHermanoAndDeletedFalse(hermano.getId());
         List<GrupoResumenDto> grupos = relacionesGrupos.stream()
                 .map(hg -> grupoRepository.findById(hg.getId().getIdGrupo())
@@ -188,7 +184,8 @@ public class HermanoServiceImpl implements HermanoService {
                 hermano.getNif(),
                 hermano.getFechaAlta(),
                 hermano.getEstado(),
-                grupos
+                grupos,
+                new ArrayList<>()
         );
     }
 
