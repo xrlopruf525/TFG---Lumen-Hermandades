@@ -6,8 +6,26 @@ import { catchError } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
 
+interface LoginResponsePayload {
+  token?: string;
+  accessToken?: string;
+  jwt?: string;
+  username?: string;
+  roles?: string[];
+  data?: {
+    token?: string;
+    username?: string;
+    roles?: string[];
+  };
+}
+
+export interface AuthUser {
+  username: string;
+  roles: string[];
+}
+
 export interface LoginCredentials {
-  email: string;
+  username: string;
   password: string;
   hermandad?: string;
 }
@@ -17,6 +35,7 @@ export interface LoginCredentials {
 })
 export class AuthService {
   private readonly tokenKey = 'auth_token';
+  private readonly authUserKey = 'auth_user';
   private readonly authUserIdKey = 'auth_user_id';
   private readonly loginEndpoint = `${environment.apiUrl}/auth/login`;
 
@@ -25,9 +44,10 @@ export class AuthService {
   // Realiza el login contra la API y almacena el JWT para el resto de peticiones.
   login(credentials: LoginCredentials): Observable<string> {
     if (environment.enableDevAuthBypass) {
-      const devToken = `dev-token-${credentials.email || 'user'}`;
+      const devToken = `dev-token-${credentials.username || 'user'}`;
       localStorage.setItem(this.tokenKey, devToken);
-      const parsedId = Number(credentials.email);
+      localStorage.setItem(this.authUserKey, JSON.stringify({ username: credentials.username || 'user', roles: ['ADMIN'] }));
+      const parsedId = Number(credentials.username);
       if (!Number.isNaN(parsedId) && parsedId > 0) {
         localStorage.setItem(this.authUserIdKey, String(parsedId));
       }
@@ -40,12 +60,12 @@ export class AuthService {
 
     // Punto unico para adaptar rapidamente el contrato de login si el backend lo requiere.
     const payload = {
-      email: credentials.email,
+      username: credentials.username,
       password: credentials.password,
       hermandad: credentials.hermandad
     };
 
-    return this.http.post<unknown>(this.loginEndpoint, payload).pipe(
+    return this.http.post<LoginResponsePayload>(this.loginEndpoint, payload).pipe(
       map((response) => {
         const token = this.extractToken(response);
         if (!token) {
@@ -53,6 +73,15 @@ export class AuthService {
         }
 
         localStorage.setItem(this.tokenKey, token);
+        const username = this.extractUsername(response) ?? credentials.username;
+        const roles = this.extractRoles(response) ?? ['ADMIN'];
+        localStorage.setItem(this.authUserKey, JSON.stringify({ username, roles }));
+
+        const parsedId = Number(username);
+        if (!Number.isNaN(parsedId) && parsedId > 0) {
+          localStorage.setItem(this.authUserIdKey, String(parsedId));
+        }
+
         return token;
       }),
       catchError((error: HttpErrorResponse | Error) => {
@@ -68,6 +97,7 @@ export class AuthService {
   // Elimina toda la sesion local del frontend.
   logout(): void {
     localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.authUserKey);
     localStorage.removeItem(this.authUserIdKey);
   }
 
@@ -77,6 +107,28 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     return !!this.getToken();
+  }
+
+  getUser(): AuthUser | null {
+    const stored = localStorage.getItem(this.authUserKey);
+    if (!stored) {
+      return null;
+    }
+
+    try {
+      const parsed = JSON.parse(stored) as Partial<AuthUser> | any;
+      if (typeof parsed.username === 'string' && Array.isArray(parsed.roles)) {
+        return { username: parsed.username, roles: parsed.roles };
+      }
+      // Legacy single-role object
+      if (typeof parsed.username === 'string' && typeof parsed.role === 'string') {
+        return { username: parsed.username, roles: [parsed.role] };
+      }
+    } catch {
+      return null;
+    }
+
+    return null;
   }
 
   // Permite reutilizar el id del hermano autenticado en vistas como "Mi perfil".
@@ -108,25 +160,61 @@ export class AuthService {
     return null;
   }
 
-  private extractToken(response: unknown): string | null {
-    if (!response || typeof response !== 'object') {
-      return null;
-    }
-
-    const data = response as Record<string, unknown>;
-    const directToken = data['token'] ?? data['accessToken'] ?? data['jwt'];
+  private extractToken(response: LoginResponsePayload): string | null {
+    const directToken = response.token ?? response.accessToken ?? response.jwt;
     if (typeof directToken === 'string' && directToken.trim()) {
       return directToken;
     }
 
-    const nestedData = data['data'];
-    if (nestedData && typeof nestedData === 'object') {
-      const nestedToken = (nestedData as Record<string, unknown>)['token'];
-      if (typeof nestedToken === 'string' && nestedToken.trim()) {
-        return nestedToken;
-      }
+    if (typeof response.data?.token === 'string' && response.data.token.trim()) {
+      return response.data.token;
     }
 
     return null;
+  }
+
+  private extractUsername(response: LoginResponsePayload): string | null {
+    if (typeof response.username === 'string' && response.username.trim()) {
+      return response.username.trim();
+    }
+
+    if (typeof response.data?.username === 'string' && response.data.username.trim()) {
+      return response.data.username.trim();
+    }
+
+    return null;
+  }
+
+  private extractRoles(response: LoginResponsePayload): string[] | null {
+    if (Array.isArray(response.roles) && response.roles.length > 0) {
+      return response.roles.map(r => r.trim()).filter(Boolean);
+    }
+
+    const dataRoles = response.data?.roles;
+    if (Array.isArray(dataRoles) && dataRoles.length > 0) {
+      return dataRoles.map((r: string) => r.trim()).filter(Boolean);
+    }
+
+    // legacy single-role support
+    if (typeof (response as any).role === 'string' && (response as any).role.trim()) {
+      return [(response as any).role.trim()];
+    }
+
+    if (typeof (response as any).data?.role === 'string' && (response as any).data.role.trim()) {
+      return [(response as any).data.role.trim()];
+    }
+
+    return null;
+  }
+
+  hasRole(requiredRole: string): boolean {
+    const user = this.getUser();
+    return !!user && user.roles.includes(requiredRole);
+  }
+
+  hasAnyRole(requiredRoles: string[]): boolean {
+    const user = this.getUser();
+    if (!user) return false;
+    return requiredRoles.some(r => user.roles.includes(r));
   }
 }

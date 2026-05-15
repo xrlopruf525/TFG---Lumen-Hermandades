@@ -23,6 +23,7 @@ export class HermanoFormComponent implements OnInit {
 
   readonly form = this.fb.nonNullable.group({
     nombre: ['', [Validators.required]],
+    nif: ['', [Validators.required]],
     apellidos: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
     numeroHermano: ['', [Validators.required]]
@@ -86,6 +87,7 @@ export class HermanoFormComponent implements OnInit {
         this.successMessage = 'Hermano creado correctamente.';
         this.form.reset({
           nombre: '',
+          nif: '',
           apellidos: '',
           email: '',
           numeroHermano: ''
@@ -102,7 +104,7 @@ export class HermanoFormComponent implements OnInit {
     this.router.navigate(['/hermanos']);
   }
 
-  hasError(controlName: 'nombre' | 'apellidos' | 'email' | 'numeroHermano', error: string): boolean {
+  hasError(controlName: 'nombre' | 'nif' | 'apellidos' | 'email' | 'numeroHermano', error: string): boolean {
     const control = this.form.get(controlName);
     return !!control && control.touched && control.hasError(error);
   }
@@ -126,20 +128,25 @@ export class HermanoFormComponent implements OnInit {
   private patchFormWithHermano(hermano: Hermano): void {
     this.form.patchValue({
       nombre: hermano.nombre ?? '',
-      apellidos: hermano.apellidos ?? '',
+      nif: hermano.dni ?? '',
+      apellidos: `${hermano.primer_apellido ?? ''} ${hermano.segundo_apellido ?? ''}`.trim(),
       email: hermano.email ?? '',
-      numeroHermano: hermano.numeroHermano ?? ''
+      numeroHermano: hermano.numeroHermano != null ? String(hermano.numeroHermano) : ''
     });
   }
 
   private buildPayload(): HermanoUpsertPayload {
     const raw = this.form.getRawValue();
+    const [primer, ...resto] = raw.apellidos.trim().split(' ');
 
     return {
+      idHermandad: 1,
+      nif: raw.nif.trim(),
       nombre: raw.nombre.trim(),
-      apellidos: raw.apellidos.trim(),
+      primerApellido: primer || '',
+      segundoApellido: resto.join(' ') || '',
       email: raw.email.trim(),
-      numeroHermano: raw.numeroHermano.trim()
+      numeroHermano: Number(raw.numeroHermano)
     };
   }
 }

@@ -1,0 +1,47 @@
+<section class="censo-form new-movimiento">
+  <header class="censo-form__header">
+    <h3>Nuevo movimiento</h3>
+    <p class="muted">Registra un gasto o un ingreso. Los ingresos se guardan como importe negativo.</p>
+  </header>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="vertical-form">
+    <fieldset>
+      <legend>Detalles</legend>
+
+      <div class="form-row">
+        <label class="form-label">Tipo *</label>
+        <select formControlName="tipo" class="form-control">
+          <option value="gasto">Gasto</option>
+          <option value="ingreso">Ingreso</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">Concepto *</label>
+        <input type="text" formControlName="concepto" placeholder="Ej. Compra material" class="form-control" />
+        <small class="error" *ngIf="form.controls['concepto'].invalid && form.controls['concepto'].touched">Concepto requerido</small>
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">Importe *</label>
+        <input type="number" formControlName="importe" step="0.01" placeholder="0.00" class="form-control" />
+      </div>
+
+      <div class="form-row" *ngIf="form.controls['tipo'].value === 'gasto'">
+        <label class="form-label">Proveedor (opcional)</label>
+        <input type="text" formControlName="proveedor" placeholder="Proveedor, tienda..." class="form-control" />
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">Fecha
+          <input type="date" formControlName="fecha" class="form-control" />
+        </label>
+      </div>
+    </fieldset>
+
+    <footer class="censo-form__actions">
+      <button type="button" class="btn btn--ghost btn-cancel" (click)="onCancel()" [disabled]="saving">Cancelar</button>
+      <button type="submit" class="btn btn--primary btn-create" [disabled]="saving">{{ saving ? 'Guardando...' : 'Crear movimiento' }}</button>
+    </footer>
+  </form>
+</section>
