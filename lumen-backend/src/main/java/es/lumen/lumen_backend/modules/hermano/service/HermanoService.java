@@ -1,20 +1,21 @@
 package es.lumen.lumen_backend.modules.hermano.service;
 
-import es.lumen.lumen_backend.modules.hermano.dto.HermanoDto;
-import es.lumen.lumen_backend.modules.hermano.dto.PortalHermanoDto;
-import es.lumen.lumen_backend.modules.hermano.entity.Hermano;
-import es.lumen.lumen_backend.modules.hermano.dto.ImportarHermanosResponse;
-
 import java.util.List;
+
+import es.lumen.lumen_backend.modules.hermano.dto.HermanoDto;
+import es.lumen.lumen_backend.modules.hermano.dto.HermanoRequest;
+import es.lumen.lumen_backend.modules.hermano.dto.ImportarHermanosResponse;
+import es.lumen.lumen_backend.modules.hermano.dto.PortalHermanoDto;
 
 public interface HermanoService {
 
-    List<Hermano> buscarTodosActivos();
-    List<Hermano> buscarInactivos();
-    Hermano buscarPorId(Integer id);
-    Hermano guardar(HermanoDto dto);
-    Hermano actualizar(Integer id, HermanoDto dto);
+    List<HermanoDto> buscarTodosActivos();
+    List<HermanoDto> buscarInactivos();
+    List<HermanoDto> buscarActivosPorTexto(String texto);
+    HermanoDto buscarPorId(Integer id);
+    HermanoDto guardar(HermanoRequest request);
+    HermanoDto actualizar(Integer id, HermanoRequest request);
     void bajaLogica(Integer id);
     PortalHermanoDto obtenerDatosPortal(Integer id);
-    ImportarHermanosResponse importarHermanos(List<HermanoDto> hermanos);
+    ImportarHermanosResponse importarHermanos(List<HermanoRequest> hermanos);
 }

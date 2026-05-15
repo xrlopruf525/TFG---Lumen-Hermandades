@@ -25,6 +25,67 @@ export interface Hermano {
   en_cuotas?: boolean;
   observaciones?: string;
   tutor_legal?: string;
+  deleted?: boolean;
+}
+
+export interface HermanoDto {
+  id: number;
+  idHermandad: number;
+  numeroHermano?: number;
+  nif: string;
+  nombre: string;
+  primerApellido: string;
+  segundoApellido?: string;
+  fechaNacimiento?: string | Date;
+  direccion?: string;
+  numero?: string;
+  pisoPuerta?: string;
+  codigoPostal?: string;
+  poblacion?: string;
+  provincia?: string;
+  pais?: string;
+  telefonoMovil?: string;
+  telefonoFijo?: string;
+  email?: string;
+  fechaAlta?: string | Date;
+  fechaBaja?: string | Date;
+  estado?: string;
+  formaPago?: string;
+  iban?: string;
+  titularCuenta?: string;
+  enCuotas?: boolean;
+  observaciones?: string;
+  tutorLegal?: string;
+  deleted?: boolean;
+}
+
+export interface HermanoRequest {
+  idHermandad: number;
+  numeroHermano?: number;
+  nif: string;
+  nombre: string;
+  primerApellido: string;
+  segundoApellido?: string;
+  fechaNacimiento?: string | Date;
+  direccion?: string | null;
+  numero?: string | null;
+  pisoPuerta?: string | null;
+  codigoPostal?: string | null;
+  poblacion?: string | null;
+  provincia?: string | null;
+  pais?: string | null;
+  telefonoMovil?: string | null;
+  telefonoFijo?: string | null;
+  email?: string | null;
+  fechaAlta?: string | Date | null;
+  fechaBaja?: string | Date | null;
+  estado?: string | null;
+  formaPago?: string | null;
+  iban?: string | null;
+  titularCuenta?: string | null;
+  enCuotas?: boolean | null;
+  observaciones?: string | null;
+  tutorLegal?: string | null;
 }
 
 export type HermanoEstado = 'ACTIVO' | 'BAJA' | 'FALLECIDO' | 'PENDIENTE' | string;
@@ -48,4 +109,4 @@ export interface PaginatedResponse<T> {
   };
 }
 
-export type UpsertHermanoPayload = Omit<Hermano, 'id'>;
+export type UpsertHermanoPayload = HermanoRequest;

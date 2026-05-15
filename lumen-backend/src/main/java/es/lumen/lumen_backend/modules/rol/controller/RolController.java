@@ -1,5 +1,6 @@
 package es.lumen.lumen_backend.modules.rol.controller;
 
+import es.lumen.lumen_backend.modules.rol.dto.RolDto;
 import es.lumen.lumen_backend.modules.rol.entity.Rol;
 import es.lumen.lumen_backend.modules.rol.repository.RolRepository;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,16 @@ public class RolController {
     }
 
     @GetMapping
-    public List<Rol> listar() {
-        return rolRepository.findAll();
+    public List<RolDto> listar() {
+        return rolRepository.findAll().stream().map(this::toDto).toList();
+    }
+
+    private RolDto toDto(Rol rol) {
+        RolDto dto = new RolDto();
+        dto.setId(rol.getId());
+        dto.setNombreRol(rol.getNombreRol());
+        dto.setPermisos(rol.getPermisos());
+        dto.setDeleted(rol.getDeleted());
+        return dto;
     }
 }

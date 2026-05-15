@@ -1,11 +1,12 @@
 package es.lumen.lumen_backend.modules.cuota.service;
 
-import es.lumen.lumen_backend.modules.cuota.entity.Cuota;
 import java.util.List;
 
+import es.lumen.lumen_backend.modules.cuota.dto.CuotaDto;
+
 public interface CuotaService {
-    List<Cuota> obtenerTodasLasCuotas();
-    List<Cuota> obtenerCuotasPorHermano(Integer idHermano);
-    Cuota pagarCuota(Integer idCuota, String urlRecibo);
+    List<CuotaDto> obtenerTodasLasCuotas();
+    List<CuotaDto> obtenerCuotasPorHermano(Integer idHermano);
+    CuotaDto pagarCuota(Integer idCuota, String urlRecibo);
     void generarCuotasTrimestrales();
 }

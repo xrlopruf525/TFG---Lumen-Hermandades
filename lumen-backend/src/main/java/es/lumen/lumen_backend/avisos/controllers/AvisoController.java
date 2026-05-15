@@ -2,6 +2,7 @@ package es.lumen.lumen_backend.avisos.controllers;
 
 import es.lumen.lumen_backend.avisos.dto.AvisoRequest;
 import es.lumen.lumen_backend.avisos.services.AvisoService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +19,7 @@ public class AvisoController {
     }
 
     @PostMapping("/enviar")
-    public ResponseEntity<?> enviarAviso(@RequestBody AvisoRequest request) {
+    public ResponseEntity<?> enviarAviso(@Valid @RequestBody AvisoRequest request) {
         int totalEnviados = avisoService.enviarAviso(request);
 
         return ResponseEntity.ok(Map.of(

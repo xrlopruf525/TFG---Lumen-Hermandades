@@ -10,6 +10,7 @@ import {
   finalize,
   takeUntil
 } from 'rxjs';
+import * as XLSX from 'xlsx';
 
 import {
   Hermano,
@@ -37,6 +38,35 @@ type SortableColumn =
   styleUrls: ['./censo-list.component.scss']
 })
 export class CensoListComponent implements OnInit, OnDestroy {
+  private readonly templateHeaders = [
+    'idHermandad',
+    'numeroHermano',
+    'nif',
+    'nombre',
+    'primerApellido',
+    'segundoApellido',
+    'fechaNacimiento',
+    'direccion',
+    'numero',
+    'pisoPuerta',
+    'codigoPostal',
+    'poblacion',
+    'provincia',
+    'pais',
+    'telefonoMovil',
+    'telefonoFijo',
+    'email',
+    'fechaAlta',
+    'fechaBaja',
+    'estado',
+    'formaPago',
+    'iban',
+    'titularCuenta',
+    'enCuotas',
+    'observaciones',
+    'tutorLegal'
+  ];
+
   readonly pageSizeOptions = [10, 25, 50];
   readonly estadoOptions = [
     { value: '', label: 'Todos los estados' },
@@ -64,6 +94,8 @@ export class CensoListComponent implements OnInit, OnDestroy {
   saving = false;
   deletingId: number | null = null;
   errorMessage = '';
+  importandoExcel = false;
+  importacionMensaje = '';
 
   private readonly destroy$ = new Subject<void>();
   private readonly searchTerm$ = new Subject<string>();
@@ -149,6 +181,80 @@ export class CensoListComponent implements OnInit, OnDestroy {
     this.editingHermano = null;
     this.formVisible = true;
     this.errorMessage = '';
+  }
+
+  descargarPlantillaExcel(): void {
+    const worksheet = XLSX.utils.json_to_sheet([
+      this.templateHeaders.reduce((acc, header) => ({ ...acc, [header]: '' }), { idHermandad: 1, estado: 'ACTIVO', pais: 'Espana' })
+    ]);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Plantilla');
+    XLSX.writeFile(workbook, 'plantilla_censo_hermanos.xlsx');
+  }
+
+  abrirSelectorImportacion(fileInput: HTMLInputElement): void {
+    fileInput.value = '';
+    fileInput.click();
+  }
+
+  onImportFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    this.importacionMensaje = '';
+    this.importandoExcel = true;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const buffer = reader.result as ArrayBuffer;
+        const workbook = XLSX.read(buffer, { type: 'array' });
+        const firstSheetName = workbook.SheetNames[0];
+
+        if (!firstSheetName) {
+          throw new Error('El archivo Excel no contiene hojas.');
+        }
+
+        const worksheet = workbook.Sheets[firstSheetName];
+        const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(worksheet, { defval: '' });
+
+        if (rows.length === 0) {
+          throw new Error('El archivo Excel no contiene filas para importar.');
+        }
+
+        const payload = rows.map((row) => this.normalizarFilaImportacion(row));
+
+        this.hermanoService.importarHermanos(payload).pipe(takeUntil(this.destroy$)).subscribe({
+          next: (response) => {
+            const importados = response?.importados ?? 0;
+            const errores = response?.errores ?? 0;
+            this.importacionMensaje = `Importación finalizada: ${importados} hermanos importados${errores > 0 ? `, ${errores} con error` : ''}.`;
+            this.importandoExcel = false;
+            this.loadHermanos();
+          },
+          error: (error: HttpErrorResponse) => {
+            this.importandoExcel = false;
+            this.importacionMensaje = error.status === 0
+              ? 'No se pudo importar porque la API no esta disponible.'
+              : 'No se pudo importar el Excel. Revisa el formato del archivo.';
+          }
+        });
+      } catch (error) {
+        this.importandoExcel = false;
+        this.importacionMensaje = error instanceof Error ? error.message : 'No se pudo leer el archivo Excel.';
+      }
+    };
+
+    reader.onerror = () => {
+      this.importandoExcel = false;
+      this.importacionMensaje = 'No se pudo leer el archivo Excel.';
+    };
+
+    reader.readAsArrayBuffer(file);
   }
 
   openEditForm(hermano: Hermano): void {
@@ -270,5 +376,84 @@ export class CensoListComponent implements OnInit, OnDestroy {
       sortBy: this.sortColumn,
       sortDirection: this.sortDirection
     };
+  }
+
+  private normalizarFilaImportacion(row: Record<string, unknown>): Record<string, unknown> {
+    const get = (...keys: string[]): unknown => {
+      for (const key of keys) {
+        if (row[key] !== undefined && row[key] !== null && String(row[key]).trim() !== '') {
+          return row[key];
+        }
+      }
+      return '';
+    };
+
+    return {
+      idHermandad: Number(get('idHermandad', 'id_hermandad')) || 1,
+      numeroHermano: this.toNumberOrNull(get('numeroHermano', 'numero_hermano')),
+      nif: String(get('nif', 'dni')).trim(),
+      nombre: String(get('nombre')).trim(),
+      primerApellido: String(get('primerApellido', 'primer_apellido')).trim(),
+      segundoApellido: String(get('segundoApellido', 'segundo_apellido')).trim() || null,
+      fechaNacimiento: this.normalizarFecha(get('fechaNacimiento', 'fecha_nacimiento')),
+      direccion: String(get('direccion')).trim() || null,
+      numero: String(get('numero')).trim() || null,
+      pisoPuerta: String(get('pisoPuerta', 'piso_puerta')).trim() || null,
+      codigoPostal: String(get('codigoPostal', 'codigo_postal')).trim() || null,
+      poblacion: String(get('poblacion', 'localidad')).trim() || null,
+      provincia: String(get('provincia')).trim() || null,
+      pais: String(get('pais')).trim() || null,
+      telefonoMovil: String(get('telefonoMovil', 'telefono_movil')).trim() || null,
+      telefonoFijo: String(get('telefonoFijo', 'telefono_fijo')).trim() || null,
+      email: String(get('email')).trim() || null,
+      fechaAlta: this.normalizarFecha(get('fechaAlta', 'fecha_alta')),
+      fechaBaja: this.normalizarFecha(get('fechaBaja', 'fecha_baja')),
+      estado: String(get('estado')).trim() || 'ACTIVO',
+      formaPago: String(get('formaPago', 'forma_pago')).trim() || null,
+      iban: String(get('iban')).trim() || null,
+      titularCuenta: String(get('titularCuenta', 'titular_cuenta')).trim() || null,
+      enCuotas: this.toBooleanOrNull(get('enCuotas', 'en_cuotas')),
+      observaciones: String(get('observaciones')).trim() || null,
+      tutorLegal: String(get('tutorLegal', 'tutor_legal')).trim() || null
+    };
+  }
+
+  private normalizarFecha(value: unknown): string | null {
+    if (!value) {
+      return null;
+    }
+
+    const date = value instanceof Date ? value : new Date(String(value));
+    if (Number.isNaN(date.getTime())) {
+      return String(value).trim() || null;
+    }
+
+    return date.toISOString().slice(0, 10);
+  }
+
+  private toNumberOrNull(value: unknown): number | null {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  private toBooleanOrNull(value: unknown): boolean | null {
+    if (value === true || value === false) {
+      return value;
+    }
+
+    const normalized = String(value ?? '').trim().toLowerCase();
+    if (!normalized) {
+      return null;
+    }
+
+    if (['true', '1', 'si', 'sí', 'yes'].includes(normalized)) {
+      return true;
+    }
+
+    if (['false', '0', 'no'].includes(normalized)) {
+      return false;
+    }
+
+    return null;
   }
 }

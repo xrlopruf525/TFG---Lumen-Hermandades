@@ -14,6 +14,7 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import es.lumen.lumen_backend.common.exception.ResourceNotFoundException;
 import es.lumen.lumen_backend.modules.evento.entity.Evento;
@@ -27,6 +28,7 @@ import es.lumen.lumen_backend.modules.ticket.repository.TicketRepository;
 import es.lumen.lumen_backend.modules.ticket.service.TicketService;
 
 @Service
+@Transactional(readOnly = true)
 public class TicketServiceImpl implements TicketService {
 
     private final TicketRepository ticketRepository;
@@ -65,6 +67,7 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
+    @Transactional
     public TicketDto crearTicket(CrearTicketRequestDto request) {
         Hermano hermano = hermanoRepository.findById(request.getIdHermano())
                 .filter(h -> Boolean.FALSE.equals(h.getDeleted()))
@@ -92,6 +95,7 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
+    @Transactional
     public void eliminarTicket(Integer id) {
         Ticket ticket = buscarTicket(id);
         ticket.setDeleted(true);

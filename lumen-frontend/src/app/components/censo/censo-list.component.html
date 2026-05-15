@@ -4,9 +4,27 @@
       <h2>Censo de Hermanos</h2>
       <p>Vista de Junta de Gobierno con paginacion y filtros backend</p>
     </div>
-    <button type="button" class="primary-btn" (click)="openCreateForm()">
-      + Nuevo hermano
-    </button>
+    <div class="censo-list__header-actions">
+      <input
+        #excelImportInput
+        type="file"
+        accept=".xlsx,.xls"
+        class="file-input-hidden"
+        (change)="onImportFileSelected($event)"
+      >
+
+      <button type="button" class="secondary-btn" (click)="descargarPlantillaExcel()">
+        Descargar plantilla
+      </button>
+
+      <button type="button" class="secondary-btn" [disabled]="importandoExcel" (click)="abrirSelectorImportacion(excelImportInput)">
+        {{ importandoExcel ? 'Importando...' : 'Importar Excel' }}
+      </button>
+
+      <button type="button" class="primary-btn" (click)="openCreateForm()">
+        + Nuevo hermano
+      </button>
+    </div>
   </header>
 
   <app-censo-form
@@ -130,4 +148,5 @@
   </ng-template>
 
   <p class="message message--error" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p class="message message--success" *ngIf="importacionMensaje">{{ importacionMensaje }}</p>
 </section>

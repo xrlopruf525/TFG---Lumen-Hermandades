@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import es.lumen.lumen_backend.common.exception.ResourceNotFoundException;
 import es.lumen.lumen_backend.modules.evento.entity.AsistenciaEvento;
@@ -30,6 +31,7 @@ import es.lumen.lumen_backend.modules.usuario.entity.Usuario;
 import es.lumen.lumen_backend.modules.usuario.repository.UsuarioRepository;
 
 @Service
+@Transactional(readOnly = true)
 public class EventoServiceImpl implements EventoService {
 
     private static final String GOOGLE_CALENDAR_BASE_URL = "https://calendar.google.com/calendar/render?action=TEMPLATE";
@@ -98,6 +100,7 @@ public class EventoServiceImpl implements EventoService {
     }
 
     @Override
+    @Transactional
     public EventoDto crear(EventoDto dto) {
         Evento evento = new Evento(dto);
         if (evento.getIdHermandad() == null) {
@@ -108,6 +111,7 @@ public class EventoServiceImpl implements EventoService {
     }
 
     @Override
+    @Transactional
     public EventoDto actualizar(Integer id, EventoDto dto) {
         Evento evento = buscarEntidadPorId(id);
         evento.actualizarDesdeDto(dto);
@@ -119,6 +123,7 @@ public class EventoServiceImpl implements EventoService {
     }
 
     @Override
+    @Transactional
     public void bajaLogica(Integer id) {
         Evento evento = buscarEntidadPorId(id);
         evento.setDeleted(true);
@@ -154,6 +159,7 @@ public class EventoServiceImpl implements EventoService {
     }
 
     @Override
+    @Transactional
     public void guardarInscripciones(Integer idEvento, InscripcionEventoRequestDto request) {
         Evento evento = buscarEntidadPorId(idEvento);
 

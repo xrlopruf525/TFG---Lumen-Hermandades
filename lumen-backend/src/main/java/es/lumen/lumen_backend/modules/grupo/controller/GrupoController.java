@@ -1,10 +1,10 @@
 package es.lumen.lumen_backend.modules.grupo.controller;
 
+import es.lumen.lumen_backend.modules.grupo.dto.ActualizarGrupoHermanosRequest;
 import es.lumen.lumen_backend.modules.grupo.dto.CrearGrupoRequest;
+import es.lumen.lumen_backend.modules.grupo.dto.GrupoDetalleDto;
 import es.lumen.lumen_backend.modules.grupo.dto.GrupoResumenDto;
-import es.lumen.lumen_backend.modules.grupo.entity.Grupo;
-import es.lumen.lumen_backend.modules.grupo.repository.GrupoRepository;
-import es.lumen.lumen_backend.modules.hermano.repository.HermanoRepository;
+import es.lumen.lumen_backend.modules.grupo.service.GrupoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,27 +14,15 @@ import java.util.List;
 @RequestMapping({"/api/grupos", "/grupos"})
 public class GrupoController {
 
-    private final GrupoRepository grupoRepository;
-    private final HermanoRepository hermanoRepository;
+    private final GrupoService grupoService;
 
-    public GrupoController(
-            GrupoRepository grupoRepository,
-            HermanoRepository hermanoRepository
-    ) {
-        this.grupoRepository = grupoRepository;
-        this.hermanoRepository = hermanoRepository;
+    public GrupoController(GrupoService grupoService) {
+        this.grupoService = grupoService;
     }
 
     @GetMapping
     public List<GrupoResumenDto> listar() {
-        return grupoRepository.findAll()
-                .stream()
-                .map(grupo -> new GrupoResumenDto(
-                        grupo.getId(),
-                        grupo.getNombre(),
-                        hermanoRepository.contarHermanosPorGrupo(grupo.getId())
-                ))
-                .toList();
+        return grupoService.listarGrupos();
     }
 
     @GetMapping("/resumen")
@@ -42,27 +30,26 @@ public class GrupoController {
         return listar();
     }
 
+    @GetMapping("/{idGrupo}")
+    public ResponseEntity<GrupoDetalleDto> obtener(@PathVariable Integer idGrupo) {
+        return ResponseEntity.ok(grupoService.obtenerGrupo(idGrupo));
+    }
+
     @PostMapping
-    public ResponseEntity<?> crear(@RequestBody CrearGrupoRequest request) {
-        if (request.getNombre() == null || request.getNombre().trim().isEmpty()) {
-            return ResponseEntity.badRequest().body("El nombre del grupo es obligatorio.");
-        }
+    public ResponseEntity<GrupoDetalleDto> crear(@RequestBody CrearGrupoRequest request) {
+        return ResponseEntity.ok(grupoService.crearGrupo(request));
+    }
 
-        String nombreLimpio = request.getNombre().trim();
+    @PutMapping("/{idGrupo}")
+    public ResponseEntity<GrupoDetalleDto> actualizar(@PathVariable Integer idGrupo, @RequestBody CrearGrupoRequest request) {
+        return ResponseEntity.ok(grupoService.actualizarGrupo(idGrupo, request));
+    }
 
-        if (grupoRepository.existsByNombreIgnoreCase(nombreLimpio)) {
-            return ResponseEntity.badRequest().body("Ya existe un grupo con ese nombre.");
-        }
-
-        Grupo grupo = new Grupo();
-        grupo.setNombre(nombreLimpio);
-
-        Grupo grupoGuardado = grupoRepository.save(grupo);
-
-        return ResponseEntity.ok(new GrupoResumenDto(
-                grupoGuardado.getId(),
-                grupoGuardado.getNombre(),
-                0L
-        ));
+    @PutMapping("/{idGrupo}/hermanos")
+    public ResponseEntity<GrupoDetalleDto> actualizarHermanos(
+            @PathVariable Integer idGrupo,
+            @RequestBody ActualizarGrupoHermanosRequest request
+    ) {
+        return ResponseEntity.ok(grupoService.actualizarHermanos(idGrupo, request));
     }
 }

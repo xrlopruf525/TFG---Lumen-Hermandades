@@ -83,23 +83,6 @@
 
       <article class="portal-card">
         <header class="portal-card__header">
-          <h2>Avisos y notificaciones</h2>
-          <span class="portal-card__tag">3 nuevos</span>
-        </header>
-
-        <ul class="item-list">
-          <li *ngFor="let notice of notices" class="item-list__item">
-            <span class="item-list__badge" [ngClass]="'item-list__badge--' + notice.type"></span>
-            <div>
-              <p class="item-list__title">{{ notice.title }}</p>
-              <p class="item-list__meta">{{ notice.date }}</p>
-            </div>
-          </li>
-        </ul>
-      </article>
-
-      <article class="portal-card">
-        <header class="portal-card__header">
           <h2>Documentos disponibles</h2>
           <span class="portal-card__tag portal-card__tag--soft">Descarga privada</span>
         </header>

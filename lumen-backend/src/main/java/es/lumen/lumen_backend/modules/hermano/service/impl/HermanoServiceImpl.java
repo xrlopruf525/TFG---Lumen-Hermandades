@@ -6,9 +6,12 @@ import java.util.List;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import es.lumen.lumen_backend.common.exception.ResourceNotFoundException;
 import es.lumen.lumen_backend.modules.hermano.dto.HermanoDto;
+import es.lumen.lumen_backend.modules.hermano.dto.HermanoRequest;
+import es.lumen.lumen_backend.modules.hermano.dto.ImportarHermanosResponse;
 import es.lumen.lumen_backend.modules.hermano.dto.PortalHermanoDto;
 import es.lumen.lumen_backend.modules.hermano.entity.Hermano;
 import es.lumen.lumen_backend.modules.hermano.repository.HermanoRepository;
@@ -22,6 +25,7 @@ import es.lumen.lumen_backend.modules.usuario.repository.UsuarioRepository;
 import es.lumen.lumen_backend.modules.usuario.repository.UsuarioRolRepository;
 
 @Service
+@Transactional(readOnly = true)
 public class HermanoServiceImpl implements HermanoService {
 
     private final HermanoRepository hermanoRepository;
@@ -45,24 +49,40 @@ public class HermanoServiceImpl implements HermanoService {
     }
 
     @Override
-    public List<Hermano> buscarTodosActivos() {
-        return hermanoRepository.findByDeletedFalse();
+    public List<HermanoDto> buscarTodosActivos() {
+        return hermanoRepository.findByDeletedFalse().stream()
+                .map(this::toDto)
+                .toList();
     }
 
     @Override
-    public List<Hermano> buscarInactivos() {
-        return hermanoRepository.findByDeletedTrue();
+    public List<HermanoDto> buscarInactivos() {
+        return hermanoRepository.findByDeletedTrue().stream()
+                .map(this::toDto)
+                .toList();
     }
 
     @Override
-    public Hermano buscarPorId(Integer id) {
-        return hermanoRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Hermano no encontrado con id: " + id));
+    public List<HermanoDto> buscarActivosPorTexto(String texto) {
+        String termino = texto == null ? "" : texto.trim();
+        if (termino.isEmpty()) {
+            return List.of();
+        }
+
+        return hermanoRepository.buscarActivosPorTexto(termino).stream()
+                .map(this::toDto)
+                .toList();
     }
 
     @Override
-    public Hermano guardar(HermanoDto dto) {
-        String username = extractDniDigits(dto.getNif());
+    public HermanoDto buscarPorId(Integer id) {
+        return toDto(buscarHermanoActivoPorId(id));
+    }
+
+    @Override
+    @Transactional
+    public HermanoDto guardar(HermanoRequest request) {
+        String username = extractDniDigits(request.getNif());
 
         if (usuarioRepository.findByUsername(username).isPresent()) {
             throw new IllegalStateException("Ya existe un usuario para este DNI");
@@ -70,22 +90,19 @@ public class HermanoServiceImpl implements HermanoService {
 
         Usuario usuario = new Usuario();
         usuario.setUsername(username);
-        usuario.setPassword(passwordEncoder.encode(buildInitialPassword(dto.getNombre(), username)));
-        usuario.setRole("HERMANO"); // compatibility field
+        usuario.setPassword(passwordEncoder.encode(buildInitialPassword(request.getNombre(), username)));
+        usuario.setRole("HERMANO");
 
-        Hermano hermano = new Hermano(dto);
+        Hermano hermano = new Hermano(request);
         hermano.setUsuario(usuario);
 
-        // Save hermano (and usuario via cascade if configured)
         Hermano saved = hermanoRepository.save(hermano);
 
-        // Ensure role exists
         Rol rolHermano = rolRepository.findAll().stream()
             .filter(r -> "HERMANO".equalsIgnoreCase(r.getNombreRol()))
             .findFirst()
             .orElseThrow(() -> new IllegalStateException("Rol HERMANO no encontrado"));
 
-        // Create usuario_rol relation if missing
         UsuarioRolId urId = new UsuarioRolId(saved.getUsuario().getId(), rolHermano.getId());
         if (!usuarioRolRepository.existsByIdAndDeletedFalse(urId)) {
             UsuarioRol ur = new UsuarioRol();
@@ -97,19 +114,21 @@ public class HermanoServiceImpl implements HermanoService {
             usuarioRolRepository.save(ur);
         }
 
-        return saved;
+        return toDto(saved);
     }
 
     @Override
-    public Hermano actualizar(Integer id, HermanoDto dto) {
-        Hermano hermano = buscarPorId(id);
-        hermano.actualizarDesdeDto(dto);
-        return hermanoRepository.save(hermano);
+    @Transactional
+    public HermanoDto actualizar(Integer id, HermanoRequest request) {
+        Hermano hermano = buscarHermanoActivoPorId(id);
+        hermano.actualizarDesdeRequest(request);
+        return toDto(hermanoRepository.save(hermano));
     }
 
     @Override
+    @Transactional
     public void bajaLogica(Integer id) {
-        Hermano hermano = buscarPorId(id);
+        Hermano hermano = buscarHermanoActivoPorId(id);
         hermano.setDeleted(true);
         hermano.setFechaBaja(LocalDate.now());
         if (hermano.getEstado() == null || hermano.getEstado().isBlank() || "ACTIVO".equalsIgnoreCase(hermano.getEstado())) {
@@ -120,7 +139,7 @@ public class HermanoServiceImpl implements HermanoService {
 
     @Override
     public PortalHermanoDto obtenerDatosPortal(Integer id) {
-        Hermano hermano = buscarPorId(id);
+        Hermano hermano = buscarHermanoActivoPorId(id);
         String apellidos = (hermano.getPrimerApellido() == null ? "" : hermano.getPrimerApellido())
                 + (hermano.getSegundoApellido() == null ? "" : " " + hermano.getSegundoApellido());
         String direccionCompleta = String.join(" ",
@@ -179,20 +198,21 @@ public class HermanoServiceImpl implements HermanoService {
     }
 
     @Override
-    public es.lumen.lumen_backend.modules.hermano.dto.ImportarHermanosResponse importarHermanos(List<HermanoDto> hermanos) {
-        es.lumen.lumen_backend.modules.hermano.dto.ImportarHermanosResponse response = new es.lumen.lumen_backend.modules.hermano.dto.ImportarHermanosResponse();
+    @Transactional
+    public ImportarHermanosResponse importarHermanos(List<HermanoRequest> hermanos) {
+        ImportarHermanosResponse response = new ImportarHermanosResponse();
         response.setTotalLeidos(hermanos.size());
         int importados = 0;
         int errores = 0;
         List<String> detalleErrores = new ArrayList<>();
 
-        for (HermanoDto hermanoDto : hermanos) {
+        for (HermanoRequest hermanoRequest : hermanos) {
             try {
-                guardar(hermanoDto);
+                guardar(hermanoRequest);
                 importados++;
             } catch (Exception e) {
                 errores++;
-                detalleErrores.add("Error al importar hermano: " + hermanoDto.getNombre() + " - " + e.getMessage());
+                detalleErrores.add("Error al importar hermano: " + hermanoRequest.getNombre() + " - " + e.getMessage());
             }
         }
 
@@ -200,5 +220,44 @@ public class HermanoServiceImpl implements HermanoService {
         response.setErrores(errores);
         response.setDetalleErrores(detalleErrores);
         return response;
+    }
+
+    private Hermano buscarHermanoActivoPorId(Integer id) {
+        return hermanoRepository.findById(id)
+                .filter(hermano -> Boolean.FALSE.equals(hermano.getDeleted()))
+                .orElseThrow(() -> new ResourceNotFoundException("Hermano no encontrado con id: " + id));
+    }
+
+    private HermanoDto toDto(Hermano hermano) {
+        HermanoDto dto = new HermanoDto();
+        dto.setId(hermano.getId());
+        dto.setIdHermandad(hermano.getIdHermandad());
+        dto.setNumeroHermano(hermano.getNumeroHermano());
+        dto.setNif(hermano.getNif());
+        dto.setNombre(hermano.getNombre());
+        dto.setPrimerApellido(hermano.getPrimerApellido());
+        dto.setSegundoApellido(hermano.getSegundoApellido());
+        dto.setFechaNacimiento(hermano.getFechaNacimiento());
+        dto.setDireccion(hermano.getDireccion());
+        dto.setNumero(hermano.getNumero());
+        dto.setPisoPuerta(hermano.getPisoPuerta());
+        dto.setCodigoPostal(hermano.getCodigoPostal());
+        dto.setPoblacion(hermano.getPoblacion());
+        dto.setProvincia(hermano.getProvincia());
+        dto.setPais(hermano.getPais());
+        dto.setTelefonoMovil(hermano.getTelefonoMovil());
+        dto.setTelefonoFijo(hermano.getTelefonoFijo());
+        dto.setEmail(hermano.getEmail());
+        dto.setFechaAlta(hermano.getFechaAlta());
+        dto.setFechaBaja(hermano.getFechaBaja());
+        dto.setEstado(hermano.getEstado());
+        dto.setFormaPago(hermano.getFormaPago());
+        dto.setIban(hermano.getIban());
+        dto.setTitularCuenta(hermano.getTitularCuenta());
+        dto.setEnCuotas(hermano.getEnCuotas());
+        dto.setObservaciones(hermano.getObservaciones());
+        dto.setTutorLegal(hermano.getTutorLegal());
+        dto.setDeleted(hermano.getDeleted());
+        return dto;
     }
 }

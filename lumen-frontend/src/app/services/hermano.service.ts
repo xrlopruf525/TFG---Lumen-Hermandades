@@ -97,6 +97,10 @@ export class HermanoService {
     );
   }
 
+  importarHermanos(payload: any[]): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/importar`, payload);
+  }
+
   deleteHermano(id: number): Observable<void> {
     return this.http.patch<void>(`${this.baseUrl}/${id}/baja-logica`, {});
   }
@@ -188,45 +192,38 @@ export class HermanoService {
     return Number.isFinite(parsed) ? parsed : undefined;
   }
 
-  private toApellidos(payload: UpsertHermanoPayload): string {
-    if (payload.apellidos) {
-      return payload.apellidos;
-    }
-    return `${payload.primer_apellido ?? ''} ${payload.segundo_apellido ?? ''}`.trim();
-  }
-
   private toBackendPayload(payload: UpsertHermanoPayload): Record<string, unknown> {
     const row = payload as UpsertHermanoPayload & Record<string, unknown>;
     const nombre = String(payload.nombre ?? '').trim();
-    const primerApellido = String(payload.primer_apellido ?? '').trim();
-    const segundoApellido = String(payload.segundo_apellido ?? '').trim();
+    const primerApellido = String(payload.primerApellido ?? '').trim();
+    const segundoApellido = String(payload.segundoApellido ?? '').trim();
 
     return {
       idHermandad: this.toPositiveInt(row['idHermandad']) ?? this.defaultHermandadId,
       numeroHermano: this.toPositiveInt(payload.numeroHermano),
-      nif: String(payload.dni ?? row['nif'] ?? '').trim(),
+      nif: String(payload.nif ?? '').trim(),
       nombre,
       primerApellido,
       segundoApellido,
-      fechaNacimiento: row.fecha_nacimiento ?? row['fechaNacimiento'] ?? null,
+      fechaNacimiento: row['fechaNacimiento'] ?? null,
       direccion: String(payload.direccion ?? '').trim() || null,
-      numero: String(row['numero'] ?? '').trim() || null,
-      pisoPuerta: String(payload.piso_puerta ?? '').trim() || null,
-      codigoPostal: String(payload.codigo_postal ?? '').trim() || null,
-      poblacion: String(payload.localidad ?? row['poblacion'] ?? '').trim() || null,
+      numero: String(payload.numero ?? '').trim() || null,
+      pisoPuerta: String(payload.pisoPuerta ?? '').trim() || null,
+      codigoPostal: String(payload.codigoPostal ?? '').trim() || null,
+      poblacion: String(payload.poblacion ?? '').trim() || null,
       provincia: String(payload.provincia ?? '').trim() || null,
       pais: String(payload.pais ?? '').trim() || null,
-      telefonoMovil: String(payload.telefono_movil ?? payload.telefono ?? '').trim() || null,
-      telefonoFijo: String(payload.telefono_fijo ?? '').trim() || null,
+      telefonoMovil: String(payload.telefonoMovil ?? '').trim() || null,
+      telefonoFijo: String(payload.telefonoFijo ?? '').trim() || null,
       email: String(payload.email ?? '').trim() || null,
-      fechaAlta: row.fechaAlta ?? row['fecha_alta'] ?? null,
+      fechaAlta: row['fechaAlta'] ?? null,
       estado: String(payload.estado ?? 'ACTIVO').trim() || 'ACTIVO',
-      formaPago: String(payload.forma_pago ?? '').trim() || null,
+      formaPago: String(payload.formaPago ?? '').trim() || null,
       iban: String(payload.iban ?? '').trim() || null,
-      titularCuenta: String(payload.titular_cuenta ?? '').trim() || null,
-      enCuotas: payload.en_cuotas ?? false,
+      titularCuenta: String(payload.titularCuenta ?? '').trim() || null,
+      enCuotas: payload.enCuotas ?? false,
       observaciones: String(payload.observaciones ?? '').trim() || null,
-      tutorLegal: String(payload.tutor_legal ?? '').trim() || null,
+      tutorLegal: String(payload.tutorLegal ?? '').trim() || null,
       deleted: false
     };
   }

@@ -6,9 +6,12 @@ import es.lumen.lumen_backend.modules.cuota.repositories.CuotaRepository;
 import es.lumen.lumen_backend.modules.cuota.service.CuotaService;
 import es.lumen.lumen_backend.modules.hermano.entity.Hermano;
 import es.lumen.lumen_backend.modules.hermano.repository.HermanoRepository;
+import es.lumen.lumen_backend.modules.cuota.dto.CuotaDto;
+import es.lumen.lumen_backend.common.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -17,6 +20,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 public class CuotaServiceImpl implements CuotaService {
 
     @Autowired
@@ -26,30 +30,30 @@ public class CuotaServiceImpl implements CuotaService {
     private HermanoRepository hermanoRepository;
 
     @Override
-    public List<Cuota> obtenerTodasLasCuotas() {
-        return cuotaRepository.findByDeletedFalse();
+    public List<CuotaDto> obtenerTodasLasCuotas() {
+        return cuotaRepository.findByDeletedFalse().stream().map(this::toDto).toList();
     }
 
     @Override
-    public List<Cuota> obtenerCuotasPorHermano(Integer idHermano) {
-        return cuotaRepository.findByHermanoIdAndDeletedFalse(idHermano);
+    public List<CuotaDto> obtenerCuotasPorHermano(Integer idHermano) {
+        return cuotaRepository.findByHermanoIdAndDeletedFalse(idHermano).stream().map(this::toDto).toList();
     }
 
     @Override
-    public Cuota pagarCuota(Integer idCuota, String urlRecibo) {
+    @Transactional
+    public CuotaDto pagarCuota(Integer idCuota, String urlRecibo) {
         Optional<Cuota> cuotaOptional = cuotaRepository.findById(idCuota);
-        if (cuotaOptional.isPresent()) {
-            Cuota cuota = cuotaOptional.get();
-            cuota.setEstado("PAGADA");
-            cuota.setFechaPago(LocalDate.now());
-            cuota.setUrlRecibo(urlRecibo);
-            return cuotaRepository.save(cuota);
-        }
-        return null;
+        Cuota cuota = cuotaOptional.filter(valor -> Boolean.FALSE.equals(valor.getDeleted()))
+                .orElseThrow(() -> new ResourceNotFoundException("Cuota no encontrada con id: " + idCuota));
+        cuota.setEstado("PAGADA");
+        cuota.setFechaPago(LocalDate.now());
+        cuota.setUrlRecibo(urlRecibo);
+        return toDto(cuotaRepository.save(cuota));
     }
 
     @Override
     @Scheduled(cron = "0 0 0 1 1,4,7,10 *")
+    @Transactional
     public void generarCuotasTrimestrales() {
         List<Hermano> hermanosActivos = hermanoRepository.findByDeletedFalse().stream()
                 .filter(h -> "ACTIVO".equalsIgnoreCase(h.getEstado()))
@@ -69,5 +73,19 @@ public class CuotaServiceImpl implements CuotaService {
             nuevaCuota.setDeleted(false);
             cuotaRepository.save(nuevaCuota);
         }
+    }
+
+    private CuotaDto toDto(Cuota cuota) {
+        CuotaDto dto = new CuotaDto();
+        dto.setIdCuota(cuota.getIdCuota());
+        dto.setIdHermano(cuota.getHermano() != null ? cuota.getHermano().getId() : null);
+        dto.setAnyo(cuota.getAnyo());
+        dto.setConcepto(cuota.getConcepto());
+        dto.setImporte(cuota.getImporte());
+        dto.setEstado(cuota.getEstado());
+        dto.setFechaPago(cuota.getFechaPago());
+        dto.setUrlRecibo(cuota.getUrlRecibo());
+        dto.setDeleted(cuota.getDeleted());
+        return dto;
     }
 }

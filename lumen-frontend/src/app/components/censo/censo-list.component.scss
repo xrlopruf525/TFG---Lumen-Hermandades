@@ -18,6 +18,17 @@
   margin-bottom: 0.85rem;
 }
 
+.censo-list__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.file-input-hidden {
+  display: none;
+}
+
 .censo-list__header h2 {
   margin: 0;
   font-size: 1.25rem;
@@ -245,6 +256,11 @@ th button {
   border-color: #9ca3af;
 }
 
+.message--success {
+  color: #067647;
+  margin: 0.7rem 0 0;
+}
+
 @media (max-width: 920px) {
   .censo-list__controls {
     grid-template-columns: 1fr;
@@ -258,5 +274,14 @@ th button {
   .pagination {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .censo-list__header-actions {
+    width: 100%;
+  }
+
+  .censo-list__header-actions .primary-btn,
+  .censo-list__header-actions .secondary-btn {
+    width: 100%;
   }
 }

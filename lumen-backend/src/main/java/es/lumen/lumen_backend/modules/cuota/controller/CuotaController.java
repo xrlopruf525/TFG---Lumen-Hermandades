@@ -1,42 +1,44 @@
 package es.lumen.lumen_backend.modules.cuota.controller;
 
 
-import es.lumen.lumen_backend.modules.cuota.entity.Cuota;
+import es.lumen.lumen_backend.modules.cuota.dto.CuotaDto;
 import es.lumen.lumen_backend.modules.cuota.service.CuotaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/cuotas")
-@CrossOrigin(origins = "*")
 public class CuotaController {
 
     @Autowired
     private CuotaService cuotaService;
 
     @GetMapping
-    public ResponseEntity<List<Cuota>> obtenerTodasLasCuotas() {
-        List<Cuota> cuotas = cuotaService.obtenerTodasLasCuotas();
+    public ResponseEntity<List<CuotaDto>> obtenerTodasLasCuotas() {
+        List<CuotaDto> cuotas = cuotaService.obtenerTodasLasCuotas();
         return new ResponseEntity<>(cuotas, HttpStatus.OK);
     }
 
     @GetMapping("/hermano/{idHermano}")
-    public ResponseEntity<List<Cuota>> obtenerCuotasPorHermano(@PathVariable Integer idHermano) {
-        List<Cuota> cuotas = cuotaService.obtenerCuotasPorHermano(idHermano);
+    public ResponseEntity<List<CuotaDto>> obtenerCuotasPorHermano(@PathVariable Integer idHermano) {
+        List<CuotaDto> cuotas = cuotaService.obtenerCuotasPorHermano(idHermano);
         return new ResponseEntity<>(cuotas, HttpStatus.OK);
     }
 
     @PutMapping("/{id}/pagar")
-    public ResponseEntity<Cuota> pagarCuota(@PathVariable Integer id, @RequestParam(required = false) String urlRecibo) {
-        Cuota cuotaPagada = cuotaService.pagarCuota(id, urlRecibo);
-        if (cuotaPagada != null) {
-            return new ResponseEntity<>(cuotaPagada, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<CuotaDto> pagarCuota(@PathVariable Integer id, @RequestParam(required = false) String urlRecibo) {
+        CuotaDto cuotaPagada = cuotaService.pagarCuota(id, urlRecibo);
+        return new ResponseEntity<>(cuotaPagada, HttpStatus.OK);
     }
 
     @PostMapping("/generar-manual")

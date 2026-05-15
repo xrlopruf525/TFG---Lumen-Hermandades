@@ -1,11 +1,16 @@
 package es.lumen.lumen_backend.avisos.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class AvisoRequest {
 
+    @NotBlank
     private String tipoDestinatario; // HERMANO, GRUPO, TODOS
     private Long idHermano;
     private Long idGrupo;
+    @NotBlank
     private String asunto;
+    @NotBlank
     private String mensaje;
 
     public String getTipoDestinatario() {

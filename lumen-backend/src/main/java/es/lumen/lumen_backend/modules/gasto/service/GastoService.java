@@ -1,13 +1,15 @@
 package es.lumen.lumen_backend.modules.gasto.service;
 
 
-import es.lumen.lumen_backend.modules.gasto.entity.Gasto;
 import java.util.List;
 
+import es.lumen.lumen_backend.modules.gasto.dto.GastoDto;
+import es.lumen.lumen_backend.modules.gasto.dto.GastoRequest;
+
 public interface GastoService {
-    Gasto obtenerGastoPorId(Integer id);
-    List<Gasto> obtenerTodosLosGastos();
-    Gasto guardarGasto(Gasto gasto);
-    Gasto actualizarGasto(Integer id, Gasto gastoDetalles);
+    GastoDto obtenerGastoPorId(Integer id);
+    List<GastoDto> obtenerTodosLosGastos();
+    GastoDto guardarGasto(GastoRequest gasto);
+    GastoDto actualizarGasto(Integer id, GastoRequest gastoDetalles);
     boolean eliminarGasto(Integer id);
 }

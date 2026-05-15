@@ -5,12 +5,6 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { PortalHermanoProfile, HermanoService } from '../../services/hermano.service';
 
-interface PortalNotice {
-  title: string;
-  date: string;
-  type: 'info' | 'warning' | 'success';
-}
-
 interface PortalDocument {
   name: string;
   description: string;
@@ -28,12 +22,6 @@ export class PortalHermanoComponent implements OnInit {
   profile: PortalHermanoProfile | null = null;
   loading = false;
   errorMessage = '';
-
-  readonly notices: PortalNotice[] = [
-    { title: 'Recordatorio de cuota trimestral', date: '15 mayo 2026', type: 'warning' },
-    { title: 'Aviso de reunión informativa', date: '21 mayo 2026', type: 'info' },
-    { title: 'Inscripción a salida extraordinaria', date: '28 mayo 2026', type: 'success' }
-  ];
 
   readonly documents: PortalDocument[] = [
     { name: 'Recibo de cuotas', description: 'Últimos pagos y estado contable', status: 'Disponible' },
