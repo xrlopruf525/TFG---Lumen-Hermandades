@@ -9,6 +9,7 @@ import {
   PaginatedResponse,
   UpsertHermanoPayload
 } from '../models/hermano.model';
+import { Cuota } from '../core/models/cuota.model';
 
 export type HermanoUpsertPayload = UpsertHermanoPayload;
 
@@ -23,6 +24,7 @@ export interface PortalHermanoProfile {
   fechaAlta: string | Date | null;
   estado: string | null;
   grupos: Array<{ idGrupo: number; nombre: string; numeroMiembros: number }> | null;
+  cuotas?: Cuota[] | null;
 }
 
 @Injectable({
@@ -156,7 +158,8 @@ export class HermanoService {
       nif: row.nif ? String(row.nif) : null,
       fechaAlta: row.fechaAlta ?? null,
       estado: row.estado ? String(row.estado) : null,
-      grupos: row.grupos ?? null
+      grupos: row.grupos ?? null,
+      cuotas: (row.cuotas ?? null) as Cuota[] | null
     };
   }
 

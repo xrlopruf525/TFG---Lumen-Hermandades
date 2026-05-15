@@ -56,9 +56,9 @@ private readonly API_GASTOS = `${this.API_BASE}/gastos`;
         this.generarExcel(datosExcel, 'Listado de Hermanos', 'listado_hermanos');
         this.descargando = false;
       },
-      error: () => {
+      error: (error) => {
         this.descargando = false;
-        alert('No se pudo descargar el listado de hermanos.');
+        console.error('No se pudo descargar el listado de hermanos.', error);
       }
     });
   }
@@ -88,9 +88,9 @@ private readonly API_GASTOS = `${this.API_BASE}/gastos`;
         this.generarExcel(datosExcel, 'Estado de Cuotas', 'estado_cuotas');
         this.descargando = false;
       },
-      error: () => {
+      error: (error) => {
         this.descargando = false;
-        alert('No se pudo descargar el estado de cuotas.');
+        console.error('No se pudo descargar el estado de cuotas.', error);
       }
     });
   }
@@ -178,7 +178,7 @@ private readonly API_GASTOS = `${this.API_BASE}/gastos`;
       error: (error) => {
         console.error('Error descargando balance económico:', error);
         this.descargando = false;
-        alert('No se pudo descargar el balance económico.');
+        console.error('No se pudo descargar el balance económico.');
       }
     });
   }

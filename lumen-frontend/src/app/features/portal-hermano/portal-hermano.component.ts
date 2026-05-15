@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 
 import { AuthService } from '../../core/services/auth.service';
 import { PortalHermanoProfile, HermanoService } from '../../services/hermano.service';
+import { CuotaService } from '../../core/services/cuota.service';
+import { Cuota } from '../../core/models/cuota.model';
 
 interface PortalDocument {
   name: string;
@@ -32,7 +34,8 @@ export class PortalHermanoComponent implements OnInit {
   constructor(
     private readonly hermanoService: HermanoService,
     private readonly authService: AuthService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly cuotaService: CuotaService
   ) {}
 
   ngOnInit(): void {
@@ -40,11 +43,36 @@ export class PortalHermanoComponent implements OnInit {
   }
 
   get cuotaStatus(): string {
-    return 'Al corriente';
+    const pendientes = this.pendingCuotas;
+    return pendientes.length > 0 ? 'Pendiente' : 'Al corriente';
   }
 
   get proximaCuota(): string {
-    return '15/05/2026';
+    const pendientes = this.pendingCuotas;
+    if (!pendientes || pendientes.length === 0) {
+      return '-';
+    }
+
+    const fechas = pendientes
+      .map((c) => c.fecha_vencimiento ?? null)
+      .filter(Boolean)
+      .map((d) => (d instanceof Date ? d : new Date(String(d))))
+      .filter((d) => !Number.isNaN(d.getTime()));
+
+    if (fechas.length === 0) {
+      return '-';
+    }
+
+    const min = fechas.reduce((a, b) => (a.getTime() < b.getTime() ? a : b));
+    return min.toLocaleDateString('es-ES');
+  }
+
+  get pendingCuotas(): Cuota[] {
+    if (!this.profile?.cuotas) {
+      return [];
+    }
+
+    return (this.profile.cuotas ?? []).filter((c) => String(c.estado ?? '').toLowerCase().includes('pendiente'));
   }
 
   get gruposAsignados(): string {
@@ -56,6 +84,42 @@ export class PortalHermanoComponent implements OnInit {
 
   retry(): void {
     this.loadProfile();
+  }
+
+  paySimulado(cuota: Cuota): void {
+    if (!cuota || !cuota.idCuota) {
+      return;
+    }
+    const hoy = new Date().toISOString().split('T')[0];
+
+    // Intentar pagar en backend para persistir en la DB
+    this.cuotaService.pagarCuotaBackend(cuota.idCuota).subscribe({
+      next: (resp) => {
+        const fechaPago = (resp && (resp.fechaPago ?? resp.fecha_pago)) ? (resp.fechaPago ?? resp.fecha_pago) : hoy;
+        if (this.profile?.cuotas) {
+          this.profile.cuotas = this.profile.cuotas.map((c) => {
+            if (c.idCuota === cuota.idCuota) {
+              return { ...c, estado: 'PAGADA', fechaPago, fecha_pago: fechaPago } as Cuota;
+            }
+            return c;
+          });
+        }
+      },
+      error: (err) => {
+        // Si falla el backend, registrar pago simulado local y actualizar vista
+        console.error('Pago backend fallido, usando simulación local:', err);
+        this.cuotaService.registrarPagoSimulado(cuota.idCuota, hoy);
+
+        if (this.profile?.cuotas) {
+          this.profile.cuotas = this.profile.cuotas.map((c) => {
+            if (c.idCuota === cuota.idCuota) {
+              return { ...c, estado: 'PAGADA', fechaPago: hoy, fecha_pago: hoy, pagoSimulado: true } as Cuota;
+            }
+            return c;
+          });
+        }
+      }
+    });
   }
 
   logout(): void {

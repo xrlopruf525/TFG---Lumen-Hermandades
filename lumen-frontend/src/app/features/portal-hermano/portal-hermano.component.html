@@ -81,6 +81,26 @@
         </div>
       </article>
 
+      <article class="portal-card" *ngIf="pendingCuotas.length > 0">
+        <header class="portal-card__header">
+          <h2>Cuotas pendientes</h2>
+          <span class="portal-card__tag portal-card__tag--soft">Acciones</span>
+        </header>
+
+        <ul class="document-list">
+          <li *ngFor="let cuota of pendingCuotas" class="document-list__item">
+            <div>
+              <p class="document-list__title">{{ cuota.concepto || 'Cuota' }}</p>
+              <p class="document-list__meta">Vence: {{ cuota.fecha_vencimiento | date:'dd/MM/yyyy' }}</p>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="document-list__status">Pendiente - {{ cuota.importe | currency:'EUR' }}</span>
+              <button type="button" class="portal-btn portal-btn--ghost" (click)="paySimulado(cuota)">Pagar (simulado)</button>
+            </div>
+          </li>
+        </ul>
+      </article>
+
       <article class="portal-card">
         <header class="portal-card__header">
           <h2>Documentos disponibles</h2>

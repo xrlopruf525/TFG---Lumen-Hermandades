@@ -122,7 +122,7 @@ export class AvisosComponent implements OnInit {
       error: (error) => {
         console.error('Error cargando detalle del grupo:', error);
         this.cargandoGrupoDetalle = false;
-        alert('No se pudo cargar el grupo para editarlo.');
+        console.error('No se pudo cargar el grupo para editarlo.');
       }
     });
   }
@@ -134,7 +134,7 @@ export class AvisosComponent implements OnInit {
 
     const nombre = this.nombreGrupoEditando.trim();
     if (!nombre) {
-      alert('El nombre del grupo es obligatorio.');
+      console.warn('El nombre del grupo es obligatorio.');
       return;
     }
 
@@ -157,7 +157,7 @@ export class AvisosComponent implements OnInit {
       error: (error) => {
         console.error('Error guardando grupo:', error);
         this.guardandoGrupoEditado = false;
-        alert(error?.error?.message ?? error?.error ?? 'No se pudo guardar el grupo.');
+        console.error(error?.error?.message ?? error?.error ?? 'No se pudo guardar el grupo.');
       }
     });
   }
@@ -189,7 +189,7 @@ export class AvisosComponent implements OnInit {
       error: (error) => {
         console.error('Error guardando miembros del grupo:', error);
         this.guardandoMiembrosGrupo = false;
-        alert(error?.error?.message ?? error?.error ?? 'No se pudieron guardar los hermanos del grupo.');
+        console.error(error?.error?.message ?? error?.error ?? 'No se pudieron guardar los hermanos del grupo.');
       }
     });
   }
@@ -364,17 +364,17 @@ export class AvisosComponent implements OnInit {
 
   enviarAviso(): void {
     if (!this.asuntoAviso.trim() || !this.mensajeAviso.trim()) {
-      alert('Debes escribir un asunto y un mensaje.');
+      console.warn('Debes escribir un asunto y un mensaje.');
       return;
     }
 
     if (this.tipoDestinatario === 'HERMANO' && !this.idHermanoSeleccionado) {
-      alert('Debes seleccionar un hermano.');
+      console.warn('Debes seleccionar un hermano.');
       return;
     }
 
     if (this.tipoDestinatario === 'GRUPO' && !this.idGrupoSeleccionado) {
-      alert('Debes seleccionar un grupo.');
+      console.warn('Debes seleccionar un grupo.');
       return;
     }
 
@@ -393,14 +393,14 @@ export class AvisosComponent implements OnInit {
         this.enviandoAviso = false;
 
         const total = response?.totalEnviados ?? 0;
-        alert(`Aviso enviado correctamente a ${total} destinatario/s.`);
+        console.log(`Aviso enviado correctamente a ${total} destinatario/s.`);
 
         this.limpiarFormularioAviso();
       },
       error: (error) => {
         console.error('Error enviando aviso:', error);
         this.enviandoAviso = false;
-        alert('No se pudo enviar el aviso.');
+        console.error('No se pudo enviar el aviso.');
       }
     });
   }

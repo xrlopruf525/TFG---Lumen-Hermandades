@@ -53,7 +53,7 @@ export class GestionEconomicaNewComponent {
       },
       error: () => {
         this.saving = false;
-        alert('Error al crear movimiento.');
+        console.error('Error al crear movimiento.');
       }
     });
   }

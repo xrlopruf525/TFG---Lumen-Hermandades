@@ -202,17 +202,17 @@ export class DashboardComponent implements OnInit {
 
   enviarAviso(): void {
     if (!this.asuntoAviso.trim() || !this.mensajeAviso.trim()) {
-      alert('Debes escribir un asunto y un mensaje.');
+      console.warn('Debes escribir un asunto y un mensaje.');
       return;
     }
 
     if (this.tipoDestinatario === 'HERMANO' && !this.idHermanoSeleccionado) {
-      alert('Debes seleccionar un hermano.');
+      console.warn('Debes seleccionar un hermano.');
       return;
     }
 
     if (this.tipoDestinatario === 'GRUPO' && !this.idGrupoSeleccionado) {
-      alert('Debes seleccionar un grupo.');
+      console.warn('Debes seleccionar un grupo.');
       return;
     }
 
@@ -229,14 +229,14 @@ export class DashboardComponent implements OnInit {
     this.http.post<any>(`${this.API_BASE}/avisos/enviar`, payload).subscribe({
       next: (response) => {
         this.enviandoAviso = false;
-        alert(`Aviso enviado correctamente a ${response.totalEnviados} destinatario/s.`);
+        console.log(`Aviso enviado correctamente a ${response.totalEnviados} destinatario/s.`);
         this.limpiarFormularioAviso();
         this.cerrarModalAviso();
       },
       error: (error) => {
         console.error('Error enviando aviso:', error);
         this.enviandoAviso = false;
-        alert('No se pudo enviar el aviso.');
+        console.error('No se pudo enviar el aviso.');
       }
     });
   }
