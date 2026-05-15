@@ -1,3 +1,45 @@
-<div class="container-fluid mt-3">
-  <app-censo-list></app-censo-list>
+<div class="hermanos-container">
+  <div class="tabs-header">
+    <button
+      type="button"
+      class="tab-button"
+      [class.active]="activeTab === 'hermanos'"
+      (click)="mostrarCenso()">
+      <i class="fa-solid fa-users" aria-hidden="true"></i>
+      <span>Gestión de Hermanos</span>
+    </button>
+
+    <button
+      *ngIf="isAdmin"
+      type="button"
+      class="tab-button"
+      [class.active]="activeTab === 'economica'"
+      (click)="mostrarGestionEconomica()">
+      <i class="fa-solid fa-money-bill" aria-hidden="true"></i>
+      <span>Gestión Económica</span>
+    </button>
+
+    <button
+      type="button"
+      class="tab-button"
+      [class.active]="activeTab === 'informes'"
+      (click)="mostrarInformes()">
+      <i class="fa-solid fa-chart-column" aria-hidden="true"></i>
+      <span>Informes</span>
+    </button>
+  </div>
+
+  <div class="tabs-content">
+    <div *ngIf="activeTab === 'hermanos'" class="tab-pane active">
+      <app-censo-list></app-censo-list>
+    </div>
+
+    <div *ngIf="activeTab === 'economica' && isAdmin" class="tab-pane active">
+      <app-gestion-economica></app-gestion-economica>
+    </div>
+
+    <div *ngIf="activeTab === 'informes'" class="tab-pane active">
+      <app-informes></app-informes>
+    </div>
+  </div>
 </div>

@@ -9,8 +9,23 @@ import {
   PaginatedResponse,
   UpsertHermanoPayload
 } from '../models/hermano.model';
+import { Cuota } from '../core/models/cuota.model';
 
 export type HermanoUpsertPayload = UpsertHermanoPayload;
+
+export interface PortalHermanoProfile {
+  id: number;
+  nombreCompleto: string;
+  numeroHermano: number | null;
+  email: string | null;
+  telefonoMovil: string | null;
+  direccionCompleta: string | null;
+  nif: string | null;
+  fechaAlta: string | Date | null;
+  estado: string | null;
+  grupos: Array<{ idGrupo: number; nombre: string; numeroMiembros: number }> | null;
+  cuotas?: Cuota[] | null;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +34,7 @@ export type HermanoUpsertPayload = UpsertHermanoPayload;
 
 export class HermanoService {
   private readonly baseUrl = `${environment.apiUrl}/hermanos`;
+  private readonly portalUrl = `${environment.apiUrl}/hermano/me`;
   private readonly defaultHermandadId = 1;
 
   constructor(private readonly http: HttpClient) {}
@@ -57,7 +73,15 @@ export class HermanoService {
   }
 
   getMiPerfil(): Observable<Hermano> {
-    return this.http.get<Hermano>(`${this.baseUrl}/me`);
+    return this.getPortalHermano().pipe(
+      map((profile) => this.normalizePortalProfileAsHermano(profile))
+    );
+  }
+
+  getPortalHermano(): Observable<PortalHermanoProfile> {
+    return this.http.get<unknown>(this.portalUrl).pipe(
+      map((response) => this.normalizePortalHermano(response as Partial<PortalHermanoProfile>))
+    );
   }
 
   createHermano(payload: UpsertHermanoPayload): Observable<Hermano> {
@@ -74,6 +98,10 @@ export class HermanoService {
     return this.http.put<unknown>(`${this.baseUrl}/${id}`, body).pipe(
       map((response) => this.normalizeHermano(response as Partial<Hermano>))
     );
+  }
+
+  importarHermanos(payload: any[]): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/importar`, payload);
   }
 
   deleteHermano(id: number): Observable<void> {
@@ -119,6 +147,47 @@ export class HermanoService {
     };
   }
 
+  private normalizePortalHermano(row: Partial<PortalHermanoProfile>): PortalHermanoProfile {
+    return {
+      id: Number(row.id ?? 0),
+      nombreCompleto: String(row.nombreCompleto ?? ''),
+      numeroHermano: this.normalizePortalNumeroHermano(row.numeroHermano),
+      email: row.email ? String(row.email) : null,
+      telefonoMovil: row.telefonoMovil ? String(row.telefonoMovil) : null,
+      direccionCompleta: row.direccionCompleta ? String(row.direccionCompleta) : null,
+      nif: row.nif ? String(row.nif) : null,
+      fechaAlta: row.fechaAlta ?? null,
+      estado: row.estado ? String(row.estado) : null,
+      grupos: row.grupos ?? null,
+      cuotas: (row.cuotas ?? null) as Cuota[] | null
+    };
+  }
+
+  private normalizePortalProfileAsHermano(profile: PortalHermanoProfile): Hermano {
+    const parts = String(profile.nombreCompleto ?? '').trim().split(/\s+/).filter(Boolean);
+    const [nombre = '', ...apellidos] = parts;
+
+    return {
+      id: profile.id,
+      nombre,
+      primer_apellido: apellidos[0] ?? '',
+      segundo_apellido: apellidos.slice(1).join(' '),
+      apellidos: apellidos.join(' '),
+      email: profile.email ?? '',
+      numeroHermano: profile.numeroHermano ?? undefined,
+      fechaAlta: profile.fechaAlta ?? ''
+    };
+  }
+
+  private normalizePortalNumeroHermano(value: unknown): number | null {
+    if (value === undefined || value === null || value === '') {
+      return null;
+    }
+
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
   private normalizeNumeroHermano(value: unknown): number | undefined {
     if (value === undefined || value === null || value === '') {
       return undefined;
@@ -128,45 +197,38 @@ export class HermanoService {
     return Number.isFinite(parsed) ? parsed : undefined;
   }
 
-  private toApellidos(payload: UpsertHermanoPayload): string {
-    if (payload.apellidos) {
-      return payload.apellidos;
-    }
-    return `${payload.primer_apellido ?? ''} ${payload.segundo_apellido ?? ''}`.trim();
-  }
-
   private toBackendPayload(payload: UpsertHermanoPayload): Record<string, unknown> {
     const row = payload as UpsertHermanoPayload & Record<string, unknown>;
     const nombre = String(payload.nombre ?? '').trim();
-    const primerApellido = String(payload.primer_apellido ?? '').trim();
-    const segundoApellido = String(payload.segundo_apellido ?? '').trim();
+    const primerApellido = String(payload.primerApellido ?? '').trim();
+    const segundoApellido = String(payload.segundoApellido ?? '').trim();
 
     return {
       idHermandad: this.toPositiveInt(row['idHermandad']) ?? this.defaultHermandadId,
       numeroHermano: this.toPositiveInt(payload.numeroHermano),
-      nif: String(payload.dni ?? row['nif'] ?? '').trim(),
+      nif: String(payload.nif ?? '').trim(),
       nombre,
       primerApellido,
       segundoApellido,
-      fechaNacimiento: row.fecha_nacimiento ?? row['fechaNacimiento'] ?? null,
+      fechaNacimiento: row['fechaNacimiento'] ?? null,
       direccion: String(payload.direccion ?? '').trim() || null,
-      numero: String(row['numero'] ?? '').trim() || null,
-      pisoPuerta: String(payload.piso_puerta ?? '').trim() || null,
-      codigoPostal: String(payload.codigo_postal ?? '').trim() || null,
-      poblacion: String(payload.localidad ?? row['poblacion'] ?? '').trim() || null,
+      numero: String(payload.numero ?? '').trim() || null,
+      pisoPuerta: String(payload.pisoPuerta ?? '').trim() || null,
+      codigoPostal: String(payload.codigoPostal ?? '').trim() || null,
+      poblacion: String(payload.poblacion ?? '').trim() || null,
       provincia: String(payload.provincia ?? '').trim() || null,
       pais: String(payload.pais ?? '').trim() || null,
-      telefonoMovil: String(payload.telefono_movil ?? payload.telefono ?? '').trim() || null,
-      telefonoFijo: String(payload.telefono_fijo ?? '').trim() || null,
+      telefonoMovil: String(payload.telefonoMovil ?? '').trim() || null,
+      telefonoFijo: String(payload.telefonoFijo ?? '').trim() || null,
       email: String(payload.email ?? '').trim() || null,
-      fechaAlta: row.fechaAlta ?? row['fecha_alta'] ?? null,
+      fechaAlta: row['fechaAlta'] ?? null,
       estado: String(payload.estado ?? 'ACTIVO').trim() || 'ACTIVO',
-      formaPago: String(payload.forma_pago ?? '').trim() || null,
+      formaPago: String(payload.formaPago ?? '').trim() || null,
       iban: String(payload.iban ?? '').trim() || null,
-      titularCuenta: String(payload.titular_cuenta ?? '').trim() || null,
-      enCuotas: payload.en_cuotas ?? false,
+      titularCuenta: String(payload.titularCuenta ?? '').trim() || null,
+      enCuotas: payload.enCuotas ?? false,
       observaciones: String(payload.observaciones ?? '').trim() || null,
-      tutorLegal: String(payload.tutor_legal ?? '').trim() || null,
+      tutorLegal: String(payload.tutorLegal ?? '').trim() || null,
       deleted: false
     };
   }

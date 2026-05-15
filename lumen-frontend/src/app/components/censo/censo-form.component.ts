@@ -89,7 +89,6 @@ export class CensoFormComponent implements OnChanges {
     estado: ['ACTIVO', [Validators.required]],
     tutor_legal: ['', [Validators.maxLength(160)]],
 
-    telefono: ['', [Validators.pattern(/^\+?[0-9]{9,15}$/)]],
     telefono_movil: ['', [Validators.pattern(/^\+?[0-9]{9,15}$/)]],
     telefono_fijo: ['', [Validators.pattern(/^\+?[0-9]{9,15}$/)]],
     email: ['', [Validators.email, Validators.maxLength(120)]],
@@ -125,17 +124,18 @@ export class CensoFormComponent implements OnChanges {
 
   onSubmit(): void {
     this.form.markAllAsTouched();
+
     if (this.form.invalid) {
       return;
     }
 
     const value = this.form.getRawValue();
+
     this.save.emit({
       ...value,
       dni: this.normalizeValue(value['dni']),
       iban: this.normalizeValue(value['iban']),
       email: this.normalizeValue(value['email']),
-      telefono: this.normalizeValue(value['telefono']),
       telefono_movil: this.normalizeValue(value['telefono_movil']),
       telefono_fijo: this.normalizeValue(value['telefono_fijo'])
     } as UpsertHermanoPayload);
@@ -147,6 +147,7 @@ export class CensoFormComponent implements OnChanges {
 
   fieldError(field: string): string {
     const control = this.form.get(field);
+
     if (!control || !control.touched || !control.errors) {
       return '';
     }
@@ -191,8 +192,8 @@ export class CensoFormComponent implements OnChanges {
       this.form.reset({
         estado: 'ACTIVO',
         pais: 'Espana',
-        forma_pago: 'DOMICILIACION',
-        en_cuotas: false
+        formaPago: 'DOMICILIACION',
+        enCuotas: false
       });
       return;
     }
@@ -206,7 +207,6 @@ export class CensoFormComponent implements OnChanges {
       estado: data.estado ?? 'ACTIVO',
       tutor_legal: data.tutor_legal ?? '',
 
-      telefono: data.telefono ?? '',
       telefono_movil: data.telefono_movil ?? '',
       telefono_fijo: data.telefono_fijo ?? '',
       email: data.email ?? '',
@@ -235,6 +235,7 @@ export class CensoFormComponent implements OnChanges {
     }
 
     const date = value instanceof Date ? value : new Date(value);
+
     if (Number.isNaN(date.getTime())) {
       return '';
     }

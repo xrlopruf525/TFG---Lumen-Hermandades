@@ -18,6 +18,17 @@
   margin-bottom: 0.85rem;
 }
 
+.censo-list__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.file-input-hidden {
+  display: none;
+}
+
 .censo-list__header h2 {
   margin: 0;
   font-size: 1.25rem;
@@ -45,8 +56,8 @@
 }
 
 .primary-btn {
-  border: 1px solid #5a1323;
-  background: #5a1323;
+  border: 1px solid #9B1EB9;
+  background: #9B1EB9;
   color: #ffffff;
   border-radius: 8px;
   padding: 0.5rem 0.8rem;
@@ -127,8 +138,8 @@ th button {
 }
 
 .action-btn--active {
-  border-color: #5a1323;
-  color: #5a1323;
+  border-color: #9B1EB9;
+  color: #9B1EB9;
   font-weight: 700;
 }
 
@@ -161,6 +172,35 @@ th button {
   color: #344054;
 }
 
+.quota-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 7.5rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.quota-pill--pending {
+  background: #fff4e5;
+  color: #b45309;
+  border-color: #fed7aa;
+}
+
+.quota-pill--paid {
+  background: #ecfdf3;
+  color: #047857;
+  border-color: #a7f3d0;
+}
+
+.quota-pill--neutral {
+  background: #eef2ff;
+  color: #4338ca;
+  border-color: #c7d2fe;
+}
 .status-pill--neutral {
   background: #eef2f6;
   color: #425466;
@@ -193,6 +233,34 @@ th button {
   margin: 0.7rem 0 0;
 }
 
+.censo-list__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.secondary-btn {
+  border: 1px solid #d0d7de;
+  background: #ffffff;
+  color: #1f2937;
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.secondary-btn:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.message--success {
+  color: #067647;
+  margin: 0.7rem 0 0;
+}
+
 @media (max-width: 920px) {
   .censo-list__controls {
     grid-template-columns: 1fr;
@@ -206,5 +274,14 @@ th button {
   .pagination {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .censo-list__header-actions {
+    width: 100%;
+  }
+
+  .censo-list__header-actions .primary-btn,
+  .censo-list__header-actions .secondary-btn {
+    width: 100%;
   }
 }

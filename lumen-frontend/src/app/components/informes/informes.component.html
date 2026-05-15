@@ -1,0 +1,63 @@
+<div class="informes-container">
+
+  <div class="informe-card">
+    <div class="informe-icono">
+      <i class="fa-solid fa-users" aria-hidden="true"></i>
+    </div>
+
+    <div class="informe-contenido">
+      <h3>Listado de Hermanos</h3>
+      <p>Listado completo con datos de contacto</p>
+
+      <button 
+        class="btn-excel"
+        type="button"
+        [disabled]="descargando"
+        (click)="descargarListadoHermanos()">
+        <i class="fa-solid fa-download" aria-hidden="true"></i>
+        Excel
+      </button>
+    </div>
+  </div>
+
+  <div class="informe-card">
+    <div class="informe-icono">
+      <i class="fa-solid fa-scroll" aria-hidden="true"></i>
+    </div>
+
+    <div class="informe-contenido">
+      <h3>Estado de Cuotas</h3>
+      <p>Informe de cuotas pagadas y pendientes</p>
+
+      <button 
+        class="btn-excel"
+        type="button"
+        [disabled]="descargando"
+        (click)="descargarEstadoCuotas()">
+        <i class="fa-solid fa-download" aria-hidden="true"></i>
+        Excel
+      </button>
+    </div>
+  </div>
+
+  <div class="informe-card">
+    <div class="informe-icono">
+      <i class="fa-solid fa-scale-balanced" aria-hidden="true"></i>
+    </div>
+
+    <div class="informe-contenido">
+      <h3>Balance Económico</h3>
+      <p>Ingresos, gastos y diferencia final</p>
+
+      <button 
+        class="btn-excel"
+        type="button"
+        [disabled]="descargando"
+        (click)="descargarBalanceEconomico()">
+        <i class="fa-solid fa-download" aria-hidden="true"></i>
+        Excel
+      </button>
+    </div>
+  </div>
+
+</div>

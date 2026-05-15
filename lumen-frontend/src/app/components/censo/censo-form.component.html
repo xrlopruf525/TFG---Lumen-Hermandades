@@ -7,6 +7,7 @@
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <fieldset>
       <legend>Datos personales</legend>
+
       <div class="grid grid--three">
         <label>
           Nombre *
@@ -53,13 +54,8 @@
 
     <fieldset>
       <legend>Contacto</legend>
-      <div class="grid grid--three">
-        <label>
-          Telefono
-          <input type="text" formControlName="telefono" placeholder="+34600111222">
-          <small>{{ fieldError('telefono') }}</small>
-        </label>
 
+      <div class="grid grid--three">
         <label>
           Movil
           <input type="text" formControlName="telefono_movil" placeholder="+34600111222">
@@ -88,11 +84,18 @@
 
     <fieldset>
       <legend>Direccion</legend>
+
       <div class="grid grid--three">
         <label class="grid-span-2">
           Direccion
           <input type="text" formControlName="direccion" autocomplete="street-address">
           <small>{{ fieldError('direccion') }}</small>
+        </label>
+
+        <label>
+          Numero
+          <input type="text" formControlName="numero">
+          <small>{{ fieldError('numero') }}</small>
         </label>
 
         <label>
@@ -108,7 +111,7 @@
         </label>
 
         <label>
-          Localidad
+          Poblacion
           <input type="text" formControlName="localidad">
           <small>{{ fieldError('localidad') }}</small>
         </label>
@@ -129,6 +132,7 @@
 
     <fieldset>
       <legend>Pago</legend>
+
       <div class="grid grid--three">
         <label>
           Forma de pago
@@ -173,6 +177,7 @@
 
     <fieldset>
       <legend>Observaciones</legend>
+
       <label>
         Observaciones
         <textarea formControlName="observaciones" rows="4"></textarea>
@@ -184,6 +189,7 @@
       <button type="button" class="btn btn--ghost" (click)="onCancel()" [disabled]="submitting">
         Cancelar
       </button>
+
       <button type="submit" class="btn btn--primary" [disabled]="submitting">
         {{ submitting ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Crear hermano') }}
       </button>

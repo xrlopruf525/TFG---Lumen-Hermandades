@@ -18,6 +18,12 @@
       </div>
 
       <div class="field">
+        <label for="nif">NIF</label>
+        <input id="nif" type="text" formControlName="nif" placeholder="12345678A">
+        <small class="error" *ngIf="hasError('nif', 'required')">El NIF es obligatorio.</small>
+      </div>
+
+      <div class="field">
         <label for="apellidos">Apellidos</label>
         <input id="apellidos" type="text" formControlName="apellidos">
         <small class="error" *ngIf="hasError('apellidos', 'required')">Los apellidos son obligatorios.</small>

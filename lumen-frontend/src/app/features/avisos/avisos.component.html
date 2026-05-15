@@ -1,0 +1,238 @@
+<section class="avisos-page">
+
+  <div class="avisos-layout">
+
+    <div class="avisos-card">
+
+      <div class="avisos-card__header">
+        <div class="avisos-card__icon">
+          <i class="fa-solid fa-bell"></i>
+        </div>
+
+        <div>
+          <h2>Nuevo Mensaje</h2>
+          <p>Envía comunicados a hermanos concretos, grupos o a todos los hermanos.</p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label>Destinatarios</label>
+          <select [(ngModel)]="tipoDestinatario">
+            <option value="TODOS">Todos los hermanos</option>
+            <option value="HERMANO">Hermano concreto</option>
+            <option value="GRUPO">Grupo de hermanos</option>
+          </select>
+        </div>
+
+        <div class="form-group" *ngIf="tipoDestinatario === 'HERMANO'">
+          <label>Buscar hermano</label>
+          <input
+            type="text"
+            [(ngModel)]="busquedaAviso"
+            (input)="onBusquedaAvisoChange(busquedaAviso)"
+            placeholder="Nombre, apellidos, NIF o email"
+          >
+
+          <div class="seleccion-resumen" *ngIf="hermanoAvisoSeleccionado">
+            <span class="seleccion-resumen__label">Seleccionado:</span>
+            <div class="seleccion-resumen__chip">
+              <span>{{ formatoHermano(hermanoAvisoSeleccionado) }}</span>
+              <button type="button" (click)="limpiarHermanoAviso()">Quitar</button>
+            </div>
+          </div>
+
+          <div class="busqueda-estado" *ngIf="buscandoAviso">Buscando...</div>
+
+          <div class="busqueda-resultados" *ngIf="busquedaAviso.trim().length >= 2">
+            <button
+              type="button"
+              class="busqueda-item"
+              *ngFor="let hermano of resultadosBusquedaAviso"
+              (click)="seleccionarHermanoAviso(hermano)"
+            >
+              <span class="busqueda-item__nombre">{{ formatoHermano(hermano) }}</span>
+              <span class="busqueda-item__meta">{{ hermano.email ?? 'Sin email' }}</span>
+            </button>
+
+            <div class="busqueda-vacia" *ngIf="!buscandoAviso && resultadosBusquedaAviso.length === 0">
+              No hay resultados para esa búsqueda.
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group" *ngIf="tipoDestinatario === 'GRUPO'">
+          <label>Seleccionar grupo</label>
+          <select [(ngModel)]="idGrupoSeleccionado">
+            <option [ngValue]="null">Selecciona un grupo</option>
+            <option *ngFor="let grupo of gruposResumen" [ngValue]="grupo.idGrupo">
+              {{ grupo.nombre }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group form-group--full">
+          <label>Asunto</label>
+          <input type="text" [(ngModel)]="asuntoAviso" placeholder="Asunto del mensaje...">
+        </div>
+
+        <div class="form-group form-group--full">
+          <label>Mensaje</label>
+          <textarea rows="8" [(ngModel)]="mensajeAviso" placeholder="Escribe tu mensaje aquí..."></textarea>
+        </div>
+
+      </div>
+
+      <div class="avisos-actions">
+        <button type="button" class="btn-secundario" (click)="limpiarFormularioAviso()">
+          Limpiar
+        </button>
+
+        <button type="button" class="btn-principal" (click)="enviarAviso()" [disabled]="enviandoAviso">
+          <i class="fa-solid fa-paper-plane"></i>
+          {{ enviandoAviso ? 'Enviando...' : 'Enviar correo' }}
+        </button>
+      </div>
+
+    </div>
+
+    <aside class="grupos-card">
+
+      <div class="grupos-card__header">
+        <div>
+          <h2>Grupos</h2>
+        </div>
+
+        <button type="button" class="btn-crear-grupo" (click)="mostrarCrearGrupo = !mostrarCrearGrupo">
+          <i class="fa-solid fa-plus"></i>
+        </button>
+      </div>
+
+      <div class="grupo-editor" *ngIf="grupoEditando as grupo">
+        <div class="grupo-editor__header">
+          <div>
+            <p class="grupo-editor__eyebrow">Grupo seleccionado</p>
+            <h3>{{ grupo.nombre }}</h3>
+          </div>
+
+          <button type="button" class="btn-enlace" (click)="cancelarEdicionGrupo()">
+            Cerrar
+          </button>
+        </div>
+
+        <div class="grupo-editor__field">
+          <label>Nombre del grupo</label>
+          <input type="text" [(ngModel)]="nombreGrupoEditando" placeholder="Nombre del grupo">
+        </div>
+
+        <div class="grupo-editor__field">
+          <label>Hermanos seleccionados</label>
+          <div class="seleccion-lista" *ngIf="hermanosGrupoSeleccionados.length > 0; else sinSeleccionados">
+            <div class="seleccion-lista__item" *ngFor="let hermano of hermanosGrupoSeleccionados">
+              <span>{{ formatoHermano(hermano) }}</span>
+              <button type="button" (click)="quitarHermanoSeleccionado(hermano)">Quitar</button>
+            </div>
+          </div>
+          <ng-template #sinSeleccionados>
+            <div class="sin-hermanos">Todavía no hay hermanos asignados.</div>
+          </ng-template>
+        </div>
+
+        <div class="grupo-editor__field">
+          <label>Buscar hermanos para asignar</label>
+          <input
+            type="text"
+            [(ngModel)]="busquedaGrupo"
+            (input)="onBusquedaGrupoChange(busquedaGrupo)"
+            placeholder="Nombre, apellidos, NIF o email"
+          >
+
+          <div class="busqueda-estado" *ngIf="buscandoGrupo">Buscando...</div>
+
+          <div class="busqueda-resultados" *ngIf="busquedaGrupo.trim().length >= 2">
+            <button
+              type="button"
+              class="busqueda-item"
+              *ngFor="let hermano of resultadosBusquedaGrupo"
+              (click)="seleccionarGrupoHermanos(hermano)"
+            >
+              <span class="busqueda-item__nombre">{{ formatoHermano(hermano) }}</span>
+              <span class="busqueda-item__meta">{{ hermano.email ?? 'Sin email' }}</span>
+            </button>
+
+            <div class="busqueda-vacia" *ngIf="!buscandoGrupo && resultadosBusquedaGrupo.length === 0">
+              No hay resultados para esa búsqueda.
+            </div>
+          </div>
+        </div>
+
+        <div class="grupo-editor__actions">
+          <button type="button" class="btn-secundario" (click)="cancelarEdicionGrupo()">Cancelar</button>
+          <button type="button" class="btn-principal" (click)="guardarGrupoEditado()" [disabled]="guardandoGrupoEditado">
+            {{ guardandoGrupoEditado ? 'Guardando...' : 'Guardar grupo' }}
+          </button>
+        </div>
+
+        <div class="grupo-editor__actions grupo-editor__actions--compact">
+          <button type="button" class="btn-principal" (click)="guardarMiembrosGrupo()" [disabled]="guardandoMiembrosGrupo">
+            {{ guardandoMiembrosGrupo ? 'Actualizando...' : 'Guardar hermanos' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="crear-grupo" *ngIf="mostrarCrearGrupo">
+        <label>Nuevo grupo</label>
+
+        <div class="crear-grupo__row">
+          <input
+            type="text"
+            [(ngModel)]="nombreNuevoGrupo"
+            placeholder="Ej: Costaleros"
+            (keyup.enter)="crearGrupo()"
+          >
+
+          <button type="button" (click)="crearGrupo()" [disabled]="creandoGrupo">
+            {{ creandoGrupo ? 'Creando...' : 'Crear' }}
+          </button>
+        </div>
+
+        <p class="grupo-error" *ngIf="errorGrupo">
+          {{ errorGrupo }}
+        </p>
+      </div>
+
+      <div class="grupos-listado" *ngIf="gruposResumen.length > 0; else sinGruposDerecha">
+        <div class="grupo-item" *ngFor="let grupo of gruposResumen">
+
+          <div class="grupo-item__icon">
+            <i class="fa-solid fa-users"></i>
+          </div>
+
+          <div class="grupo-item__content">
+            <h3>{{ grupo.nombre }}</h3>
+            <p>
+              {{ grupo.numeroMiembros }}
+              {{ grupo.numeroMiembros === 1 ? 'hermano' : 'hermanos' }}
+            </p>
+          </div>
+
+          <button type="button" class="grupo-item__edit" (click)="abrirEdicionGrupo(grupo)">
+            Editar
+          </button>
+
+        </div>
+      </div>
+
+      <ng-template #sinGruposDerecha>
+        <div class="sin-grupos">
+          <i class="fa-solid fa-circle-info"></i>
+          <p>No hay grupos creados todavía.</p>
+        </div>
+      </ng-template>
+
+    </aside>
+
+  </div>
+
+</section>

@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 public class HermanoDto {
 
+    private Integer id;
     private Integer idHermandad;
     private Integer numeroHermano;
     private String nif;
@@ -32,6 +33,8 @@ public class HermanoDto {
     private String tutorLegal;
     private Boolean deleted;
 
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
     public Integer getIdHermandad() { return idHermandad; }
     public void setIdHermandad(Integer idHermandad) { this.idHermandad = idHermandad; }
     public Integer getNumeroHermano() { return numeroHermano; }

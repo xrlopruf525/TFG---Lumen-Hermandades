@@ -1,9 +1,20 @@
 package es.lumen.lumen_backend.modules.hermano.entity;
 
-import es.lumen.lumen_backend.modules.hermano.dto.HermanoDto;
-import jakarta.persistence.*;
-
 import java.time.LocalDate;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import es.lumen.lumen_backend.modules.hermano.dto.HermanoRequest;
+import es.lumen.lumen_backend.modules.usuario.entity.Usuario;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "hermano")
@@ -95,11 +106,16 @@ public class Hermano {
     @Column(name = "deleted", nullable = false)
     private Boolean deleted = false;
 
+    @JsonIgnore
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "id_usuario", referencedColumnName = "id", unique = true)
+    private Usuario usuario;
+
     public Hermano() {
     }
 
-    public Hermano(HermanoDto dto) {
-        actualizarDesdeDto(dto);
+    public Hermano(HermanoRequest request) {
+        actualizarDesdeRequest(request);
         if (this.fechaAlta == null) {
             this.fechaAlta = LocalDate.now();
         }
@@ -111,34 +127,34 @@ public class Hermano {
         }
     }
 
-    public void actualizarDesdeDto(HermanoDto dto) {
-        this.idHermandad = dto.getIdHermandad();
-        this.numeroHermano = dto.getNumeroHermano();
-        this.nif = dto.getNif();
-        this.nombre = dto.getNombre();
-        this.primerApellido = dto.getPrimerApellido();
-        this.segundoApellido = dto.getSegundoApellido();
-        this.fechaNacimiento = dto.getFechaNacimiento();
-        this.direccion = dto.getDireccion();
-        this.numero = dto.getNumero();
-        this.pisoPuerta = dto.getPisoPuerta();
-        this.codigoPostal = dto.getCodigoPostal();
-        this.poblacion = dto.getPoblacion();
-        this.provincia = dto.getProvincia();
-        this.pais = dto.getPais();
-        this.telefonoMovil = dto.getTelefonoMovil();
-        this.telefonoFijo = dto.getTelefonoFijo();
-        this.email = dto.getEmail();
-        this.fechaAlta = dto.getFechaAlta() != null ? dto.getFechaAlta() : this.fechaAlta;
-        this.fechaBaja = dto.getFechaBaja();
-        this.estado = dto.getEstado();
-        this.formaPago = dto.getFormaPago();
-        this.iban = dto.getIban();
-        this.titularCuenta = dto.getTitularCuenta();
-        this.enCuotas = dto.getEnCuotas();
-        this.observaciones = dto.getObservaciones();
-        this.tutorLegal = dto.getTutorLegal();
-        this.deleted = dto.getDeleted() != null ? dto.getDeleted() : Boolean.FALSE;
+    public void actualizarDesdeRequest(HermanoRequest request) {
+        this.idHermandad = request.getIdHermandad();
+        this.numeroHermano = request.getNumeroHermano();
+        this.nif = request.getNif();
+        this.nombre = request.getNombre();
+        this.primerApellido = request.getPrimerApellido();
+        this.segundoApellido = request.getSegundoApellido();
+        this.fechaNacimiento = request.getFechaNacimiento();
+        this.direccion = request.getDireccion();
+        this.numero = request.getNumero();
+        this.pisoPuerta = request.getPisoPuerta();
+        this.codigoPostal = request.getCodigoPostal();
+        this.poblacion = request.getPoblacion();
+        this.provincia = request.getProvincia();
+        this.pais = request.getPais();
+        this.telefonoMovil = request.getTelefonoMovil();
+        this.telefonoFijo = request.getTelefonoFijo();
+        this.email = request.getEmail();
+        this.fechaAlta = request.getFechaAlta() != null ? request.getFechaAlta() : this.fechaAlta;
+        this.fechaBaja = request.getFechaBaja();
+        this.estado = request.getEstado();
+        this.formaPago = request.getFormaPago();
+        this.iban = request.getIban();
+        this.titularCuenta = request.getTitularCuenta();
+        this.enCuotas = request.getEnCuotas();
+        this.observaciones = request.getObservaciones();
+        this.tutorLegal = request.getTutorLegal();
+        this.deleted = Boolean.FALSE;
     }
 
     public Integer getId() { return id; }
@@ -197,4 +213,6 @@ public class Hermano {
     public void setTutorLegal(String tutorLegal) { this.tutorLegal = tutorLegal; }
     public Boolean getDeleted() { return deleted; }
     public void setDeleted(Boolean deleted) { this.deleted = deleted; }
+    public Usuario getUsuario() { return usuario; }
+    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
 }
