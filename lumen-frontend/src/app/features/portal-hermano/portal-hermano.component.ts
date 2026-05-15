@@ -47,8 +47,11 @@ export class PortalHermanoComponent implements OnInit {
     return '15/05/2026';
   }
 
-  get grupo(): string {
-    return 'Pendiente de asignación';
+  get gruposAsignados(): string {
+    if (!this.profile?.grupos || this.profile.grupos.length === 0) {
+      return 'Pendiente de asignación';
+    }
+    return this.profile.grupos.map(g => g.nombre).join(', ');
   }
 
   retry(): void {

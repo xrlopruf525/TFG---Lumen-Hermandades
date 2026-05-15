@@ -3,12 +3,18 @@ package es.lumen.lumen_backend.modules.hermano.service.impl;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.lumen.lumen_backend.common.exception.ResourceNotFoundException;
+import es.lumen.lumen_backend.modules.cuota.dto.CuotaResumenDto;
+import es.lumen.lumen_backend.modules.cuota.entity.Cuota;
+import es.lumen.lumen_backend.modules.cuota.repositories.CuotaRepository;
+import es.lumen.lumen_backend.modules.grupo.dto.GrupoResumenDto;
+import es.lumen.lumen_backend.modules.grupo.repository.GrupoRepository;
 import es.lumen.lumen_backend.modules.hermano.dto.HermanoDto;
 import es.lumen.lumen_backend.modules.hermano.dto.HermanoRequest;
 import es.lumen.lumen_backend.modules.hermano.dto.ImportarHermanosResponse;
@@ -16,6 +22,8 @@ import es.lumen.lumen_backend.modules.hermano.dto.PortalHermanoDto;
 import es.lumen.lumen_backend.modules.hermano.entity.Hermano;
 import es.lumen.lumen_backend.modules.hermano.repository.HermanoRepository;
 import es.lumen.lumen_backend.modules.hermano.service.HermanoService;
+import es.lumen.lumen_backend.modules.relaciones.entity.HermanoGrupo;
+import es.lumen.lumen_backend.modules.relaciones.repository.HermanoGrupoRepository;
 import es.lumen.lumen_backend.modules.rol.entity.Rol;
 import es.lumen.lumen_backend.modules.rol.repository.RolRepository;
 import es.lumen.lumen_backend.modules.usuario.entity.Usuario;
@@ -33,19 +41,25 @@ public class HermanoServiceImpl implements HermanoService {
     private final PasswordEncoder passwordEncoder;
     private final RolRepository rolRepository;
     private final UsuarioRolRepository usuarioRolRepository;
+    private final HermanoGrupoRepository hermanoGrupoRepository;
+    private final GrupoRepository grupoRepository;
 
     public HermanoServiceImpl(
             HermanoRepository hermanoRepository,
             UsuarioRepository usuarioRepository,
             PasswordEncoder passwordEncoder,
             RolRepository rolRepository,
-            UsuarioRolRepository usuarioRolRepository
+            UsuarioRolRepository usuarioRolRepository,
+            HermanoGrupoRepository hermanoGrupoRepository,
+            GrupoRepository grupoRepository
     ) {
         this.hermanoRepository = hermanoRepository;
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.rolRepository = rolRepository;
         this.usuarioRolRepository = usuarioRolRepository;
+        this.hermanoGrupoRepository = hermanoGrupoRepository;
+        this.grupoRepository = grupoRepository;
     }
 
     @Override
@@ -151,6 +165,19 @@ public class HermanoServiceImpl implements HermanoService {
                 valor(hermano.getProvincia()),
                 valor(hermano.getPais())).trim().replaceAll(" +", " ");
 
+        // Obtener los grupos del hermano
+        List<HermanoGrupo> relacionesGrupos = hermanoGrupoRepository.findByIdIdHermanoAndDeletedFalse(hermano.getId());
+        List<GrupoResumenDto> grupos = relacionesGrupos.stream()
+                .map(hg -> grupoRepository.findById(hg.getId().getIdGrupo())
+                        .map(grupo -> new GrupoResumenDto(
+                                grupo.getId(),
+                                grupo.getNombre(),
+                                hermanoGrupoRepository.countByIdIdGrupoAndDeletedFalse(grupo.getId())
+                        ))
+                        .orElse(null))
+                .filter(g -> g != null)
+                .collect(Collectors.toList());
+
         return new PortalHermanoDto(
                 hermano.getId(),
                 (hermano.getNombre() + " " + apellidos).trim(),
@@ -160,7 +187,8 @@ public class HermanoServiceImpl implements HermanoService {
                 direccionCompleta,
                 hermano.getNif(),
                 hermano.getFechaAlta(),
-                hermano.getEstado()
+                hermano.getEstado(),
+                grupos
         );
     }
 

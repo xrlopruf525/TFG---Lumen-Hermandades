@@ -22,6 +22,7 @@ export interface PortalHermanoProfile {
   nif: string | null;
   fechaAlta: string | Date | null;
   estado: string | null;
+  grupos: Array<{ idGrupo: number; nombre: string; numeroMiembros: number }> | null;
 }
 
 @Injectable({
@@ -154,7 +155,8 @@ export class HermanoService {
       direccionCompleta: row.direccionCompleta ? String(row.direccionCompleta) : null,
       nif: row.nif ? String(row.nif) : null,
       fechaAlta: row.fechaAlta ?? null,
-      estado: row.estado ? String(row.estado) : null
+      estado: row.estado ? String(row.estado) : null,
+      grupos: row.grupos ?? null
     };
   }
 

@@ -16,4 +16,6 @@ public interface HermanoGrupoRepository extends JpaRepository<HermanoGrupo, Herm
     Optional<HermanoGrupo> findByIdIdHermanoAndIdIdGrupo(Integer idHermano, Integer idGrupo);
 
     long countByIdIdGrupoAndDeletedFalse(Integer idGrupo);
+
+    List<HermanoGrupo> findByIdIdHermanoAndDeletedFalse(Integer idHermano);
 }
