@@ -1,6 +1,296 @@
 @import 'bootstrap/dist/css/bootstrap.min.css';
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 
+:root {
+	--bg-page: #f5f1ea;
+	--bg-page-alt: #ebe3d8;
+	--surface-1: rgba(255, 255, 255, 0.92);
+	--surface-2: rgba(248, 243, 235, 0.94);
+	--surface-border: rgba(92, 63, 56, 0.12);
+
+	--primary-1: #9B1EB9;
+	--primary-2: #7a1a9a;
+	--accent-1: #b38a3d;
+	--accent-2: #d4b15f;
+	--neutral-1: #1f2937;
+	--neutral-2: #475569;
+
+	--text-main: #21171b;
+	--text-soft: #4b3f42;
+	--text-muted: #6f6466;
+
+	--success-1: #166534;
+	--warning-1: #a16207;
+	--danger-1: #b42318;
+
+	--radius-sm: 10px;
+	--radius-lg: 16px;
+	--radius-xl: 24px;
+	--shadow-soft: 0 16px 40px rgba(68, 41, 33, 0.1);
+	--shadow-lift: 0 20px 50px rgba(68, 41, 33, 0.16);
+
+	--transition-fast: 0.2s ease;
+	--transition-medium: 0.3s ease;
+	--content-max-width: 1440px;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	min-height: 100%;
+}
+
 body {
 	margin: 0;
+	color: var(--text-main);
+	background:
+		radial-gradient(64rem 42rem at 105% -15%, rgba(180, 145, 76, 0.18), transparent 54%),
+		radial-gradient(58rem 38rem at -8% 110%, rgba(90, 19, 35, 0.1), transparent 58%),
+		linear-gradient(180deg, var(--bg-page) 0%, var(--bg-page-alt) 100%);
+	font-family: 'Segoe UI', 'Inter', 'Georgia', serif;
+	line-height: 1.45;
+	text-rendering: optimizeLegibility;
+}
+
+a {
+	color: var(--primary-1);
+}
+
+img,
+svg {
+	max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+	font: inherit;
+}
+
+button {
+	cursor: pointer;
+}
+
+::selection {
+	background: rgba(90, 19, 35, 0.18);
+	color: var(--text-main);
+}
+
+.content-area {
+	animation: page-fade-in 0.35s ease;
+}
+
+@keyframes page-fade-in {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.card,
+.mat-mdc-card,
+.glass-card {
+	background: linear-gradient(180deg, var(--surface-1), var(--surface-2));
+	border: 1px solid var(--surface-border);
+	border-radius: var(--radius-lg);
+	box-shadow: var(--shadow-soft);
+	backdrop-filter: blur(16px);
+	-webkit-backdrop-filter: blur(16px);
+	color: var(--text-main);
+	transition: transform var(--transition-medium), box-shadow var(--transition-medium), border-color var(--transition-medium);
+}
+
+.card:hover,
+.mat-mdc-card:hover,
+.glass-card:hover {
+	transform: translateY(-4px);
+	box-shadow: var(--shadow-lift);
+	border-color: rgba(124, 58, 237, 0.42);
+}
+
+.btn,
+button,
+[type='button'],
+[type='submit'] {
+	border-radius: 12px;
+	transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.btn:hover,
+button:hover,
+[type='button']:hover,
+[type='submit']:hover {
+	transform: translateY(-2px);
+}
+
+.btn-primary,
+.btn-success,
+.btn-outline-light:hover {
+	background: linear-gradient(130deg, var(--primary-1), var(--primary-2));
+	border-color: rgba(124, 58, 237, 0.5);
+	color: #fffaf6;
+	box-shadow: 0 12px 24px rgba(90, 19, 35, 0.22);
+}
+
+.btn-warning,
+.btn-accent {
+	background: linear-gradient(130deg, var(--accent-1), var(--accent-2));
+	color: #2b1f15;
+	border: 1px solid rgba(180, 145, 76, 0.48);
+	box-shadow: 0 12px 24px rgba(180, 145, 76, 0.22);
+}
+
+.btn-outline-light,
+.btn-light {
+	background: rgba(255, 255, 255, 0.72);
+	border: 1px solid rgba(92, 63, 56, 0.16);
+	color: var(--text-main);
+}
+
+.btn:focus,
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: none;
+	box-shadow: 0 0 0 4px rgba(90, 19, 35, 0.14);
+}
+
+.form-control,
+input,
+select,
+textarea,
+.mat-mdc-text-field-wrapper {
+	background: rgba(255, 255, 255, 0.9);
+	border: 1px solid rgba(92, 63, 56, 0.18);
+	color: var(--text-main);
+	border-radius: 14px;
+}
+
+.form-control::placeholder,
+input::placeholder,
+textarea::placeholder {
+	color: var(--text-muted);
+}
+
+.form-control:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	border-color: rgba(90, 19, 35, 0.62);
+	box-shadow: 0 0 0 4px rgba(90, 19, 35, 0.14);
+}
+
+.table {
+	background: rgba(255, 255, 255, 0.84);
+	border: 1px solid var(--surface-border);
+	border-radius: var(--radius-lg);
+	overflow: hidden;
+	color: var(--text-main);
+}
+
+.table thead th {
+	background: rgba(90, 19, 35, 0.96);
+	color: #fff7f2;
+	border-bottom: 1px solid rgba(92, 63, 56, 0.2);
+}
+
+.table tbody tr {
+	transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.table tbody tr:hover {
+	background: rgba(90, 19, 35, 0.06);
+}
+
+.table td,
+.table th {
+	border-color: rgba(92, 63, 56, 0.14);
+}
+
+.modal-backdrop.show {
+	backdrop-filter: blur(7px);
+	-webkit-backdrop-filter: blur(7px);
+	background-color: rgba(31, 23, 27, 0.52);
+}
+
+.modal-content {
+	background: linear-gradient(150deg, rgba(255, 255, 255, 0.96), rgba(248, 243, 235, 0.96));
+	border: 1px solid var(--surface-border);
+	border-radius: var(--radius-lg);
+	color: var(--text-main);
+}
+
+.surface-panel {
+	background: linear-gradient(150deg, var(--surface-1), var(--surface-2));
+	border: 1px solid var(--surface-border);
+	border-radius: var(--radius-lg);
+	backdrop-filter: blur(14px);
+	-webkit-backdrop-filter: blur(14px);
+	box-shadow: var(--shadow-soft);
+}
+
+.app-shell,
+.content-area,
+.app-layout__content {
+	background: transparent;
+}
+
+.page-section,
+.section-card,
+.panel,
+.surface-card {
+	background: rgba(255, 255, 255, 0.86);
+	border: 1px solid var(--surface-border);
+	border-radius: var(--radius-lg);
+	box-shadow: var(--shadow-soft);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+}
+
+.app-layout__content {
+	width: 100%;
+	max-width: none;
+	margin-inline: 0;
+}
+
+.icon-button,
+.pill,
+.badge,
+.soft-tag {
+	border-radius: 999px;
+}
+
+.text-danger {
+	color: var(--danger-1) !important;
+}
+
+.text-success {
+	color: var(--success-1) !important;
+}
+
+.text-warning {
+	color: var(--warning-1) !important;
+}
+
+@media (max-width: 992px) {
+	.card,
+	.mat-mdc-card,
+	.glass-card {
+		border-radius: 16px;
+	}
+
+	body {
+		background:
+			radial-gradient(56rem 34rem at 105% -15%, rgba(180, 145, 76, 0.16), transparent 54%),
+			linear-gradient(180deg, var(--bg-page) 0%, #f1ebe1 100%);
+	}
 }

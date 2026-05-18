@@ -3,6 +3,6 @@ export interface Hermano {
   nombre: string;
   apellidos: string;
   email: string;
-  numeroHermano: number;
-  fechaAlta: string;
+  numeroHermano: string;
+  fechaAlta: string | Date;
 }

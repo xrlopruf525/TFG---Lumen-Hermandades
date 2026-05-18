@@ -1,0 +1,189 @@
+<!-- CONTENEDOR PRINCIPAL -->
+<div class="patrimonio-container">
+  
+  <!-- CABECERA -->
+  <div class="patrimonio-header">
+    <h1 class="patrimonio-title">
+      <i class="fa-solid fa-landmark title-icon"></i>
+      Armario Virtual
+    </h1>
+    <p class="patrimonio-subtitle">Gestión del patrimonio de la hermandad</p>
+  </div>
+
+  <!-- MENSAJE DE ERROR -->
+  <div class="patrimonio-alert" *ngIf="errorMessage" role="alert">
+    {{ errorMessage }}
+  </div>
+
+  <!-- LOADER -->
+  <div class="patrimonio-loading" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Cargando patrimonio...</p>
+  </div>
+
+  <ng-container *ngIf="!loading">
+    
+    <!-- STATS CARDS -->
+    <div class="stats-grid">
+      
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-blue">
+          <i class="fa-solid fa-box"></i>
+        </div>
+        <div class="stat-content">
+          <p class="stat-number">{{ stats.totalEnseres }}</p>
+          <p class="stat-label">Total Enseres</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-green">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <div class="stat-content">
+          <p class="stat-number">{{ stats.estadoExcelente }}</p>
+          <p class="stat-label">Estado Excelente</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-purple">
+          <i class="fa-solid fa-money-bill"></i>
+        </div>
+        <div class="stat-content">
+          <p class="stat-number">{{ formatCurrency(stats.valorTotalPatrimonio) }}</p>
+          <p class="stat-label">Valor total</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-orange">
+          <i class="fa-solid fa-route"></i>
+        </div>
+        <div class="stat-content">
+          <p class="stat-number">{{ stats.pasos }}</p>
+          <p class="stat-label">Pasos</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="filters-section">
+      <div class="filters-container">
+        
+        <!-- Búsqueda -->
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input 
+            type="text"
+            class="search-input"
+            placeholder="Buscar patrimonio..."
+            [(ngModel)]="searchTerm"
+          >
+        </div>
+
+        <!-- Categorías -->
+        <select 
+          class="category-select"
+          [(ngModel)]="selectedCategoria"
+        >
+          <option value="">Todas las categorías</option>
+          <option *ngFor="let cat of categorias" [value]="cat.nombre">
+            {{ cat.nombre }}
+          </option>
+        </select>
+
+        <!-- Botón -->
+        <button 
+          class="btn-nuevo-enser"
+          (click)="onNuevoEnser()"
+        >
+          <i class="fa-solid fa-plus btn-icon"></i>
+          Nuevo Enser
+        </button>
+      </div>
+    </div>
+
+    <!-- GRID -->
+    <div class="patrimonio-grid">
+      
+      <div 
+        *ngFor="let patrimonio of patrimoniosFiltrados"
+        class="patrimonio-card"
+        [ngClass]="'patrimonio-card--' + patrimonio.estado"
+        (click)="onVerDetalle(patrimonio)"
+      >
+        
+        <!-- Imagen -->
+        <div class="card-image-wrapper">
+          <div class="card-image">
+            <ng-container *ngIf="getPatrimonioImage(patrimonio) as imageSrc; else iconFallback">
+              <img
+                class="card-image__img"
+                [src]="imageSrc"
+                [alt]="patrimonio.nombre"
+                loading="lazy"
+                decoding="async"
+              >
+              <div class="card-image__overlay"></div>
+            </ng-container>
+
+            <ng-template #iconFallback>
+              <i class="fa-solid card-image__icon" [ngClass]="getIconClass(patrimonio.categoria)"></i>
+            </ng-template>
+          </div>
+
+          <div class="badge" [ngClass]="getEstadoBadgeClass(patrimonio.estado)">
+            {{ getEstadoLabel(patrimonio.estado) }}
+          </div>
+        </div>
+
+        <!-- CONTENIDO -->
+        <div class="card-content">
+          
+          <h3 class="card-title">{{ patrimonio.nombre }}</h3>
+
+          <p class="card-description">
+            {{ patrimonio.descripcion || 'Sin descripción disponible' }}
+          </p>
+
+          <div class="card-location" *ngIf="patrimonio.ubicacion">
+            <i class="fa-solid fa-location-dot location-icon"></i>
+            <span class="location-text">{{ patrimonio.ubicacion }}</span>
+          </div>
+
+          <div class="card-divider"></div>
+
+          <div class="card-footer">
+            
+            <div class="card-estado">
+              <span class="estado-label">Estado</span>
+              <span class="estado-chip" [ngClass]="getEstadoChipClass(patrimonio.estado)">
+                {{ getEstadoLabel(patrimonio.estado) }}
+              </span>
+            </div>
+
+            <div class="card-precio">
+              <span class="precio-label">Valor:</span>
+              <span class="precio-valor">
+                {{ formatCurrency(patrimonio.valorEstimado) }}
+              </span>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- EMPTY -->
+      <div class="empty-state" *ngIf="patrimoniosFiltrados.length === 0 && !loading">
+        <i class="fa-solid fa-inbox empty-icon"></i>
+        <h4>No hay patrimonio que mostrar</h4>
+        <p>Intenta cambiar los filtros o crea un nuevo enser</p>
+      </div>
+
+    </div>
+
+  </ng-container>
+
+</div>

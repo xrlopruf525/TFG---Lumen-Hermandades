@@ -1,0 +1,152 @@
+<section class="censo-list">
+  <header class="censo-list__header">
+    <div>
+      <h2>Censo de Hermanos</h2>
+      <p>Vista de Junta de Gobierno con paginacion y filtros backend</p>
+    </div>
+    <div class="censo-list__header-actions">
+      <input
+        #excelImportInput
+        type="file"
+        accept=".xlsx,.xls"
+        class="file-input-hidden"
+        (change)="onImportFileSelected($event)"
+      >
+
+      <button type="button" class="secondary-btn" (click)="descargarPlantillaExcel()">
+        Descargar plantilla
+      </button>
+
+      <button type="button" class="secondary-btn" [disabled]="importandoExcel" (click)="abrirSelectorImportacion(excelImportInput)">
+        {{ importandoExcel ? 'Importando...' : 'Importar Excel' }}
+      </button>
+
+      <button type="button" class="primary-btn" (click)="openCreateForm()">
+        + Nuevo hermano
+      </button>
+    </div>
+  </header>
+
+  <app-censo-form
+    *ngIf="formVisible"
+    [initialData]="editingHermano"
+    [submitting]="saving"
+    (save)="saveHermano($event)"
+    (cancel)="closeForm()"
+  ></app-censo-form>
+
+  <div class="censo-list__controls">
+    <label>
+      Buscar por nombre, apellidos o DNI
+      <input
+        id="searchInput"
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange()"
+        placeholder="Ej: Juan Garcia o 12345678Z"
+        autocomplete="off"
+      >
+    </label>
+
+    <label>
+      Estado
+      <select [(ngModel)]="estadoFiltro" (change)="onEstadoChange()">
+        <option *ngFor="let option of estadoOptions" [ngValue]="option.value">{{ option.label }}</option>
+      </select>
+    </label>
+
+    <label>
+      Registros por pagina
+      <select [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+        <option *ngFor="let size of pageSizeOptions" [ngValue]="size">{{ size }}</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="table-wrapper" *ngIf="!loading; else loadingState">
+    <table>
+      <thead>
+        <tr>
+          <th>
+            <button type="button" (click)="sortBy('nombre')">Nombre {{ getSortIcon('nombre') }}</button>
+          </th>
+          <th>
+            <button type="button" (click)="sortBy('primerApellido')">Apellidos {{ getSortIcon('primerApellido') }}</button>
+          </th>
+          <th>
+            <button type="button" (click)="sortBy('nif')">DNI {{ getSortIcon('nif') }}</button>
+          </th>
+          <th>
+            <button type="button" (click)="sortBy('telefonoMovil')">Móvil {{ getSortIcon('telefonoMovil') }}</button>
+          </th>
+          <th>
+            <button type="button" (click)="sortBy('email')">Email {{ getSortIcon('email') }}</button>
+          </th>
+          <th>
+            <button type="button" (click)="sortBy('numeroHermano')">Número {{ getSortIcon('numeroHermano') }}</button>
+          </th>
+          <th>
+            <button type="button" (click)="sortBy('estado')">Estado {{ getSortIcon('estado') }}</button>
+          </th>
+          <th class="actions-col">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let hermano of hermanos; trackBy: trackByHermanoId">
+          <td>{{ hermano.nombre || '-' }}</td>
+          <td>{{ formatApellidos(hermano) }}</td>
+          <td>{{ hermano.nif || '-' }}</td>
+          <td>{{ hermano.telefonoMovil || '-' }}</td>
+          <td>{{ hermano.email || '-' }}</td>
+          <td>{{ hermano.numeroHermano || '-' }}</td>
+          <td>
+            <span class="status-pill" [ngClass]="getStatusClass(hermano.estado)">
+              {{ hermano.estado || 'SIN ESTADO' }}
+            </span>
+          </td>
+          <td class="actions-col">
+            <button type="button" class="action-btn" (click)="openEditForm(hermano)">Editar</button>
+            <button
+              type="button"
+              class="action-btn action-btn--danger"
+              [disabled]="deletingId === hermano.id"
+              (click)="deleteHermano(hermano)"
+            >
+              {{ deletingId === hermano.id ? 'Eliminando...' : 'Eliminar' }}
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="hermanos.length === 0">
+          <td colspan="8" class="empty-state">No hay registros para mostrar.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer class="pagination" *ngIf="!loading && total > 0">
+    <span>
+      Mostrando {{ (page - 1) * pageSize + 1 }} - {{ ((page - 1) * pageSize) + hermanos.length }} de {{ total }}
+    </span>
+
+    <div class="pagination__controls">
+      <button type="button" class="action-btn" (click)="previousPage()" [disabled]="page <= 1">Anterior</button>
+      <button
+        type="button"
+        class="action-btn"
+        *ngFor="let pageItem of pageNumbers"
+        [class.action-btn--active]="pageItem === page"
+        (click)="goToPage(pageItem)"
+      >
+        {{ pageItem }}
+      </button>
+      <button type="button" class="action-btn" (click)="nextPage()" [disabled]="page >= totalPages">Siguiente</button>
+    </div>
+  </footer>
+
+  <ng-template #loadingState>
+    <div class="message">Cargando censo...</div>
+  </ng-template>
+
+  <p class="message message--error" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p class="message message--success" *ngIf="importacionMensaje">{{ importacionMensaje }}</p>
+</section>

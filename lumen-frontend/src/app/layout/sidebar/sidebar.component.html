@@ -1,19 +1,81 @@
-<aside class="sidebar d-flex flex-column p-3">
-  <h5 class="text-white mb-4">Lumen Hermandades</h5>
+<button class="mobile-menu-trigger" type="button" (click)="toggleSidebar()" aria-label="Abrir menu">
+  <span></span>
+  <span></span>
+  <span></span>
+</button>
 
-  <a routerLink="/inicio" routerLinkActive="active-link" class="btn btn-light btn-lg w-100 text-start mb-3">
-    Inicio
-  </a>
+<div class="sidebar-backdrop" [class.is-visible]="isMobileOpen" (click)="closeMobileSidebar()"></div>
 
-  <a
-    *ngIf="esAdmin"
-    routerLink="/hermanos"
-    routerLinkActive="active-link"
-    class="btn btn-light btn-lg w-100 text-start mb-3">
-    Hermanos
-  </a>
+<aside class="sidebar">
+  <div class="sidebar__header">
+    <div class="sidebar__brand">
+      <div class="brand-badge">L</div>
+      <div class="brand-text">
+        <h5>Lumen Hermandades</h5>
+        <p>Panel privado</p>
+      </div>
+    </div>
 
-  <a routerLink="/calendario" routerLinkActive="active-link" class="btn btn-light btn-lg w-100 text-start">
-    Calendario
-  </a>
+    <button class="collapse-btn" type="button" (click)="toggleSidebar()" aria-label="Alternar sidebar">
+        <i class="fa-solid fa-angles-left" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  <nav class="sidebar__nav" aria-label="Navegacion principal">
+    <a *ngIf="isAdmin" routerLink="/dashboard" routerLinkActive="active-link" class="nav-link-item" (click)="onNavigate()">
+      <span class="nav-icon" aria-hidden="true">
+        <i class="fa-solid fa-gauge-high"></i>
+      </span>
+      <span class="nav-label">Dashboard</span>
+    </a>
+
+    <a *ngIf="isAdmin" routerLink="/censo" routerLinkActive="active-link" class="nav-link-item" (click)="onNavigate()">
+      <span class="nav-icon" aria-hidden="true">
+        <i class="fa-solid fa-users"></i>
+      </span>
+      <span class="nav-label">Censo</span>
+    </a>
+
+    <a *ngIf="isAdmin" routerLink="/eventos" routerLinkActive="active-link" class="nav-link-item" (click)="onNavigate()">
+      <span class="nav-icon" aria-hidden="true">
+        <i class="fa-solid fa-calendar-days"></i>
+      </span>
+      <span class="nav-label">Eventos</span>
+    </a>
+
+    <a *ngIf="isAdmin" routerLink="/patrimonio" routerLinkActive="active-link" class="nav-link-item" (click)="onNavigate()">
+      <span class="nav-icon" aria-hidden="true">
+        <i class="fa-solid fa-landmark"></i>
+      </span>
+      <span class="nav-label">Armario Virtual</span>
+    </a>
+
+    <a *ngIf="isAdmin" routerLink="/tickets" routerLinkActive="active-link" class="nav-link-item" (click)="onNavigate()">
+      <span class="nav-icon" aria-hidden="true">
+        <i class="fa-solid fa-ticket"></i>
+      </span>
+      <span class="nav-label">Tickets</span>
+    </a>
+
+    <a *ngIf="isAdmin" routerLink="/avisos" routerLinkActive="active-link" class="nav-link-item" (click)="onNavigate()">
+      <span class="nav-icon" aria-hidden="true">
+        <i class="fa-solid fa-bell"></i>
+      </span>
+      <span class="nav-label">Avisos</span>
+    </a>
+
+    <a *ngIf="isHermano" routerLink="/portal-hermano" routerLinkActive="active-link" class="nav-link-item" (click)="onNavigate()">
+      <span class="nav-icon" aria-hidden="true">
+        <i class="fa-solid fa-user"></i>
+      </span>
+      <span class="nav-label">Portal del Hermano</span>
+    </a>
+
+    <a *ngIf="isHermano" routerLink="/eventos" routerLinkActive="active-link" class="nav-link-item" (click)="onNavigate()">
+      <span class="nav-icon" aria-hidden="true">
+        <i class="fa-solid fa-calendar-check"></i>
+      </span>
+      <span class="nav-label">Mis Eventos</span>
+    </a>
+  </nav>
 </aside>

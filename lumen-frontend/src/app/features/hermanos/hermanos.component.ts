@@ -1,100 +1,42 @@
-import { Component, OnInit } from '@angular/core';
-
-import { Hermano } from '../../core/models/hermano.model';
-import { HermanoService } from '../../core/services/hermano.service';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatIconModule } from '@angular/material/icon';
-import { FormsModule } from '@angular/forms';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+
+import { CensoListComponent } from '../../components/censo/censo-list.component';
+import { GestionEconomicaComponent } from '../../components/gestion-economica/gestion-economica.component';
+import { InformesComponent } from '../../components/informes/informes.component';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-hermanos',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatPaginatorModule, MatIconModule],
+  imports: [
+    CommonModule,
+    CensoListComponent,
+    GestionEconomicaComponent,
+    InformesComponent
+  ],
   templateUrl: './hermanos.component.html',
   styleUrls: ['./hermanos.component.scss']
 })
-export class HermanosComponent implements OnInit {
-  hermanos: Hermano[] = [];
+export class HermanosComponent {
+  activeTab: 'hermanos' | 'economica' | 'informes' = 'hermanos';
 
-  nuevoHermano = {
-    nombre: '',
-    apellidos: '',
-    email: '',
-    numeroHermano: null as number | null
-  };
+  constructor(private readonly authService: AuthService) {}
 
-  pageSize = 5;
-  pageIndex = 0;
-
-  cargando = false;
-
-  constructor(private readonly hermanoService: HermanoService) {}
-
-  ngOnInit(): void {
-    this.cargarHermanos();
+  get isAdmin(): boolean {
+    const user = this.authService.getUser();
+    return !!user && user.roles?.includes('ADMIN');
   }
 
-  cargarHermanos(): void {
-    this.cargando = true;
-    this.hermanoService.getHermanos().subscribe({
-      next: (data) => {
-        this.hermanos = data;
-        this.pageIndex = 0;
-        this.cargando = false;
-      },
-      error: () => {
-        this.cargando = false;
-      }
-    });
+  mostrarCenso(): void {
+    this.activeTab = 'hermanos';
   }
 
-  guardar(): void {
-    if (!this.nuevoHermano.nombre || !this.nuevoHermano.apellidos || !this.nuevoHermano.email || !this.nuevoHermano.numeroHermano) {
-      return;
-    }
-
-    const hermanoAGuardar = {
-      nombre: this.nuevoHermano.nombre,
-      apellidos: this.nuevoHermano.apellidos,
-      email: this.nuevoHermano.email,
-      numeroHermano: String(this.nuevoHermano.numeroHermano)
-    };
-
-    this.hermanoService.saveHermano(hermanoAGuardar).subscribe({
-      next: () => {
-        this.limpiarFormulario();
-        this.cargarHermanos();
-      },
-      error: () => {
-      }
-    });
+  mostrarGestionEconomica(): void {
+    this.activeTab = 'economica';
   }
 
-  editarHermano(_hermano: Hermano): void {
+  mostrarInformes(): void {
+    this.activeTab = 'informes';
   }
-
-  borrarHermano(hermano: Hermano): void {
-    this.hermanoService.deleteHermano(hermano.id).subscribe({
-      next: () => {
-        this.cargarHermanos();
-      },
-      error: () => {
-      }
-    });
-  }
-
-  private limpiarFormulario(): void {
-    this.nuevoHermano = {
-      nombre: '',
-      apellidos: '',
-      email: '',
-      numeroHermano: null
-    };
-  }
-
-  handlePage(event: PageEvent) {
-  this.pageIndex = event.pageIndex;
-  this.pageSize = event.pageSize;
-}
 }

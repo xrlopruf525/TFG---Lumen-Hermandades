@@ -1,22 +1,22 @@
 .lumen-title {
   margin: 0;
-  color: #3a0f1a;
+  color: #9B1EB9;
   font-weight: 700;
   letter-spacing: 0.3px;
 }
 
 .card {
-  border: 1px solid #d7d1d3;
+  border: 1px solid rgba(90, 19, 35, 0.12);
 }
 
 thead th {
-  background-color: #101826;
-  color: #f5f3f4;
+  background-color: #9B1EB9;
+  color: #fff7f2;
 }
 
 .btn-success {
-  background-color: #5a1323;
-  border-color: #5a1323;
+  background-color: #9B1EB9;
+  border-color: #9B1EB9;
 }
 
 .btn-success:hover,
@@ -28,4 +28,33 @@ thead th {
 table td,
 table th {
   vertical-align: middle;
+}
+
+/* Tabs styling for hermanos feature */
+.hermanos-container {
+  .tabs-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .tab-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(90, 19, 35, 0.12);
+    padding: 0.65rem 1rem;
+    border-radius: 999px;
+    color:#4b3f42;
+    cursor:pointer;
+    box-shadow: 0 8px 18px rgba(68, 41, 33, 0.06);
+  }
+  .tab-button.active {
+    background: linear-gradient(90deg, rgba(90, 19, 35, 0.1), rgba(179, 138, 61, 0.1));
+    border-color: rgba(90, 19, 35, 0.18);
+    color:#9B1EB9;
+    box-shadow: 0 10px 22px rgba(90, 19, 35, 0.08);
+  }
 }

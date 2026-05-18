@@ -1,0 +1,287 @@
+:host {
+  display: block;
+}
+
+.censo-list {
+  background: linear-gradient(180deg, #ffffff 0%, #fbfbfd 100%);
+  border: 1px solid #d8dee6;
+  border-radius: 14px;
+  padding: 1rem;
+  box-shadow: 0 10px 30px rgba(15, 27, 43, 0.06);
+}
+
+.censo-list__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.censo-list__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.file-input-hidden {
+  display: none;
+}
+
+.censo-list__header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #381824;
+}
+
+.censo-list__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.censo-list__header p {
+  margin: 0.25rem 0 0;
+  color: #5f6b7a;
+  font-size: 0.9rem;
+}
+
+.censo-list__controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
+  margin-bottom: 1rem;
+}
+
+.primary-btn {
+  border: 1px solid #9B1EB9;
+  background: #9B1EB9;
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 0.5rem 0.8rem;
+  font-weight: 700;
+}
+
+.primary-btn:hover {
+  background: #441018;
+  border-color: #441018;
+}
+
+.censo-list__controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-weight: 600;
+  color: #27384f;
+  font-size: 0.9rem;
+}
+
+.censo-list__controls input,
+.censo-list__controls select {
+  width: 100%;
+  border: 1px solid #c7ced8;
+  border-radius: 8px;
+  padding: 0.55rem 0.75rem;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 980px;
+}
+
+th,
+td {
+  border-bottom: 1px solid #e8edf3;
+  text-align: left;
+  padding: 0.7rem;
+  color: #223248;
+}
+
+th {
+  background: #f5f8fc;
+}
+
+th button {
+  all: unset;
+  cursor: pointer;
+  font-weight: 700;
+  color: #1d3b64;
+}
+
+.actions-col {
+  min-width: 170px;
+}
+
+.action-btn {
+  display: inline-block;
+  text-decoration: none;
+  border: 1px solid #cfd6df;
+  background: #f8fafc;
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  margin-right: 0.4rem;
+  color: #6b7686;
+  font-size: 0.82rem;
+}
+
+.action-btn--danger {
+  border-color: #f1c7c2;
+  color: #b42318;
+  background: #fff5f4;
+}
+
+.action-btn--active {
+  border-color: #9B1EB9;
+  color: #9B1EB9;
+  font-weight: 700;
+}
+
+.status-pill {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.status-pill--active {
+  background: #e8f6ef;
+  color: #067647;
+}
+
+.status-pill--pending {
+  background: #fff4db;
+  color: #b54708;
+}
+
+.status-pill--inactive {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.status-pill--deceased {
+  background: #f2f4f7;
+  color: #344054;
+}
+
+.quota-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 7.5rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.quota-pill--pending {
+  background: #fff4e5;
+  color: #b45309;
+  border-color: #fed7aa;
+}
+
+.quota-pill--paid {
+  background: #ecfdf3;
+  color: #047857;
+  border-color: #a7f3d0;
+}
+
+.quota-pill--neutral {
+  background: #eef2ff;
+  color: #4338ca;
+  border-color: #c7d2fe;
+}
+.status-pill--neutral {
+  background: #eef2f6;
+  color: #425466;
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.9rem;
+  color: #4b5b70;
+  font-size: 0.88rem;
+}
+
+.pagination__controls {
+  display: flex;
+  align-items: center;
+}
+
+.empty-state,
+.message {
+  text-align: center;
+  color: #5f6b7a;
+  padding: 1rem;
+}
+
+.message--error {
+  color: #b42318;
+  margin: 0.7rem 0 0;
+}
+
+.censo-list__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.secondary-btn {
+  border: 1px solid #d0d7de;
+  background: #ffffff;
+  color: #1f2937;
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.secondary-btn:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.message--success {
+  color: #067647;
+  margin: 0.7rem 0 0;
+}
+
+@media (max-width: 920px) {
+  .censo-list__controls {
+    grid-template-columns: 1fr;
+  }
+
+  .censo-list__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pagination {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .censo-list__header-actions {
+    width: 100%;
+  }
+
+  .censo-list__header-actions .primary-btn,
+  .censo-list__header-actions .secondary-btn {
+    width: 100%;
+  }
+}

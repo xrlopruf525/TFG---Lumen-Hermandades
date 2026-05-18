@@ -1,4 +1,196 @@
-<section class="page-wrapper">
-  <h1>Dashboard</h1>
-  <p>Ruta protegida de ejemplo.</p>
+<section class="dashboard">
+  <!-- Header -->
+  <header class="dashboard__header">
+    <div>
+      <h1 class="dashboard__title">Panel de Administración</h1>
+      <p class="dashboard__subtitle">Resumen operativo con datos reales del censo, cuotas y gastos.</p>
+    </div>
+  </header>
+
+  <div class="dashboard__status" *ngIf="loading">Cargando datos del panel...</div>
+  <div class="dashboard__status dashboard__status--error" *ngIf="!loading && errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Metrics Cards -->
+  <section class="metrics-grid">
+    <!-- Card 1: Hermanos -->
+    <div class="metric-card">
+      <div class="metric-card__icon metric-card__icon--blue">
+        <i class="fa-solid fa-users"></i>
+      </div>
+      <div class="metric-card__content">
+        <p class="metric-card__label">Hermanos Activos</p>
+        <p class="metric-card__value">{{ totalHermanos }}</p>
+        <p class="metric-card__change">Datos reales del censo</p>
+      </div>
+    </div>
+
+    <!-- Card 2: Cuotas -->
+    <div class="metric-card">
+      <div class="metric-card__icon metric-card__icon--orange">
+        <i class="fa-solid fa-calendar-days"></i>
+      </div>
+      <div class="metric-card__content">
+        <p class="metric-card__label">Cuotas Pendientes</p>
+        <p class="metric-card__value">{{ cuotasPendientes }}</p>
+        <p class="metric-card__change">Cuotas sin pagar</p>
+      </div>
+    </div>
+
+    <!-- Card 3: Gastos -->
+    <div class="metric-card">
+      <div class="metric-card__icon metric-card__icon--purple">
+        <i class="fa-solid fa-money-bill"></i>
+      </div>
+      <div class="metric-card__content">
+        <p class="metric-card__label">Gastos del mes</p>
+        <p class="metric-card__value">{{ gastosRecientes | currency }}</p>
+        <p class="metric-card__change">Total del mes en curso</p>
+      </div>
+    </div>
+
+    <!-- Card 4: Alertas -->
+    <div class="metric-card">
+      <div class="metric-card__icon metric-card__icon--green">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <div class="metric-card__content">
+        <p class="metric-card__label">Alertas pendientes</p>
+        <p class="metric-card__value">{{ alertasPendientes }}</p>
+        <p class="metric-card__change">Cuotas vencidas o próximas</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Content Grid: 2 Columns -->
+  <section class="content-grid">
+    <!-- Left Column: Recent Alerts -->
+    <div class="content-card">
+      <header class="content-card__header">
+        <h2>Alertas recientes</h2>
+      </header>
+      <div class="content-card__body">
+        <div *ngIf="notices.length === 0; else noticesList" class="empty-state">
+          <p>No hay alertas de cuotas actualmente</p>
+        </div>
+        <ng-template #noticesList>
+          <ul class="item-list">
+            <li *ngFor="let notice of notices" class="item-list__item">
+              <div class="item-list__badge" [ngClass]="'badge--' + notice.priority"></div>
+              <div class="item-list__content">
+                <p class="item-list__title">{{ notice.title }}</p>
+                <p class="item-list__meta">{{ notice.date | date: 'dd MMM yyyy' }}</p>
+              </div>
+            </li>
+          </ul>
+        </ng-template>
+      </div>
+    </div>
+
+    <!-- Right Column: Recent Expenses -->
+    <div class="content-card">
+      <header class="content-card__header">
+        <h2>Gastos recientes</h2>
+      </header>
+      <div class="content-card__body">
+        <div *ngIf="expenses.length === 0; else expensesList" class="empty-state">
+          <p>No hay gastos recientes</p>
+        </div>
+        <ng-template #expensesList>
+          <ul class="item-list">
+            <li *ngFor="let expense of expenses" class="item-list__item">
+              <div class="item-list__icon">
+                <i class="fa-solid fa-receipt"></i>
+              </div>
+              <div class="item-list__content">
+                <p class="item-list__title">{{ expense.title }}</p>
+                <p class="item-list__meta">{{ expense.date | date: 'dd MMM yyyy' }} · {{ expense.amount | currency }}</p>
+              </div>
+            </li>
+          </ul>
+        </ng-template>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Actions -->
+  <section class="quick-actions">
+    <button class="quick-btn" (click)="onAddHermano()">
+      <i class="fa-solid fa-user-plus"></i>
+      Añadir Hermano
+    </button>
+    <button class="quick-btn" (click)="onSendNotice()">
+      <i class="fa-solid fa-bell"></i>
+      Enviar Aviso
+    </button>
+    <button class="quick-btn" (click)="onNuevoEvento()">
+      <i class="fa-solid fa-calendar-plus"></i>
+      Nuevo Evento
+    </button>
+  </section>
+
+  <!-- Modal Enviar Aviso -->
+<div class="modal-aviso-backdrop" *ngIf="mostrarModalAviso">
+  <div class="modal-aviso">
+    <div class="modal-aviso-header">
+      <h2>Enviar aviso</h2>
+      <button type="button" class="cerrar-modal" (click)="cerrarModalAviso()" aria-label="Cerrar modal">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <label>Destinatario</label>
+    <select [(ngModel)]="tipoDestinatario">
+      <option value="HERMANO">Hermano concreto</option>
+      <option value="GRUPO">Grupo de hermanos</option>
+      <option value="TODOS">Todos los hermanos</option>
+    </select>
+
+    <div *ngIf="tipoDestinatario === 'HERMANO'">
+      <label>Seleccionar hermano</label>
+      <select [(ngModel)]="idHermanoSeleccionado">
+        <option [ngValue]="null">Selecciona un hermano</option>
+        <option *ngFor="let hermano of hermanos" [ngValue]="hermano.idHermano ?? hermano.id">
+          {{ hermano.nombre }} {{ hermano.primerApellido ?? hermano.primer_apellido ?? '' }}
+        </option>
+      </select>
+    </div>
+
+    <div *ngIf="tipoDestinatario === 'GRUPO'">
+      <label>Seleccionar grupo</label>
+      <select [(ngModel)]="idGrupoSeleccionado">
+        <option [ngValue]="null">Selecciona un grupo</option>
+        <option *ngFor="let grupo of grupos" [ngValue]="grupo.idGrupo ?? grupo.id">
+          {{ grupo.nombre ?? grupo.nombreGrupo }}
+        </option>
+      </select>
+    </div>
+
+    <label>Asunto</label>
+    <input
+      type="text"
+      [(ngModel)]="asuntoAviso"
+      placeholder="Ej: Ensayo general de costaleros"
+    >
+
+    <label>Mensaje</label>
+    <textarea
+      rows="6"
+      [(ngModel)]="mensajeAviso"
+      placeholder="Escribe aquí el aviso..."
+    ></textarea>
+
+    <div class="modal-aviso-actions">
+      <button type="button" class="btn-cancelar" (click)="cerrarModalAviso()">
+        Cancelar
+      </button>
+
+      <button type="button" class="btn-enviar" (click)="enviarAviso()" [disabled]="enviandoAviso">
+        {{ enviandoAviso ? 'Enviando...' : 'Enviar correo' }}
+      </button>
+    </div>
+  </div>
+</div>
+
 </section>

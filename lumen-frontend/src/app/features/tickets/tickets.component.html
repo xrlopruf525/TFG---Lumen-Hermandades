@@ -1,0 +1,164 @@
+<section class="tickets-page">
+  <header class="tickets-hero">
+    <div class="hero-card">
+      <div class="hero-copy">
+        <p class="eyebrow">Tesorería</p>
+        <h2>Crea recibos y tickets de pago para los hermanos</h2>
+        <p class="hero-text">Genera el ticket, descárgalo en PDF y mantén el historial ordenado desde un mismo panel.</p>
+      </div>
+
+      <div class="hero-stats">
+        <article class="hero-stat">
+          <span>Tickets creados</span>
+          <strong>{{ totalTickets }}</strong>
+        </article>
+        <article class="hero-stat">
+          <span>Últimos generados</span>
+          <strong>{{ ticketsRecientes.length }}</strong>
+        </article>
+        <article class="hero-stat hero-stat--accent">
+          <span>Importe total</span>
+          <strong>{{ totalImporte | currency:'EUR':'symbol':'1.0-0' }}</strong>
+        </article>
+      </div>
+    </div>
+  </header>
+
+  <div *ngIf="loading" class="loading-state">Cargando datos...</div>
+  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+  <div *ngIf="!loading" class="layout-grid">
+    <section class="panel form-panel">
+      <div class="panel__header">
+        <h3>Nuevo Ticket</h3>
+        <p>Selecciona el hermano, vincula el evento si procede y genera el PDF.</p>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" class="ticket-form">
+        <div class="ticket-grid">
+          <div class="field">
+            <label>Hermano</label>
+            <select formControlName="idHermano" class="control">
+              <option [ngValue]="null">Seleccionar hermano...</option>
+              <option *ngFor="let hermano of hermanos" [ngValue]="hermano.id">
+                {{ formatHermano(hermano) }}
+              </option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Evento</label>
+            <select formControlName="idEvento" class="control">
+              <option [ngValue]="null">Sin evento asociado</option>
+              <option *ngFor="let evento of eventos" [ngValue]="evento.idEvento">
+                {{ evento.titulo }} - {{ evento.fechaInicio | date:'dd/MM/yyyy' }}
+              </option>
+            </select>
+          </div>
+
+          <div class="field field--full">
+            <label>Concepto</label>
+            <input type="text" formControlName="concepto" class="control" placeholder="Escribe el concepto" />
+          </div>
+
+          <div class="field">
+            <label>Importe (€)</label>
+            <input type="number" formControlName="importe" class="control control--amount" min="0" step="0.01" placeholder="0.00" />
+          </div>
+
+          <div class="field">
+            <label>Fecha de emisión</label>
+            <input type="date" formControlName="fechaEmision" class="control" />
+          </div>
+        </div>
+
+        <div class="preview-box">
+          <span class="preview-label">Previsualización</span>
+          <strong>{{ conceptoActual || 'Sin concepto' }}</strong>
+        </div>
+
+        <footer class="actions">
+          <button type="submit" class="btn-submit" [disabled]="saving">{{ saving ? 'Generando...' : 'Generar y Descargar PDF' }}</button>
+          <button type="button" class="btn-clear" (click)="limpiar()" [disabled]="saving">Limpiar</button>
+        </footer>
+      </form>
+    </section>
+
+    <aside class="panel recent-panel">
+      <div class="panel__header panel__header--row">
+        <div>
+          <h3>Tickets Recientes</h3>
+          <p>Los últimos recibos listos para descargar.</p>
+        </div>
+        <a href="#historial" class="text-link">Ver historial</a>
+      </div>
+
+      <div class="recent-list" *ngIf="ticketsRecientes.length > 0; else emptyRecent">
+        <article class="recent-card" *ngFor="let ticket of ticketsRecientes; trackBy: trackByTicket">
+          <div class="recent-card__top">
+            <div>
+              <span class="ticket-code">TK-{{ ticket.idTicket }}</span>
+              <h4>{{ ticket.nombreHermano }}</h4>
+            </div>
+            <button type="button" class="icon-btn" (click)="descargarTicketPdf(ticket.idTicket)" [disabled]="downloadBusyId === ticket.idTicket">
+              ⤓
+            </button>
+          </div>
+          <p class="ticket-concept">{{ ticket.concepto }}</p>
+          <div class="ticket-meta">
+            <span>{{ ticket.fechaEmision | date:'dd/MM/yyyy' }}</span>
+            <strong>{{ ticket.importe | currency:'EUR':'symbol':'1.0-0' }}</strong>
+          </div>
+        </article>
+      </div>
+
+      <ng-template #emptyRecent>
+        <div class="empty-state">Todavía no hay tickets generados.</div>
+      </ng-template>
+    </aside>
+  </div>
+
+  <section class="panel history-panel" *ngIf="!loading" id="historial">
+    <div class="panel__header panel__header--row">
+      <div>
+        <h3>Historial de Tickets</h3>
+        <p>Consulta y descarga todos los tickets generados.</p>
+      </div>
+    </div>
+
+    <div class="table-wrap" *ngIf="tickets.length > 0; else emptyHistory">
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>Ticket</th>
+            <th>Hermano</th>
+            <th>Evento</th>
+            <th>Concepto</th>
+            <th>Fecha</th>
+            <th>Importe</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let ticket of tickets">
+            <td>TK-{{ ticket.idTicket }}</td>
+            <td>{{ ticket.nombreHermano }}</td>
+            <td>{{ ticket.tituloEvento || 'Sin evento asociado' }}</td>
+            <td>{{ ticket.concepto }}</td>
+            <td>{{ ticket.fechaEmision | date:'dd/MM/yyyy' }}</td>
+            <td>{{ ticket.importe | currency:'EUR':'symbol':'1.0-0' }}</td>
+            <td>
+              <button type="button" class="link-action" (click)="descargarTicketPdf(ticket.idTicket)" [disabled]="downloadBusyId === ticket.idTicket">
+                Descargar PDF
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ng-template #emptyHistory>
+      <div class="empty-state">No hay tickets registrados.</div>
+    </ng-template>
+  </section>
+</section>
